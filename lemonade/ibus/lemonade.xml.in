@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- filename: lemonade.xml -->
+<component>
+        <name>${IBUS_BUS_NAME}</name>
+        <description>${PROJECT_DESCRIPTION}</description>
+        <exec>${CMAKE_INSTALL_FULL_LIBEXECDIR}/ibus-engine-lemonade --ibus</exec>
+        <version>${PROJECT_VERSION_STRING_FULL}</version>
+        <author>${AUTHOR_XML_ESCAPED}</author>
+        <license>${PROJECT_LICENSE}</license>
+        <homepage>${PROJECT_HOMEPAGE}</homepage>
+        <textdomain>${IBUS_TEXTDOMAIN}</textdomain>
+
+	<engines>
+		<engine>
+                        <name>${PROJECT_SHORTNAME}</name>
+                        <language>${IBUS_LANGUAGE}</language>
+                        <license>${PROJECT_LICENSE}</license>
+                        <author>${AUTHOR_XML_ESCAPED}</author>
+                        <icon>${IBUS_ICON}</icon>
+                        <layout>${IBUS_LAYOUT}</layout>
+                        <longname>${PROJECT_LONGNAME}</longname>
+                        <description>${PROJECT_DESCRIPTION}</description>
+			<rank>99</rank>
+                        <symbol>&#x1F34B;</symbol>
+			<setup>/usr/lib/ibus/ibus-setup-pinyin pinyin</setup>
+		</engine>
+	</engines>
+
+</component>

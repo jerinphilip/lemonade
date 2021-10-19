@@ -1,0 +1,7 @@
+build/
+dist/
+
+.*sw[op]
+
+lemonade/ibus/application.h
+

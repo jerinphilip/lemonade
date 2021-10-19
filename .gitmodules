@@ -1,0 +1,12 @@
+[submodule "3rd_party/bergamot-translator"]
+	path = 3rd_party/bergamot-translator
+	url = https://github.com/browsermt/bergamot-translator
+[submodule "3rd_party/rapidjson"]
+	path = 3rd_party/rapidjson
+	url = https://github.com/Tencent/rapidjson
+[submodule "3rd_party/fmt"]
+	path = 3rd_party/fmt
+	url = https://github.com/fmtlib/fmt
+[submodule "3rd_party/Simple-WebSocket-Server"]
+	path = 3rd_party/Simple-WebSocket-Server
+	url = https://gitlab.com/eidheim/Simple-WebSocket-Server
