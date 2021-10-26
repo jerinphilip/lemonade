@@ -36,6 +36,10 @@ private:
 
   g::LookupTable generateLookupTable(const std::vector<std::string> &entries);
 
+  void updateBuffer(const std::string &append);
+  void refreshTranslation();
+  void commit();
+
   std::string buffer_ = "";
   std::string translationBuffer_ = "";
 
