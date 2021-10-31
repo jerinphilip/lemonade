@@ -16,41 +16,34 @@ namespace lemonade {
 ModelInventory::ModelInventory(const std::string &modelsJSON,
                                const std::string &modelsDir)
     : logger_("inventory") {
-  // std::cout << modelsJSON_ << std::endl;
 
-  int argc = 1;
-  char *argv[] = {"lemonade"};
+  int argc = 0;
+  char **argv = {};
   QCoreApplication(argc, argv);
   QCoreApplication::setApplicationName("lemonade");
 
   modelsJSON_ =
       QStandardPaths::locate(QStandardPaths::AppConfigLocation, "models.json")
           .toStdString();
+
+  inventory_ = readInventoryFromDisk(modelsJSON_);
+
   modelsDir_ = QStandardPaths::locate(QStandardPaths::AppDataLocation, "models",
                                       QStandardPaths::LocateDirectory)
                    .toStdString();
-
-  inventory_ = readInventoryFromDisk();
   // LEMONADE_ABORT_IF(!inventory_.HasMember("models"), "No models found");
   const rapidjson::Value &models = inventory_["models"];
 
   for (size_t i = 0; i < models.Size(); i++) {
     const rapidjson::Value &entry = models[i];
-    // std::cout << i << " " << entry.IsObject() << std::endl;
-    // std::cout << entry.HasMember("shortName") << std::endl;
-    // std::cout << "Parsing " << entry["name"].GetString() << std::endl;
     std::string type = entry["type"].GetString();
     if (type == "tiny") {
-      // std::cout << "Inserting " << entry["src"].GetString() << "-"
-      //           << entry["trg"].GetString() << std::endl;
       LanguageDirection direction =
           std::make_pair(entry["src"].GetString(), entry["trg"].GetString());
 
-      ModelInfo modelInfo{/*name=*/
-                          entry["name"].GetString(),
-                          /*type=*/entry["type"].GetString(),
-                          /*code=*/entry["code"].GetString(),
-                          /*direction=*/direction};
+      ModelInfo modelInfo{entry["name"].GetString(), entry["type"].GetString(),
+                          entry["code"].GetString(), direction};
+
       languageDirections_[direction] = modelInfo;
 
       logger_.log(fmt::format("Found model {} ({} -> {})", modelInfo.code,
@@ -81,8 +74,9 @@ ModelInventory::Hash::operator()(const LanguageDirection &direction) const {
   return seed;
 }
 
-rapidjson::Document ModelInventory::readInventoryFromDisk() {
-  FILE *fp = fopen(modelsJSON_.c_str(), "r"); // non-Windows use "r"
+rapidjson::Document
+ModelInventory::readInventoryFromDisk(const std::string &modelsJSON) {
+  FILE *fp = fopen(modelsJSON.c_str(), "r"); // non-Windows use "r"
   char readBuffer[65536];
   rapidjson::FileReadStream fReadStream(fp, readBuffer, sizeof(readBuffer));
   rapidjson::Document d;

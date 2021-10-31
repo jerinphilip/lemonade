@@ -37,7 +37,8 @@ private:
   std::string modelsDir_;
   std::string modelsJSON_;
 
-  rapidjson::Document readInventoryFromDisk();
+  static rapidjson::Document
+  readInventoryFromDisk(const std::string &modelsJSON);
 
   Logger logger_;
 };
