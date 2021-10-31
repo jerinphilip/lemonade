@@ -24,7 +24,6 @@ class Config:
     archive_dir: str = os.path.join(HOME, ".{}".format(APP), "archives")
     models_dir: str = os.path.join(HOME, ".{}".format(APP), "models")
 
-config = Config()
 
 def create_required_dirs(config):
     os.makedirs(config.cache_dir, exist_ok=True)
@@ -92,11 +91,11 @@ def patch_marian_for_bergamot(fpath, output_path, quality=False):
         print(yaml.dump(data, sort_keys=False), file=ofp)
 
 
-
-if __name__ == '__main__':
-    parser = ArgumentParser("Model manager to download models for bergamot")
+def download(config):
     create_required_dirs(config)
+    print("Getting inventory from {}....".format(config.url), end = '')
     data = get_inventory(config.url, config.models_file)
+    print("Done.")
     for model in data["models"]:
         model_archive ='{}.tar.gz'.format(model["shortName"])
         save_location = os.path.join(config.archive_dir, model_archive)
@@ -106,11 +105,45 @@ if __name__ == '__main__':
             model_archive.extractall(config.models_dir)
             model_dir = os.path.join(config.models_dir, fprefix)
             link = os.path.join(config.models_dir, model["code"])
+            print("Downloading and extracting {} into ...{}".format(model["code"], model_dir), end = ' ')
+
             if not os.path.exists(link):
                 os.symlink(model_dir, link)
 
             config_path = os.path.join(link, "config.intgemm8bitalpha.yml")
             bergamot_config_path = os.path.join(link, "config.bergamot.yml")
             patch_marian_for_bergamot(config_path, bergamot_config_path)
-            print(model, model_dir, link)
+            print("Done.")
+
+def listModels(config):
+    data = get_inventory(config.url, config.models_file)
+    print("The following models are available:\n")
+    counter = 0
+    for model in data["models"]:
+        fprefix = hardCodeFpaths(model["url"])
+        model_dir = os.path.join(config.models_dir, fprefix)
+        if (os.path.exists(model_dir)):
+            counter += 1
+            print(' {}.'.format(str(counter).rjust(4)), model["code"], model["name"])
+    print()
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser("Model manager to download models for bergamot")
+    subparsers = parser.add_subparsers(title='subcommands',
+                                 description='valid subcommands',
+                                 help='additional help', dest='subcommand')
+
+    ls = subparsers.add_parser("ls")
+    fetch = subparsers.add_parser("fetch")
+    fetch.add_argument("--code", type=str, required=False, help="Fetch model with given code. Use ls to list available models")
+    fetch.add_argument("--all", type=bool)
+
+    args = parser.parse_args()
+    config = Config()
+
+    if (args.subcommand == 'fetch'):
+        download(config)
+    elif (args.subcommand == 'ls'):
+        listModels(config)
 
