@@ -13,9 +13,7 @@
 
 namespace lemonade {
 
-ModelInventory::ModelInventory(const std::string &modelsJSON,
-                               const std::string &modelsDir)
-    : logger_("inventory") {
+ModelInventory::ModelInventory() : logger_("inventory") {
 
   int argc = 0;
   char **argv = {};

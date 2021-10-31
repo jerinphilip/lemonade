@@ -20,7 +20,7 @@ public:
     LanguageDirection direction;
   };
 
-  ModelInventory(const std::string &modelsJSON, const std::string &modelsDir);
+  ModelInventory();
 
   std::optional<ModelInfo> query(const std::string &source,
                                  const std::string &target) const;
