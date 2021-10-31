@@ -10,3 +10,6 @@
 [submodule "3rd_party/pybind11"]
 	path = 3rd_party/pybind11
 	url = https://github.com/pybind/pybind11
+[submodule "3rd_party/crow"]
+	path = 3rd_party/crow
+	url = https://github.com/CrowCpp/crow

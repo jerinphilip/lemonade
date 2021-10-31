@@ -43,7 +43,6 @@ ModelInventory::ModelInventory() : logger_("inventory") {
                           entry["code"].GetString(), direction};
 
       languageDirections_[direction] = modelInfo;
-
       logger_.log(fmt::format("Found model {} ({} -> {})", modelInfo.code,
                               modelInfo.direction.first,
                               modelInfo.direction.second));
