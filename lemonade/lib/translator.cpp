@@ -33,10 +33,9 @@ void Translator::translate(std::string input, const std::string &source,
       model =
           service_.createCompatibleModel(modelConfig, std::move(memoryBundle));
 
-      manager_.cacheModel(m.code, model);
-
       std::cout << fmt::format("Model building from bundle took {} seconds.\n",
                                timer.elapsed());
+      manager_.cacheModel(m.code, model);
     }
 
     marian::bergamot::ResponseOptions responseOptions;

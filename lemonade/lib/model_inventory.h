@@ -1,20 +1,13 @@
 #pragma once
 #include "logging.h"
 #include "rapidjson/document.h"
+#include <QStandardPaths>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
 namespace lemonade {
-
-#define LEMONADE_ABORT_IF(cond, message)                                       \
-  do {                                                                         \
-    if ((cond)) {                                                              \
-      std::cerr << message << std::endl;                                       \
-      std::abort();                                                            \
-    }                                                                          \
-  } while (0)
 
 class ModelInventory {
 public:
@@ -27,7 +20,7 @@ public:
     LanguageDirection direction;
   };
 
-  ModelInventory(const std::string &modelsJSON, const std::string &modelsDir);
+  ModelInventory();
 
   std::optional<ModelInfo> query(const std::string &source,
                                  const std::string &target) const;
@@ -44,7 +37,8 @@ private:
   std::string modelsDir_;
   std::string modelsJSON_;
 
-  rapidjson::Document readInventoryFromDisk();
+  static rapidjson::Document
+  readInventoryFromDisk(const std::string &modelsJSON);
 
   Logger logger_;
 };

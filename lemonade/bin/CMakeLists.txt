@@ -3,6 +3,9 @@ target_link_libraries(lemonade-bin PRIVATE lemonade)
 target_include_directories(lemonade-bin PRIVATE ${LEMONADE_INCLUDE_DIRECTORIES})
 set_target_properties(lemonade-bin PROPERTIES OUTPUT_NAME lemonade)
 
+add_executable(lemonade-driver driver.cpp )
+target_link_libraries(lemonade-driver PRIVATE lemonade)
+target_include_directories(lemonade-driver PRIVATE ${LEMONADE_INCLUDE_DIRECTORIES})
 
 add_executable(lemonade-server server.cpp)
 target_link_libraries(lemonade-server PRIVATE lemonade simple-websocket-server)

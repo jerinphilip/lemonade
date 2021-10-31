@@ -8,7 +8,7 @@ set(LIBRARY_SOURCES
 )
 
 add_library(lemonade STATIC ${LIBRARY_SOURCES})
-target_link_libraries(lemonade PUBLIC bergamot-translator marian ${CMAKE_DL_LIBS})
+target_link_libraries(lemonade PUBLIC ${LINK_LIBRARIES})
 target_include_directories(lemonade PRIVATE ${LEMONADE_INCLUDE_DIRECTORIES})
 
 # For IWYU

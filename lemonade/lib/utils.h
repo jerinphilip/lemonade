@@ -8,8 +8,5 @@
 namespace lemonade {
 
 std::string currentTime();
-std::string home();
-std::string modelsJSON();
-std::string modelsDir();
 
 } // namespace lemonade

@@ -10,7 +10,8 @@ namespace lemonade::ibus {
 
 namespace {
 std::string getIBUSLoggingDirectory() {
-  return fmt::format("{}/.lemonade/ibus.log", home());
+  // FIXME, hardcode for now. IBUS will be fixed separately.
+  return fmt::format("{}/.lemonade/ibus.log", std::getenv("HOME"));
 }
 } // namespace
 
