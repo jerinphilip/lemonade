@@ -8,21 +8,20 @@ from dataclasses import dataclass
 import os
 import tarfile
 from urllib.parse import urlparse
+from appdirs import AppDirs
 
 APP = "lemonade"
-HOME = os.environ.get("HOME")
-CACHE_DIR = os.environ.get("XDG_CACHE_HOME", os.path.join(HOME, ".cache"))
-CONFIG_DIR = os.environ.get("XDG_CONFIG_HOME", os.path.join(HOME, ".config"))
+appDir = AppDirs("lemonade")
 
 @dataclass
 class Config:
     url : str = "https://translatelocally.com/models.json"
-    cache_dir: str = os.path.join(CACHE_DIR, APP)
-    config_dir: str = os.path.join(CONFIG_DIR, APP)
-    models_file: str = os.path.join(CONFIG_DIR, APP, "models.json")
-    data_dir: str = os.path.join(HOME, ".{}".format(APP))
-    archive_dir: str = os.path.join(HOME, ".{}".format(APP), "archives")
-    models_dir: str = os.path.join(HOME, ".{}".format(APP), "models")
+    cache_dir: str = appDir.user_cache_dir
+    config_dir: str = appDir.user_config_dir
+    models_file: str = os.path.join(appDir.user_config_dir, "models.json")
+    data_dir: str = appDir.user_data_dir
+    archive_dir: str = os.path.join(appDir.user_data_dir, "archives")
+    models_dir: str = os.path.join(appDir.user_data_dir, "models")
 
 
 def create_required_dirs(config):

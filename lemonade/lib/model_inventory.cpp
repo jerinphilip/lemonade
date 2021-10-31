@@ -1,6 +1,8 @@
 #include "model_inventory.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#include <QCommandLineParser>
+#include <QStandardPaths>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -13,12 +15,23 @@ namespace lemonade {
 
 ModelInventory::ModelInventory(const std::string &modelsJSON,
                                const std::string &modelsDir)
-    : modelsJSON_(modelsJSON), modelsDir_(modelsDir), logger_("inventory") {
+    : logger_("inventory") {
   // std::cout << modelsJSON_ << std::endl;
 
-  inventory_ = readInventoryFromDisk();
+  int argc = 1;
+  char *argv[] = {"lemonade"};
+  QCoreApplication(argc, argv);
+  QCoreApplication::setApplicationName("lemonade");
 
-  LEMONADE_ABORT_IF(!inventory_.HasMember("models"), "No models found");
+  modelsJSON_ =
+      QStandardPaths::locate(QStandardPaths::AppConfigLocation, "models.json")
+          .toStdString();
+  modelsDir_ = QStandardPaths::locate(QStandardPaths::AppDataLocation, "models",
+                                      QStandardPaths::LocateDirectory)
+                   .toStdString();
+
+  inventory_ = readInventoryFromDisk();
+  // LEMONADE_ABORT_IF(!inventory_.HasMember("models"), "No models found");
   const rapidjson::Value &models = inventory_["models"];
 
   for (size_t i = 0; i < models.Size(); i++) {

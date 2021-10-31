@@ -23,6 +23,9 @@ SET(USE_STATIC_LIBS ON CACHE BOOL "Link statically against non-system libs")
 SET(USE_WASM_COMPATIBLE_SOURCE OFF CACHE BOOL "Don't build wasm compatible sources")
 
 find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
+
 
 include(GetVersionFromFile)
 message(STATUS "Project name: ${PROJECT_NAME}")
@@ -44,7 +47,14 @@ set(LEMONADE_INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}
 )
 
-message("${LEMONADE_INCLUDE_DIRECTORIES}")
+set(LINK_LIBRARIES
+    bergamot-translator
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::DBus
+    ${LibArchive_LIBRARIES}
+    ${CMAKE_DL_LIBS} # On unix necessary sometimes
+)
 
 if(UNIX)
 include(GNUInstallDirs)

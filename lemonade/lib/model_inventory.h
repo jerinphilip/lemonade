@@ -1,20 +1,13 @@
 #pragma once
 #include "logging.h"
 #include "rapidjson/document.h"
+#include <QStandardPaths>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
 
 namespace lemonade {
-
-#define LEMONADE_ABORT_IF(cond, message)                                       \
-  do {                                                                         \
-    if ((cond)) {                                                              \
-      std::cerr << message << std::endl;                                       \
-      std::abort();                                                            \
-    }                                                                          \
-  } while (0)
 
 class ModelInventory {
 public:
