@@ -17,15 +17,4 @@ std::string currentTime() {
   return std::string(buffer);
 }
 
-std::string home() {
-  const char *envHome = std::getenv("HOME");
-  return std::string(envHome);
-}
-
-std::string modelsJSON() {
-  return fmt::format("{}/.config/lemonade/models.json", home());
-}
-
-std::string modelsDir() { return fmt::format("{}/.lemonade/models", home()); }
-
 } // namespace lemonade
