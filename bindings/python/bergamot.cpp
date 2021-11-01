@@ -13,21 +13,20 @@
 
 namespace py = pybind11;
 
-using marian::bergamot::Alignment;
 using marian::bergamot::AnnotatedText;
 using marian::bergamot::ByteRange;
 using marian::bergamot::ConcatStrategy;
-using marian::bergamot::Point;
 using marian::bergamot::Response;
 using marian::bergamot::ResponseOptions;
 using Service = marian::bergamot::AsyncService;
 using _Model = marian::bergamot::TranslationModel;
 using Model = std::shared_ptr<_Model>;
+using Alignment = std::vector<std::vector<float>>;
+using Alignments = std::vector<Alignment>;
 
 PYBIND11_MAKE_OPAQUE(std::vector<Response>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::string>);
-PYBIND11_MAKE_OPAQUE(std::vector<Point>);
-PYBIND11_MAKE_OPAQUE(std::vector<Alignment>);
+PYBIND11_MAKE_OPAQUE(Alignments);
 
 // Nothing fancy; Super wasteful.  It is simply easier to do analysis in a
 // Jupyter notebook, @jerinphilip is not doing efficiency here.
@@ -117,10 +116,7 @@ PYBIND11_MODULE(pybergamot, m) {
   py::class_<ResponseOptions>(m, "ResponseOptions")
       .def(py::init<>())
       .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
-      .def_readwrite("alignment", &ResponseOptions::alignment)
-      .def_readwrite("sentenceMappings", &ResponseOptions::sentenceMappings)
-      .def_readwrite("alignmentThreshold",
-                     &ResponseOptions::alignmentThreshold);
+      .def_readwrite("alignment", &ResponseOptions::alignment);
 
   py::enum_<ConcatStrategy>(m, "ConcatStrategy")
       .value("FAITHFUL", ConcatStrategy::FAITHFUL)

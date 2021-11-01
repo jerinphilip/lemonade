@@ -28,7 +28,12 @@ int main() {
 
   // Reference code begins here.
   lemonade::StaticTranslator::Service::Config config;
+
+  // It's important to provide a complete config.
   config.numWorkers = 40;
+  config.cacheMutexBuckets = 40; /* Best if same as threads, or cores */
+  config.cacheEnabled = true;
+  config.cacheSize = 20000;
   lemonade::StaticTranslator translator(config, directions, configFiles);
 
   crow::SimpleApp app;

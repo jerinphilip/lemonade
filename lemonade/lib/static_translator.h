@@ -11,6 +11,9 @@
 #include <optional>
 
 namespace lemonade {
+
+/// StaticTranslator is for providing a cleaner FFI in a language interop
+/// through bindings that doesn't potentially support shared-pointers.
 class StaticTranslator {
 public:
   using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
@@ -20,7 +23,6 @@ public:
   using LanguageDirection = std::pair<std::string, std::string>;
   /// Initialize a service which wraps around service and allows
   /// translate(source-lang, target-lang, query)
-
   StaticTranslator(const Service::Config &config,
                    const std::vector<LanguageDirection> &directions,
                    const std::vector<std::string> &configFiles)
