@@ -38,7 +38,6 @@ LEMONADE_INLINE std::string toJSON<marian::bergamot::ResponseOptions>(
   document.AddMember("qualityScores", options.qualityScores, ator);
   document.AddMember("alignment", options.alignment, ator);
   document.AddMember("sentenceMappings", options.sentenceMappings, ator);
-  document.AddMember("alignmentThreshold", options.alignmentThreshold, ator);
   document.AddMember("concatStrategy", options.concatStrategy, ator);
   return asString(document);
 }
