@@ -14,8 +14,10 @@ class Translator {
 
 public:
   Translator(size_t maxModels, size_t numWorkers)
-      : manager_(maxModels), config_{numWorkers}, service_(config_),
-        inventory_() {}
+      : manager_(maxModels), config_{numWorkers, /*cacheEnabled=*/true,
+                                     /*cacheSize=*/2000,
+                                     /*cacheMutexBuckets=*/numWorkers},
+        service_(config_), inventory_() {}
 
   void translate(std::string input, const std::string &source,
                  const std::string &target,
