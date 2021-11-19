@@ -1,4 +1,4 @@
 add_subdirectory(bergamot-translator EXCLUDE_FROM_ALL)
-add_subdirectory(Simple-WebSocket-Server)
-add_subdirectory(pybind11)
-add_subdirectory(crow)
+add_subdirectory(Simple-WebSocket-Server EXCLUDE_FROM_ALL)
+add_subdirectory(pybind11 EXCLUDE_FROM_ALL)
+add_subdirectory(crow EXCLUDE_FROM_ALL)
