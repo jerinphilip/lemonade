@@ -110,11 +110,14 @@ void LemonadeEngine::refreshTranslation() {
       translator_.btranslate(std::move(bufferCopy), "English", "German");
 
   translationBuffer_ = translation.target.text;
-  std::vector<std::string> entries = {translationBuffer_, buffer_};
+  std::vector<std::string> entries = {buffer_};
   g::LookupTable table = generateLookupTable(entries);
   updateLookupTable(table, /*visible=*/!entries.empty());
 
   if (!buffer_.empty()) {
+    cursorPos_ = translationBuffer_.size();
+    g::Text preEdit(translationBuffer_);
+    updatePreeditText(preEdit, cursorPos_, TRUE);
     showLookupTable();
   }
 }
@@ -125,6 +128,11 @@ void LemonadeEngine::commit() {
   hideLookupTable();
   buffer_.clear();
   translationBuffer_.clear();
+
+  hideLookupTable();
+  cursorPos_ = 0;
+  g::Text preEdit("");
+  updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
 void LemonadeEngine::focusIn(void) {}
