@@ -8,6 +8,32 @@
 
 namespace lemonade::ibus {
 
+LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
+  LemonadeEngine::PropertyRegistry registry;
+  /*
+  Property(const gchar *key,
+           IBusPropType type = PROP_TYPE_NORMAL,
+           IBusText *label = NULL,
+           const gchar *icon = NULL,
+           IBusText *tooltip = NULL,
+           gboolean sensitive = TRUE,
+           gboolean visible = TRUE,
+           IBusPropState state = PROP_STATE_UNCHECKED,
+           IBusPropList *props = NULL)
+  */
+  registry.emplace_back(/*key=*/"source",
+                        /*type=*/PROP_TYPE_NORMAL,
+                        /*label=*/g::Text("source"),
+                        /*icon=*/nullptr,
+                        /*tooltip=*/g::Text("Source language"),
+                        /*sensitive=*/FALSE,
+                        /*visible=*/TRUE,
+                        /*state=*/PROP_STATE_INCONSISTENT,
+                        /*props=*/nullptr);
+  // registry.emplace_back("target", PROP_TYPE_NORMAL, g::Text("target"));
+  return registry;
+}
+
 namespace {
 std::string getIBUSLoggingDirectory() {
   // FIXME, hardcode for now. IBUS will be fixed separately.
@@ -18,9 +44,17 @@ std::string getIBUSLoggingDirectory() {
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine)
     : Engine(engine), logger_("ibus-engine", {getIBUSLoggingDirectory()}),
-      translator_(/*maxModels=*/4, /*numWorkers=*/1) {
+      translator_(/*maxModels=*/4, /*numWorkers=*/1),
+      propertyRegistry_(makeProperties()) {
   logger_.log("Lemonade engine started");
   gint i;
+
+  for (auto &property : propertyRegistry_) {
+    propList_.append(property);
+    logger_.log("Adding property");
+  }
+
+  registerProperties(propList_);
 }
 
 /* destructor */
@@ -28,7 +62,6 @@ LemonadeEngine::~LemonadeEngine(void) { hideLookupTable(); }
 
 gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
                                          guint modifiers) {
-
   if (contentIsPassword())
     return FALSE;
 

@@ -14,6 +14,7 @@ namespace lemonade::ibus {
 // 2. The second suggestion is the raw text the user entered.
 class LemonadeEngine : public Engine {
 public:
+  using PropertyRegistry = std::vector<g::Property>;
   LemonadeEngine(IBusEngine *engine);
   ~LemonadeEngine(void);
 
@@ -32,6 +33,7 @@ public:
   void candidateClicked(guint index, guint button, guint state);
 
 private:
+  PropertyRegistry makeProperties();
   void showSetupDialog(void);
 
   g::LookupTable generateLookupTable(const std::vector<std::string> &entries);
@@ -46,6 +48,9 @@ private:
 
   Logger logger_;
   Translator translator_;
+
+  PropertyRegistry propertyRegistry_;
+  g::PropList propList_;
 };
 
 } // namespace lemonade::ibus
