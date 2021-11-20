@@ -128,6 +128,11 @@ void LemonadeEngine::commit() {
   hideLookupTable();
   buffer_.clear();
   translationBuffer_.clear();
+
+  hideLookupTable();
+  cursorPos_ = 0;
+  g::Text preEdit("");
+  updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
 void LemonadeEngine::focusIn(void) {}
