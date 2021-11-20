@@ -42,6 +42,7 @@ private:
 
   std::string buffer_ = "";
   std::string translationBuffer_ = "";
+  gint cursorPos_;
 
   Logger logger_;
   Translator translator_;
