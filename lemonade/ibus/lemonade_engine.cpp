@@ -28,7 +28,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*tooltip=*/g::Text("Source language"),
                         /*sensitive=*/FALSE,
                         /*visible=*/TRUE,
-                        /*state=*/PROP_STATE_INCONSISTENT,
+                        /*state=*/PROP_STATE_UNCHECKED,
                         /*props=*/nullptr);
   // registry.emplace_back("target", PROP_TYPE_NORMAL, g::Text("target"));
   return registry;
