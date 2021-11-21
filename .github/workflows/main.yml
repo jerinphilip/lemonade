@@ -29,7 +29,7 @@ jobs:
         run: |-
           sudo apt-get update
           sudo apt-get install -y \
-            libgoogle-perftools-dev libprotobuf-dev protobuf-compiler \
+            libprotobuf-dev protobuf-compiler \
             libboost-all-dev ccache \
             libibus-1.0-dev  \
             libpcre++-dev qttools5-dev qtbase5-dev libqt5svg5-dev libarchive-dev libpcre2-dev \
@@ -71,7 +71,7 @@ jobs:
         run: |-
           mkdir -p build
           cd build
-          cmake -L .. -DCOMPILE_TESTS=on -DCOMPILE_PYTHON=on -DUSE_TCMALLOC=off ${{ env.ccache_cmake }}
+          cmake -L .. -DCOMPILE_TESTS=on -DCOMPILE_PYTHON=on ${{ env.ccache_cmake }}
       - name: Build from source
         working-directory: build
         run: make -j2
