@@ -3,6 +3,7 @@ name: "Lemonade main"
   push:
     branches:
     - master
+    - unstable
   pull_request:
     branches:
     - '**'
