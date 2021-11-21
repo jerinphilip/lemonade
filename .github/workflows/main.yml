@@ -31,7 +31,8 @@ jobs:
           sudo apt-get install -y \
             libgoogle-perftools-dev libprotobuf-dev protobuf-compiler \
             libboost-all-dev ccache \
-            libibus-1.0-dev 
+            libibus-1.0-dev  \
+            libpcre++-dev qttools5-dev qtbase5-dev libqt5svg5-dev libarchive-dev libpcre2-dev
       - name: Install MKL
         run: |-
           wget -qO- "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB" | sudo apt-key add -
