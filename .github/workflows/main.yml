@@ -1,4 +1,4 @@
-name: "Lemonade main"
+name: "mega-build"
 'on':
   push:
     branches:
@@ -18,7 +18,7 @@ env:
 
 jobs:
     main:
-      name: "Lemonade tests"
+      name: "liblemonade + ibus-engine + bindings(python)"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
@@ -29,10 +29,9 @@ jobs:
         run: |-
           sudo apt-get update
           sudo apt-get install -y \
-            libprotobuf-dev protobuf-compiler \
-            libboost-all-dev ccache \
-            libibus-1.0-dev  \
-            libpcre++-dev qttools5-dev qtbase5-dev libqt5svg5-dev libarchive-dev libpcre2-dev \
+            ccache  libprotobuf-dev protobuf-compiler \
+            libboost-all-dev libibus-1.0-dev  \
+            qttools5-dev qtbase5-dev libqt5svg5-dev libarchive-dev \
             python3-pybind11 pybind11-dev
       - name: Install MKL
         run: |-
@@ -77,6 +76,3 @@ jobs:
         run: make -j2
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
-      - name: Run unit tests
-        working-directory: build
-        run: ctest
