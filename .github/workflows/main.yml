@@ -18,7 +18,7 @@ env:
 
 jobs:
     main:
-      name: "liblemonade + ibus-engine + bindings(python)"
+      name: "[liblemonade + ibus-engine + bindings{python}]"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
