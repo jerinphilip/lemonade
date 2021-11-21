@@ -1,10 +1,10 @@
 # lemonade
 
-Disclaimer: This repository is experimental, early stages and is very unstable.
-The current state of source is just proof of concept, pending refinement.
-
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) 
 [![build/ubuntu-latest](https://github.com/jerinphilip/lemonade/actions/workflows/main.yml/badge.svg)](./.github/workflows/main.yml)
+
+Disclaimer: This repository is experimental, early stages and is very unstable.
+The current state of source is just proof of concept, pending refinement.
 
 Lemonade is a downstream frontend for
 [bergamot](https://github.com/browsermt/bergamot-translator).  The idea is to have a linux system wide translation-service, which multiple
