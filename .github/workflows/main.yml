@@ -31,7 +31,7 @@ jobs:
           sudo apt-get install -y \
             libgoogle-perftools-dev libprotobuf-dev protobuf-compiler \
             libboost-all-dev ccache \
-            libibus-1.0-dev python-pybind11
+            libibus-1.0-dev 
       - name: Install MKL
         run: |-
           wget -qO- "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB" | sudo apt-key add -
