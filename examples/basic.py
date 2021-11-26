@@ -29,7 +29,7 @@ if __name__ == '__main__':
     options = ResponseOptions();
     options.alignment = True
     options.qualityScores = True
-    options.HTML = False
+    options.HTML = True
 
     model = build_model(service, ende)
 
