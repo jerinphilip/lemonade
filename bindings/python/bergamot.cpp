@@ -2,6 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl_bind.h>
 #include <translator/annotation.h>
+#include <translator/parser.h>
 #include <translator/response.h>
 #include <translator/response_options.h>
 #include <translator/service.h>
@@ -45,6 +46,15 @@ public:
 
     py::call_guard<py::gil_scoped_release> gil_guard();
     service_.reset(std::move(new Service(config)));
+  }
+
+  std::shared_ptr<_Model> modelFromConfig(const std::string &config) {
+    return service_->createCompatibleModel(config);
+  }
+
+  std::shared_ptr<_Model> modelFromConfigPath(const std::string &configPath) {
+    auto config = marian::bergamot::parseOptionsFromFilePath(configPath);
+    return service_->createCompatibleModel(config);
   }
 
   Response translate(Model model, std::string input,
@@ -126,10 +136,15 @@ PYBIND11_MODULE(pybergamot, m) {
   py::bind_vector<std::vector<std::string>>(m, "VectorString");
   py::class_<ServicePyAdapter>(m, "Service")
       .def(py::init<const Service::Config &>())
+      .def("modelFromConfig", &ServicePyAdapter::modelFromConfig)
+      .def("modelFromConfigPath", &ServicePyAdapter::modelFromConfigPath)
       .def("translate", &ServicePyAdapter::translate);
 
   py::class_<Service::Config>(m, "ServiceConfig")
-      .def_readwrite("numWorkers", &Service::Config::numWorkers);
+      .def(py::init<>())
+      .def_readwrite("numWorkers", &Service::Config::numWorkers)
+      .def_readwrite("cacheSize", &Service::Config::cacheSize)
+      .def_readwrite("cacheMutexBuckets", &Service::Config::cacheMutexBuckets);
 
-  py::class_<_Model, std::shared_ptr<_Model>>(m, "Model");
+  py::class_<_Model, std::shared_ptr<_Model>>(m, "TranslationModel");
 }
