@@ -35,8 +35,12 @@ if __name__ == '__main__':
     from examples import EXAMPLES
 
     for example in EXAMPLES:
-        response = service.translate(model, example["input"], options)
-        print('[src] > ', response.source.text)
-        print('[hyp] > ', response.target.text)
-        print('[tgt] > ', example["expectedProjectedString"])
+        try:
+            response = service.translate(model, example["input"], options)
+            print('[src] > ', response.source.text)
+            print('[hyp] > ', response.target.text)
+            print('[tgt] > ', example["expectedProjectedString"])
+            print()
+        except:
+            pass
 
