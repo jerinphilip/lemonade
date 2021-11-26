@@ -126,6 +126,7 @@ PYBIND11_MODULE(pybergamot, m) {
   py::class_<ResponseOptions>(m, "ResponseOptions")
       .def(py::init<>())
       .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
+      .def_readwrite("HTML", &ResponseOptions::HTML)
       .def_readwrite("alignment", &ResponseOptions::alignment);
 
   py::enum_<ConcatStrategy>(m, "ConcatStrategy")

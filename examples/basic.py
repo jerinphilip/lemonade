@@ -29,10 +29,11 @@ if __name__ == '__main__':
     options = ResponseOptions();
     options.alignment = True
     options.qualityScores = True
+    options.HTML = False
 
     model = build_model(service, ende)
 
-    response = service.translate(model, "Hello world", options)
+    response = service.translate(model, "<p>Hello world.</p>", options)
 
     print('[src] > ', response.source.text)
     print('[tgt] > ', response.target.text)
