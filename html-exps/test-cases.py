@@ -42,5 +42,6 @@ if __name__ == '__main__':
             print('[tgt] > ', example["expectedProjectedString"])
             print()
         except:
+            print("Failure on: ", example["input"], file=sys.stderr)
             pass
 
