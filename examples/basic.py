@@ -1,40 +1,51 @@
-import yaml
 import os
-import argparse
 import sys
+import argparse
 from collections import Counter
 from collections import defaultdict
+from argparse import ArgumentParser
 
+# Temporary, should eventually have proper packaging.
 sys.path.insert(0, "../build")
 
 import pybergamot
-from pybergamot import Service, Response, ResponseOptions, ServiceConfig, TranslationModel
-
-def build_model(service, configPath):
-    model = service.modelFromConfigPath(configPath)
-    return model
-
-def build_service():
-    config = ServiceConfig()
-    config.numWorkers = 4;
-    config.cacheSize = 2000;
-    config.cacheMutexBuckets = 18;
-    return Service(config);
+from pybergamot import Service, ResponseOptions, ServiceConfig
 
 
 if __name__ == '__main__':
-    ende = "/home/jerin/.local/share/lemonade/models/ende.student.tiny11/config.bergamot.yml"
-    service = build_service()
+    parser = ArgumentParser("Translate a sample blob of text in python")
+    parser.add_argument('--model-config', type=str, help="Path to model file to use in tag-transfer translation", required=True)
+    parser.add_argument('--num-workers', type=int, help="Number of worker threads to use to translate", default=4)
+    parser.add_argument('--cache-size', type=int, help="How many sentences to hold in cache", default=2000)
+    parser.add_argument('--cache-mutex-buckets', type=int, help="How many mutex buckets to use to reduce contention in cache among workers", default=20)
 
+    args = parser.parse_args()
+
+    # Create config
+    config = ServiceConfig()
+    config.numWorkers = args.num_workers;
+    config.cacheSize = args.cache_size;
+    config.cacheMutexBuckets = args.cache_mutex_buckets;
+    
+    # Build service
+    service = Service(config)
+
+    # Work with one model, loaded from config file
+    model = service.modelFromConfigPath(args.model_config)
+
+    # Configure a few options which require how a Response is constructed
     options = ResponseOptions();
     options.alignment = True
     options.qualityScores = True
-    options.HTML = True
 
-    model = build_model(service, ende)
+    inputs = [
+        "Hello World!",
+        "Goodbye World!"
+    ]
 
-    response = service.translate(model, "<p>Hello world.</p>", options)
+    responses = service.translate(model, inputs, options)
 
-    print('[src] > ', response.source.text)
-    print('[tgt] > ', response.target.text)
+    for response in responses:
+        print('[src] > ', response.source.text)
+        print('[tgt] > ', response.target.text)
 
