@@ -1,5 +1,6 @@
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <translator/annotation.h>
 #include <translator/parser.h>
@@ -44,7 +45,7 @@ public:
         py::module_::import("sys").attr("stderr") // Python output
     );
 
-    py::call_guard<py::gil_scoped_release> gil_guard();
+    py::call_guard<py::gil_scoped_release> gil_guard;
     service_.reset(std::move(new Service(config)));
   }
 
@@ -68,7 +69,7 @@ public:
         py::module_::import("sys").attr("stderr") // Python output
     );
 
-    py::call_guard<py::gil_scoped_release> gil_guard();
+    py::call_guard<py::gil_scoped_release> gil_guard;
 
     // Prepare promises, save respective futures. Have callback's in async set
     // value to the promises.
@@ -137,7 +138,10 @@ PYBIND11_MODULE(pybergamot, m) {
       .def_readonly("target", &Response::target)
       .def_readonly("alignments", &Response::alignments);
 
-  py::bind_vector<std::vector<Response>>(m, "VectorResponse");
+  py::bind_vector<std::vector<std::string>>(m, "VectorString",
+                                            pybind11::module_local(false));
+  py::bind_vector<std::vector<Response>>(m, "VectorResponse",
+                                         pybind11::module_local(false));
 
   py::class_<ResponseOptions>(m, "ResponseOptions")
       .def(py::init<>())
@@ -149,7 +153,6 @@ PYBIND11_MODULE(pybergamot, m) {
       .value("SPACE", ConcatStrategy::SPACE)
       .export_values();
 
-  py::bind_vector<std::vector<std::string>>(m, "VectorString");
   py::class_<ServicePyAdapter>(m, "Service")
       .def(py::init<const Service::Config &>())
       .def("modelFromConfig", &ServicePyAdapter::modelFromConfig)

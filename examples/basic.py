@@ -38,10 +38,10 @@ if __name__ == '__main__':
     options.alignment = True
     options.qualityScores = True
 
-    # TODO: improve
-    inputs = pybergamot.VectorString()
-    inputs.append("Hello World!")
-    inputs.append("Goodbye World!")
+    inputs = [
+        "Hello World!",
+        "Goodbye World!"
+    ]
 
     responses = service.translate(model, inputs, options)
 
