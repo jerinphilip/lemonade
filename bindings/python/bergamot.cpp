@@ -57,8 +57,8 @@ public:
     return service_->createCompatibleModel(config);
   }
 
-  Response translate(Model model, std::string input,
-                     const ResponseOptions &options) {
+  std::vector<Response> translate(Model model, std::vector<std::string> inputs,
+                                  const ResponseOptions &options) {
     py::scoped_ostream_redirect outstream(
         std::cout,                                // std::ostream&
         py::module_::import("sys").attr("stdout") // Python output
@@ -67,18 +67,34 @@ public:
         std::cerr,                                // std::ostream&
         py::module_::import("sys").attr("stderr") // Python output
     );
+
     py::call_guard<py::gil_scoped_release> gil_guard();
 
-    std::promise<Response> responsePromise;
-    std::future<Response> responseFuture = responsePromise.get_future();
+    // Prepare promises, save respective futures. Have callback's in async set
+    // value to the promises.
+    std::vector<std::future<Response>> futures;
+    std::vector<std::promise<Response>> promises;
+    promises.resize(inputs.size());
 
-    auto callback = [&responsePromise](Response &&response) {
-      responsePromise.set_value(std::move(response));
-    };
+    for (size_t i = 0; i < inputs.size(); i++) {
+      auto callback = [&promises, i](Response &&response) {
+        promises[i].set_value(std::move(response));
+      };
 
-    service_->translate(model, std::move(input), std::move(callback), options);
-    responseFuture.wait();
-    return responseFuture.get();
+      service_->translate(model, std::move(inputs[i]), std::move(callback),
+                          options);
+
+      futures.push_back(std::move(promises[i].get_future()));
+    }
+
+    // Wait on all futures to be ready.
+    std::vector<Response> responses;
+    for (size_t i = 0; i < futures.size(); i++) {
+      futures[i].wait();
+      responses.push_back(std::move(futures[i].get()));
+    }
+
+    return responses;
   }
 
 private:
