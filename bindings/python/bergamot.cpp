@@ -1,5 +1,6 @@
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 #include <translator/annotation.h>
 #include <translator/parser.h>
@@ -44,7 +45,7 @@ public:
         py::module_::import("sys").attr("stderr") // Python output
     );
 
-    py::call_guard<py::gil_scoped_release> gil_guard();
+    py::call_guard<py::gil_scoped_release> gil_guard;
     service_.reset(std::move(new Service(config)));
   }
 
@@ -57,8 +58,8 @@ public:
     return service_->createCompatibleModel(config);
   }
 
-  Response translate(Model model, std::string input,
-                     const ResponseOptions &options) {
+  std::vector<Response> translate(Model model, std::vector<std::string> inputs,
+                                  const ResponseOptions &options) {
     py::scoped_ostream_redirect outstream(
         std::cout,                                // std::ostream&
         py::module_::import("sys").attr("stdout") // Python output
@@ -67,18 +68,34 @@ public:
         std::cerr,                                // std::ostream&
         py::module_::import("sys").attr("stderr") // Python output
     );
-    py::call_guard<py::gil_scoped_release> gil_guard();
 
-    std::promise<Response> responsePromise;
-    std::future<Response> responseFuture = responsePromise.get_future();
+    py::call_guard<py::gil_scoped_release> gil_guard;
 
-    auto callback = [&responsePromise](Response &&response) {
-      responsePromise.set_value(std::move(response));
-    };
+    // Prepare promises, save respective futures. Have callback's in async set
+    // value to the promises.
+    std::vector<std::future<Response>> futures;
+    std::vector<std::promise<Response>> promises;
+    promises.resize(inputs.size());
 
-    service_->translate(model, std::move(input), std::move(callback), options);
-    responseFuture.wait();
-    return responseFuture.get();
+    for (size_t i = 0; i < inputs.size(); i++) {
+      auto callback = [&promises, i](Response &&response) {
+        promises[i].set_value(std::move(response));
+      };
+
+      service_->translate(model, std::move(inputs[i]), std::move(callback),
+                          options);
+
+      futures.push_back(std::move(promises[i].get_future()));
+    }
+
+    // Wait on all futures to be ready.
+    std::vector<Response> responses;
+    for (size_t i = 0; i < futures.size(); i++) {
+      futures[i].wait();
+      responses.push_back(std::move(futures[i].get()));
+    }
+
+    return responses;
   }
 
 private:
@@ -121,7 +138,10 @@ PYBIND11_MODULE(pybergamot, m) {
       .def_readonly("target", &Response::target)
       .def_readonly("alignments", &Response::alignments);
 
-  py::bind_vector<std::vector<Response>>(m, "VectorResponse");
+  py::bind_vector<std::vector<std::string>>(m, "VectorString",
+                                            pybind11::module_local(false));
+  py::bind_vector<std::vector<Response>>(m, "VectorResponse",
+                                         pybind11::module_local(false));
 
   py::class_<ResponseOptions>(m, "ResponseOptions")
       .def(py::init<>())
@@ -133,7 +153,6 @@ PYBIND11_MODULE(pybergamot, m) {
       .value("SPACE", ConcatStrategy::SPACE)
       .export_values();
 
-  py::bind_vector<std::vector<std::string>>(m, "VectorString");
   py::class_<ServicePyAdapter>(m, "Service")
       .def(py::init<const Service::Config &>())
       .def("modelFromConfig", &ServicePyAdapter::modelFromConfig)
