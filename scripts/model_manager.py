@@ -74,7 +74,7 @@ def patch_marian_for_bergamot(fpath, output_path, quality=False):
 
     data.update({
         'ssplit-prefix-file': '',
-        'ssplit-mode': 'sentence',
+        'ssplit-mode': 'paragraph',
         'max-length-break': 128,
         'mini-batch-words': 1024,
         'workspace': 128, # shipped models use big workspaces. We'd prefer to keep it low.
