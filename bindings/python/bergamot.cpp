@@ -138,10 +138,8 @@ PYBIND11_MODULE(_bergamot, m) {
       .def_readonly("target", &Response::target)
       .def_readonly("alignments", &Response::alignments);
 
-  py::bind_vector<std::vector<std::string>>(m, "VectorString",
-                                            pybind11::module_local(false));
-  py::bind_vector<std::vector<Response>>(m, "VectorResponse",
-                                         pybind11::module_local(false));
+  py::bind_vector<std::vector<std::string>>(m, "VectorString");
+  py::bind_vector<std::vector<Response>>(m, "VectorResponse");
 
   py::class_<ResponseOptions>(m, "ResponseOptions")
       .def(py::init<>())

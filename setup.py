@@ -140,5 +140,10 @@ setup(
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.6",
     packages=['bergamot'],
-    package_dir={'bergamot': 'bindings/python'}
+    package_dir={'bergamot': 'bindings/python'},
+    install_requires=[
+        'requests',
+        'pyyaml',
+        'appdirs'
+    ]
 )
