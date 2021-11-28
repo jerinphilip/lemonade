@@ -72,7 +72,7 @@ jobs:
       - name: Install onto a virtual environment
         run: |-
           python3 -m venv env
-          python3 -m pip install dist/bergamot-0.0.1-cp39-cp39-linux_x86_64.whl 
+          python3 -m pip install dist/bergamot-*.whl 
       - name: Fetch models from translateLocally repository.
         run: |-
           python3 -m bergamot.pkgmgr fetch 
