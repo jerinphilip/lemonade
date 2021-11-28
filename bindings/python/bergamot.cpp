@@ -102,7 +102,7 @@ private:
   std::unique_ptr<Service> service_{nullptr};
 };
 
-PYBIND11_MODULE(pybergamot, m) {
+PYBIND11_MODULE(_bergamot, m) {
   py::class_<ByteRange>(m, "ByteRange")
       .def(py::init<>())
       .def_readonly("begin", &ByteRange::begin)
@@ -138,10 +138,8 @@ PYBIND11_MODULE(pybergamot, m) {
       .def_readonly("target", &Response::target)
       .def_readonly("alignments", &Response::alignments);
 
-  py::bind_vector<std::vector<std::string>>(m, "VectorString",
-                                            pybind11::module_local(false));
-  py::bind_vector<std::vector<Response>>(m, "VectorResponse",
-                                         pybind11::module_local(false));
+  py::bind_vector<std::vector<std::string>>(m, "VectorString");
+  py::bind_vector<std::vector<Response>>(m, "VectorResponse");
 
   py::class_<ResponseOptions>(m, "ResponseOptions")
       .def(py::init<>())

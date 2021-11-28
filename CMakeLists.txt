@@ -66,7 +66,11 @@ include(GNUInstallDirs)
 
 add_subdirectory(3rd_party)
 add_subdirectory(lemonade)
-add_subdirectory(bindings)
+
+if(COMPILE_PYTHON)
+  add_subdirectory(bindings/python)
+endif(COMPILE_PYTHON)
+
 
 install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
 install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
