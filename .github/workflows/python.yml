@@ -17,8 +17,8 @@ env:
   ccache_cmake: -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache
 
 jobs:
-    main:
-      name: "[liblemonade + bindings{python}]"
+    python:
+      name: "[liblemonade + ibus-engine]"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
@@ -66,11 +66,9 @@ jobs:
         run: |-
           ccache -s # Print current cache stats
           ccache -z # Zero cache entry
-      - name: cmake
+      - name: setup.py 
         run: |-
-          mkdir -p build
-          cd build
-          cmake -L .. -DCOMPILE_TESTS=on -DCOMPILE_PYTHON=on ${{ env.ccache_cmake }}
+          python3 setup.py bdist_wheel
       - name: Build from source
         working-directory: build
         run: make -j2
