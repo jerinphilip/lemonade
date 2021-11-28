@@ -102,7 +102,7 @@ private:
   std::unique_ptr<Service> service_{nullptr};
 };
 
-PYBIND11_MODULE(pybergamot, m) {
+PYBIND11_MODULE(_bergamot, m) {
   py::class_<ByteRange>(m, "ByteRange")
       .def(py::init<>())
       .def_readonly("begin", &ByteRange::begin)
