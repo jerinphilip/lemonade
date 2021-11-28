@@ -69,16 +69,18 @@ jobs:
       - name: setup.py 
         run: |-
           python3 setup.py bdist_wheel
-      - name: Install onto root python lib
-        run: |-
-          python3 -m pip install dist/bergamot-*.whl 
-      - name: Fetch models from translateLocally repository.
-        run: |-
-          python3 -m bergamot.pkgmgr fetch 
 
-      - name: Run the sample python script shipped with module
-        run: |-
-          python3 -m bergamot.cli --config ~/.local/share/lemonade/models/ende-tiny/config.bergamot.yml
+      # We're happy with just compile for the moment, so cache gets some seeding.
+      # - name: Install onto root python lib
+      #   run: |-
+      #     python3 -m pip install dist/bergamot-*.whl 
+      # - name: Fetch models from translateLocally repository.
+      #   run: |-
+      #     python3 -m bergamot.pkgmgr fetch 
+
+      # - name: Run the sample python script shipped with module
+      #   run: |-
+      #     python3 -m bergamot.cli --config ~/.local/share/lemonade/models/ende-tiny/config.bergamot.yml
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
