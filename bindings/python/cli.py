@@ -4,12 +4,7 @@ import argparse
 from collections import Counter
 from collections import defaultdict
 from argparse import ArgumentParser
-
-# Temporary, should eventually have proper packaging.
-sys.path.insert(0, "../build")
-
-import pybergamot
-from pybergamot import Service, ResponseOptions, ServiceConfig
+from ._bergamot import Service, ResponseOptions, ServiceConfig, VectorString
 
 
 if __name__ == '__main__':
@@ -43,7 +38,7 @@ if __name__ == '__main__':
         "Goodbye World!"
     ]
 
-    responses = service.translate(model, inputs, options)
+    responses = service.translate(model, VectorString(inputs), options)
 
     for response in responses:
         print('[src] > ', response.source.text)
