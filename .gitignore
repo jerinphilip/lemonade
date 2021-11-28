@@ -4,4 +4,6 @@ dist/
 
 lemonade/ibus/application.h
 *.egg-info
+*.pyc
+__pycache__
 
