@@ -30,7 +30,15 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_UNCHECKED,
                         /*props=*/nullptr);
-  // registry.emplace_back("target", PROP_TYPE_NORMAL, g::Text("target"));
+  registry.emplace_back(/*key=*/"target",
+                        /*type=*/PROP_TYPE_NORMAL,
+                        /*label=*/g::Text("target"),
+                        /*icon=*/nullptr,
+                        /*tooltip=*/g::Text("Target language"),
+                        /*sensitive=*/FALSE,
+                        /*visible=*/TRUE,
+                        /*state=*/PROP_STATE_UNCHECKED,
+                        /*props=*/nullptr);
   return registry;
 }
 
@@ -48,13 +56,6 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
       propertyRegistry_(makeProperties()) {
   logger_.log("Lemonade engine started");
   gint i;
-
-  for (auto &property : propertyRegistry_) {
-    propList_.append(property);
-    logger_.log("Adding property");
-  }
-
-  registerProperties(propList_);
 }
 
 /* destructor */
@@ -168,7 +169,14 @@ void LemonadeEngine::commit() {
   updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
-void LemonadeEngine::focusIn(void) {}
+void LemonadeEngine::focusIn(void) {
+  for (auto &property : propertyRegistry_) {
+    propList_.append(property);
+    logger_.log("Adding property");
+  }
+
+  registerProperties(propList_);
+}
 
 void LemonadeEngine::focusOut(void) { Engine::focusOut(); }
 
