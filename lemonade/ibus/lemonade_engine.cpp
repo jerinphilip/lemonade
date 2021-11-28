@@ -10,34 +10,47 @@ namespace lemonade::ibus {
 
 LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
   LemonadeEngine::PropertyRegistry registry;
-  /*
-  Property(const gchar *key,
-           IBusPropType type = PROP_TYPE_NORMAL,
-           IBusText *label = NULL,
-           const gchar *icon = NULL,
-           IBusText *tooltip = NULL,
-           gboolean sensitive = TRUE,
-           gboolean visible = TRUE,
-           IBusPropState state = PROP_STATE_UNCHECKED,
-           IBusPropList *props = NULL)
-  */
+  std::vector<std::string> LANGS = {"English", "German", "Czech", "Estonian",
+                                    "Italian"};
+
+  g::PropList sources;
+  bool first = false;
+  for (auto &lang : LANGS) {
+    std::string key = "source" + lang;
+    auto state = PROP_STATE_UNCHECKED;
+    if (first) {
+      state = PROP_STATE_CHECKED;
+      first = false;
+    }
+    g::Property langProperty = g::Property(/*key=*/key.c_str(),
+                                           /*type=*/PROP_TYPE_NORMAL,
+                                           /*label=*/g::Text(lang),
+                                           /*icon=*/nullptr,
+                                           /*tooltip=*/g::Text(lang),
+                                           /*sensitive=*/FALSE,
+                                           /*visible=*/FALSE,
+                                           /*state=*/PROP_STATE_UNCHECKED,
+                                           /*props=*/nullptr);
+    sources.append(langProperty);
+  }
+
   registry.emplace_back(/*key=*/"source",
-                        /*type=*/PROP_TYPE_NORMAL,
+                        /*type=*/PROP_TYPE_MENU,
                         /*label=*/g::Text("source"),
                         /*icon=*/nullptr,
                         /*tooltip=*/g::Text("Source language"),
                         /*sensitive=*/FALSE,
                         /*visible=*/TRUE,
-                        /*state=*/PROP_STATE_UNCHECKED,
-                        /*props=*/nullptr);
+                        /*state=*/PROP_STATE_CHECKED,
+                        /*props=*/sources);
   registry.emplace_back(/*key=*/"target",
-                        /*type=*/PROP_TYPE_NORMAL,
+                        /*type=*/PROP_TYPE_MENU,
                         /*label=*/g::Text("target"),
                         /*icon=*/nullptr,
                         /*tooltip=*/g::Text("Target language"),
                         /*sensitive=*/FALSE,
                         /*visible=*/TRUE,
-                        /*state=*/PROP_STATE_UNCHECKED,
+                        /*state=*/PROP_STATE_CHECKED,
                         /*props=*/nullptr);
   return registry;
 }
@@ -56,6 +69,10 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
       propertyRegistry_(makeProperties()) {
   logger_.log("Lemonade engine started");
   gint i;
+  for (auto &property : propertyRegistry_) {
+    propList_.append(property);
+    logger_.log("Adding property");
+  }
 }
 
 /* destructor */
@@ -169,14 +186,7 @@ void LemonadeEngine::commit() {
   updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
-void LemonadeEngine::focusIn(void) {
-  for (auto &property : propertyRegistry_) {
-    propList_.append(property);
-    logger_.log("Adding property");
-  }
-
-  registerProperties(propList_);
-}
+void LemonadeEngine::focusIn(void) { registerProperties(propList_); }
 
 void LemonadeEngine::focusOut(void) { Engine::focusOut(); }
 
