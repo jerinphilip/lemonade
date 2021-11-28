@@ -139,5 +139,6 @@ setup(
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.6",
-    packages=['bergamot']
+    packages=['bergamot'],
+    package_dir={'bergamot': 'bindings/python'}
 )

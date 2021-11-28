@@ -63,15 +63,7 @@ add_subdirectory(3rd_party)
 add_subdirectory(lemonade)
 
 if(COMPILE_PYTHON)
-  find_package(Python COMPONENTS Interpreter Development REQUIRED)
-  find_package(pybind11 CONFIG REQUIRED)
-  
-  message("Using Python: " ${Python_EXECUTABLE})
-  
-  # pybind11 method:
-  pybind11_add_module(_bergamot SHARED bergamot/bergamot.cpp)
-  target_link_libraries(_bergamot PUBLIC pybind11::module pybind11::headers bergamot-translator)
-  target_include_directories(_bergamot PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
+  add_subdirectory(bindings/python)
 endif(COMPILE_PYTHON)
 
 
