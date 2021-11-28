@@ -1,4 +1,2 @@
 include README.md LICENSE 
-include bergamot/*
-global-include CMakeLists.txt *.cmake
 
