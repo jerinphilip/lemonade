@@ -69,10 +69,8 @@ jobs:
       - name: setup.py 
         run: |-
           python3 setup.py bdist_wheel
-      - name: Install onto a virtual environment
+      - name: Install onto root python lib
         run: |-
-          python3 -m venv env
-          . env/bin/activate
           python3 -m pip install dist/bergamot-*.whl 
       - name: Fetch models from translateLocally repository.
         run: |-
