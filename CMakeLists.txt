@@ -15,6 +15,11 @@ project(lemonade CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable ASAN in debug builds
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -static-libasan")
+
+
 SET(COMPILE_CUDA OFF CACHE BOOL "Compile GPU version")
 SET(COMPILE_WASM OFF CACHE BOOL "Don't do wasm whatever this is")
 
