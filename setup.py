@@ -50,7 +50,8 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
             f"-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
             f"-DCMAKE_C_COMPILER_LAUNCHER=ccache",
-            f"-DCOMPILE_PYTHON=ON"
+            f"-DCOMPILE_PYTHON=ON",
+            f"-DSSPLIT_USE_INTERNAL_PCRE2=ON",
 
         ]
         build_args = []
