@@ -67,8 +67,8 @@ toJSON<marian::bergamot::Response>(const marian::bergamot::Response &response) {
                   rapidjson::Value vWord;
                   auto word = annotation.word(s, w);
                   vWord.SetArray();
-                  vWord.PushBack(word.begin, allocator);
-                  vWord.PushBack(word.end, allocator);
+                  vWord.PushBack(static_cast<uint64_t>(word.begin), allocator);
+                  vWord.PushBack(static_cast<uint64_t>(word.end), allocator);
                   vSentence.PushBack(vWord, allocator);
                 }
                 vAnnotation.PushBack(vSentence, allocator);
