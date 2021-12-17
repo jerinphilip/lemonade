@@ -10,6 +10,10 @@ if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
 
+if(APPLE)
+    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
+endif()
+
 project(lemonade CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -30,7 +34,7 @@ SET(USE_WASM_COMPATIBLE_SOURCE OFF CACHE BOOL "Don't build wasm compatible sourc
 find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
-
+find_package(OpenSSL REQUIRED)
 
 include(GetVersionFromFile)
 message(STATUS "Project name: ${PROJECT_NAME}")
@@ -49,6 +53,7 @@ set(PROJECT_LICENSE "GPL")
 set(LEMONADE_INCLUDE_DIRECTORIES 
     ${CMAKE_SOURCE_DIR}/3rd_party/CLI
     ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
+    ${OPENSSL_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}
 )
 
@@ -58,6 +63,7 @@ set(LINK_LIBRARIES
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::DBus
     ${LibArchive_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
     ${CMAKE_DL_LIBS} # On unix necessary sometimes
 )
 
