@@ -73,8 +73,10 @@ endif(COMPILE_PYTHON)
 
 
 install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
-install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
-install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
+if(!APPLE)
+  install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+  install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
+endif(!APPLE)
  # install(FILES ${CMAKE_SOURCE_DIR}/logo/lemonade_logo.png DESTINATION share/icons)
  # install(FILES ${CMAKE_SOURCE_DIR}/logo/lemonade_logo.svg DESTINATION share/icons)
 endif(UNIX)
