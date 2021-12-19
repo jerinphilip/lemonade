@@ -81,7 +81,7 @@ jobs:
 
       - name: Run the sample python script shipped with module
         run: |-
-          python3 -m bergamot.cli --config ~/.local/share/lemonade/models/ende-tiny/config.bergamot.yml
+          python3 -m bergamot.cli --model-config ~/.local/share/lemonade/models/ende-tiny/config.bergamot.yml
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
