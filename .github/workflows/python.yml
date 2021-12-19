@@ -73,7 +73,7 @@ jobs:
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
         run: |-
-          sudo python3 -m pip install dist/bergamot-*.whl 
+          sudo python3 -m pip install --force-reinstall dist/bergamot-*.whl 
 
       - name: Fetch models from translateLocally repository.
         run: |-
