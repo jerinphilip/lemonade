@@ -144,6 +144,10 @@ jobs:
           version: ${{ env.qt_version }}
           dir: "${{ github.workspace }}/qt/"
 
+      - name: Apply required patches
+        run: |-
+            patch -p1 < patches/01-marian-fstream-for-macos.patch
+
       - name: setup.py 
         run: |-
           python3 setup.py bdist_wheel
