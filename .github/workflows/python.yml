@@ -98,7 +98,7 @@ jobs:
       - name: Install Dependencies
         run: |-
           brew update
-          brew install openblas protobuf ccache boost pybind11 python@3.9
+          brew install openblas protobuf ccache boost pybind11 
           brew install coreutils findutils libarchive 
 
       - name: Generate ccache_vars for ccache based on machine
