@@ -17,7 +17,7 @@ env:
   ccache_cmake: -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache
 
 jobs:
-    python:
+    python-ubuntu:
       name: "Python bindings and package"
       runs-on: "ubuntu-latest"
       steps:
@@ -49,11 +49,80 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.ccache_dir }}
-          key: ccache-${{ matrix.identifier }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}-${{ steps.ccache_vars.outputs.timestamp }}
+          key: ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}-${{ steps.ccache_vars.outputs.timestamp }}
           restore-keys: |-
-            ccache-${{ matrix.identifier }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
-            ccache-${{ matrix.identifier }}-${{ steps.ccache_vars.outputs.hash }}
-            ccache-${{ matrix.identifier }}
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}
+            ccache-${{ job.id }}
+      - name: ccache environment setup
+        run: |-
+          echo "CCACHE_COMPILER_CHECK=${{ env.ccache_compilercheck }}" >> $GITHUB_ENV
+          echo "CCACHE_BASEDIR=${{ env.ccache_basedir }}" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESS=${{ env.ccache_compress }}" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESSLEVEL=${{ env.ccache_compresslevel }}" >> $GITHUB_ENV
+          echo "CCACHE_DIR=${{ env.ccache_dir }}" >> $GITHUB_ENV
+          echo "CCACHE_MAXSIZE=${{ env.ccache_maxsize }}" >> $GITHUB_ENV
+      - name: ccache prolog
+        run: |-
+          ccache -s # Print current cache stats
+          ccache -z # Zero cache entry
+      - name: setup.py 
+        run: |-
+          python3 setup.py bdist_wheel
+
+      # We're happy with just compile for the moment, so cache gets some seeding.
+      - name: Install onto root python lib
+        run: |-
+          sudo python3 -m pip install --force-reinstall dist/bergamot-*.whl 
+
+      - name: Fetch models from translateLocally repository.
+        run: |-
+          python3 -m bergamot.pkgmgr fetch 
+
+      - name: Run the sample python script shipped with module
+        run: |-
+          python3 -m bergamot.cli --model-config ~/.local/share/lemonade/models/en-de-tiny/config.bergamot.yml
+
+      - name: ccache epilog
+        run: 'ccache -s # Print current cache stats'
+
+    python-macos:
+      name: "Python bindings and package"
+      runs-on: "macos-latest"
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install Dependencies
+        run: |-
+          sudo apt-get update
+          sudo apt-get install -y \
+            ccache  libprotobuf-dev protobuf-compiler \
+            libboost-all-dev libibus-1.0-dev  \
+            qttools5-dev qtbase5-dev libqt5svg5-dev libarchive-dev \
+            python3-pybind11 pybind11-dev
+      - name: Install MKL
+        run: |-
+          wget -qO- "https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB" | sudo apt-key add -
+          sudo sh -c "echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list"
+          sudo apt-get update -o Dir::Etc::sourcelist="/etc/apt/sources.list.d/intel-mkl.list"
+          sudo apt-get install -y --no-install-recommends intel-mkl-64bit-2020.0-088
+      - name: Generate ccache_vars for ccache based on machine
+        shell: bash
+        id: ccache_vars
+        run: |-
+          echo "::set-output name=hash::$(echo ${{ env.ccache_compilercheck }})"
+          echo "::set-output name=timestamp::$(date '+%Y-%m-%dT%H.%M.%S')"
+      - name: Cache-op for build-cache through ccache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.ccache_dir }}
+          key: ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}-${{ steps.ccache_vars.outputs.timestamp }}
+          restore-keys: |-
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}
+            ccache-${{ job.id }}
       - name: ccache environment setup
         run: |-
           echo "CCACHE_COMPILER_CHECK=${{ env.ccache_compilercheck }}" >> $GITHUB_ENV
