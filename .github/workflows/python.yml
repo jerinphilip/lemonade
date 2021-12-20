@@ -100,6 +100,7 @@ jobs:
           brew update
           brew install openblas protobuf ccache boost pybind11 
           brew install coreutils findutils libarchive 
+          python3 -m pip install --upgrade packaging
 
       - name: Generate ccache_vars for ccache based on machine
         shell: bash
