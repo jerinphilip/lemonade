@@ -100,7 +100,6 @@ jobs:
           brew update
           brew install openblas protobuf ccache boost pybind11 
           brew install coreutils findutils libarchive 
-          ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
 
       - name: Generate ccache_vars for ccache based on machine
         shell: bash
@@ -151,6 +150,7 @@ jobs:
 
       - name: setup.py 
         run: |-
+          ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
           ${pythonLocation}/python3 setup.py bdist_wheel
 
       # We're happy with just compile for the moment, so cache gets some seeding.
