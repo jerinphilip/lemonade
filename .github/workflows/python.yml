@@ -18,7 +18,7 @@ env:
 
 jobs:
     python-ubuntu:
-      name: "Python bindings and package"
+      name: "ubuntu pybindings"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
@@ -87,7 +87,7 @@ jobs:
         run: 'ccache -s # Print current cache stats'
 
     python-macos:
-      name: "Python bindings and package"
+      name: "macos pybindings"
       runs-on: "macos-latest"
       steps:
       - name: Checkout
