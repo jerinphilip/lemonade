@@ -54,7 +54,7 @@ class CMakeBuild(build_ext):
             f"-DSSPLIT_USE_INTERNAL_PCRE2=ON",
 
         ]
-        build_args = []
+        build_args = ['-t', '_bergamot']
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:

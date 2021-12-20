@@ -18,6 +18,22 @@ You might also want to checkout
 [translateLocally](https://github.com/XapaJIaMnu/translateLocally), which is
 cross-platform and GUI.
 
+## Installation
+
+Dependencies:
+
+- Qt
+- pybind11
+- libarchive
+
+### Python bindings on macOS
+Assuming you have Qt installed through the official Qt distribution, it would
+be something this, where you might need to change the path to your version of
+Qt.
+
+```sh
+CMAKE_ARGS="-DCMAKE_PREFIX_PATH=$HOME/Qt/6.2.2/macos;$(brew --prefix pybind11)" pip3 install path/to/lemonade
+```
 
 ## Acknowledgements
 
