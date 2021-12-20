@@ -98,7 +98,7 @@ jobs:
       - name: Install Dependencies
         run: |-
           brew update
-          brew install openblas protobuf ccache
+          brew install openblas protobuf ccache boost
           brew install coreutils findutils libarchive 
 
       - name: Generate ccache_vars for ccache based on machine
