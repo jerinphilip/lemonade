@@ -98,9 +98,9 @@ jobs:
       - name: Install Dependencies
         run: |-
           brew update
-          brew install openblas protobuf ccache boost pybind11 python@3.10
+          brew install openblas protobuf ccache boost pybind11 
           brew install coreutils findutils libarchive 
-          python3 -m pip install --upgrade packaging wheel
+          ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
 
       - name: Generate ccache_vars for ccache based on machine
         shell: bash
@@ -151,7 +151,7 @@ jobs:
 
       - name: setup.py 
         run: |-
-          python3 setup.py bdist_wheel
+          ${pythonLocation}/python3 setup.py bdist_wheel
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       # - name: Install onto root python lib
