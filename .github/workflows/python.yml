@@ -1,4 +1,4 @@
-name: "ubuntu-latest"
+name: "Python Bindings"
 'on':
   push:
     branches:
@@ -8,6 +8,7 @@ name: "ubuntu-latest"
     branches:
     - '**'
 env:
+  qt_version: "6.2.1" # only used by build-macos
   ccache_basedir: ${{ github.workspace }}
   ccache_dir: "${{ github.workspace }}/.ccache"
   ccache_compilercheck: content
@@ -17,8 +18,8 @@ env:
   ccache_cmake: -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER_LAUNCHER=ccache
 
 jobs:
-    python:
-      name: "Python bindings and package"
+    python-ubuntu:
+      name: "ubuntu pybindings"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
@@ -49,11 +50,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.ccache_dir }}
-          key: ccache-${{ matrix.identifier }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}-${{ steps.ccache_vars.outputs.timestamp }}
+          key: ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}-${{ steps.ccache_vars.outputs.timestamp }}
           restore-keys: |-
-            ccache-${{ matrix.identifier }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
-            ccache-${{ matrix.identifier }}-${{ steps.ccache_vars.outputs.hash }}
-            ccache-${{ matrix.identifier }}
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}
+            ccache-${{ job.id }}
       - name: ccache environment setup
         run: |-
           echo "CCACHE_COMPILER_CHECK=${{ env.ccache_compilercheck }}" >> $GITHUB_ENV
@@ -82,6 +83,95 @@ jobs:
       - name: Run the sample python script shipped with module
         run: |-
           python3 -m bergamot.cli --model-config ~/.local/share/lemonade/models/en-de-tiny/config.bergamot.yml
+
+      - name: ccache epilog
+        run: 'ccache -s # Print current cache stats'
+
+    python-macos:
+      name: "macos pybindings"
+      runs-on: "macos-10.15"
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install Dependencies
+        run: |-
+          brew update
+          brew install openblas protobuf ccache boost pybind11 
+          brew install coreutils findutils libarchive 
+
+      - name: Generate ccache_vars for ccache based on machine
+        shell: bash
+        id: ccache_vars
+        run: |-
+          echo "::set-output name=hash::$(echo ${{ env.ccache_compilercheck }})"
+          echo "::set-output name=timestamp::$(date '+%Y-%m-%dT%H.%M.%S')"
+      - name: Cache-op for build-cache through ccache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.ccache_dir }}
+          key: ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}-${{ steps.ccache_vars.outputs.timestamp }}
+          restore-keys: |-
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
+            ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}
+            ccache-${{ job.id }}
+
+      - name: ccache environment setup
+        run: |-
+          echo "CCACHE_COMPILER_CHECK=${{ env.ccache_compilercheck }}" >> $GITHUB_ENV
+          echo "CCACHE_BASEDIR=${{ env.ccache_basedir }}" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESS=${{ env.ccache_compress }}" >> $GITHUB_ENV
+          echo "CCACHE_COMPRESSLEVEL=${{ env.ccache_compresslevel }}" >> $GITHUB_ENV
+          echo "CCACHE_DIR=${{ env.ccache_dir }}" >> $GITHUB_ENV
+          echo "CCACHE_MAXSIZE=${{ env.ccache_maxsize }}" >> $GITHUB_ENV
+
+      - name: ccache prolog
+        run: |-
+          ccache -s # Print current cache stats
+          ccache -z # Zero cache entry
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v2
+        with:
+          path: "${{ github.workspace }}/qt/"
+          key: qt-${{job.name }}-${{ env.qt_version }}
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          version: ${{ env.qt_version }}
+          dir: "${{ github.workspace }}/qt/"
+
+
+      - name: Apply required patches
+        run: |-
+            patch -p1 < patches/01-marian-fstream-for-macos.patch
+
+      # Appears to be required per GitHub CI; 
+      - name: Set MACOSX DEPLOYMENT TARGET via environment variable
+        run: |-
+            echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
+
+      - name: setup.py 
+        run: |-
+          ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
+          ${pythonLocation}/bin/python3 setup.py bdist_wheel
+
+      # We're happy with just compile for the moment, so cache gets some seeding.
+      - name: Install onto root python lib
+        run: |-
+          python3 -m pip install --force-reinstall dist/bergamot-*.whl 
+
+      - name: Fetch models from translateLocally repository.
+        run: |-
+          python3 -m bergamot.pkgmgr fetch 
+
+      - name: Run the sample python script shipped with module
+        run: |-
+          python3 -m bergamot.cli --model-config "/Users/runner/Library/Application Support/lemonade/models/en-de-tiny/config.bergamot.yml"
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
