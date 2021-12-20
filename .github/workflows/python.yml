@@ -116,6 +116,7 @@ jobs:
             ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}-${{ github.ref }}
             ccache-${{ job.id }}-${{ steps.ccache_vars.outputs.hash }}
             ccache-${{ job.id }}
+
       - name: ccache environment setup
         run: |-
           echo "CCACHE_COMPILER_CHECK=${{ env.ccache_compilercheck }}" >> $GITHUB_ENV
@@ -144,9 +145,15 @@ jobs:
           version: ${{ env.qt_version }}
           dir: "${{ github.workspace }}/qt/"
 
+
       - name: Apply required patches
         run: |-
             patch -p1 < patches/01-marian-fstream-for-macos.patch
+
+      # Appears to be required per GitHub CI; 
+      - name: Set MACOSX DEPLOYMENT TARGET via environment variable
+        run: |-
+            echo "MACOSX_DEPLOYMENT_TARGET=10.15" >> $GITHUB_ENV
 
       - name: setup.py 
         run: |-
