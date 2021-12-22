@@ -3,6 +3,7 @@ from appdirs import AppDirs
 import json
 import os
 from urllib.parse import urlparse
+import requests
 
 APP = "lemonade"
 appDir = AppDirs("lemonade")
