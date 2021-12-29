@@ -98,6 +98,47 @@ public:
     return responses;
   }
 
+  std::vector<Response> pivot(Model first, Model second,
+                              std::vector<std::string> inputs,
+                              const ResponseOptions &options) {
+    py::scoped_ostream_redirect outstream(
+        std::cout,                                // std::ostream&
+        py::module_::import("sys").attr("stdout") // Python output
+    );
+    py::scoped_ostream_redirect errstream(
+        std::cerr,                                // std::ostream&
+        py::module_::import("sys").attr("stderr") // Python output
+    );
+
+    py::call_guard<py::gil_scoped_release> gil_guard;
+
+    // Prepare promises, save respective futures. Have callback's in async set
+    // value to the promises.
+    std::vector<std::future<Response>> futures;
+    std::vector<std::promise<Response>> promises;
+    promises.resize(inputs.size());
+
+    for (size_t i = 0; i < inputs.size(); i++) {
+      auto callback = [&promises, i](Response &&response) {
+        promises[i].set_value(std::move(response));
+      };
+
+      service_->pivot(first, second, std::move(inputs[i]), std::move(callback),
+                      options);
+
+      futures.push_back(std::move(promises[i].get_future()));
+    }
+
+    // Wait on all futures to be ready.
+    std::vector<Response> responses;
+    for (size_t i = 0; i < futures.size(); i++) {
+      futures[i].wait();
+      responses.push_back(std::move(futures[i].get()));
+    }
+
+    return responses;
+  }
+
 private:
   std::unique_ptr<Service> service_{nullptr};
 };
@@ -156,7 +197,8 @@ PYBIND11_MODULE(_bergamot, m) {
       .def(py::init<const Service::Config &>())
       .def("modelFromConfig", &ServicePyAdapter::modelFromConfig)
       .def("modelFromConfigPath", &ServicePyAdapter::modelFromConfigPath)
-      .def("translate", &ServicePyAdapter::translate);
+      .def("translate", &ServicePyAdapter::translate)
+      .def("pivot", &ServicePyAdapter::pivot);
 
   py::class_<Service::Config>(m, "ServiceConfig")
       .def(py::init<>())
