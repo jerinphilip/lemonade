@@ -11,7 +11,7 @@ appDir = AppDirs("lemonade")
 
 @dataclass
 class Config:
-    url : str = "https://translatelocally.com/models.json"
+    url: str = "https://translatelocally.com/models.json"
     cache_dir: str = appDir.user_cache_dir
     config_dir: str = appDir.user_config_dir
     models_file: str = os.path.join(appDir.user_config_dir, "models.json")
@@ -19,12 +19,14 @@ class Config:
     archive_dir: str = os.path.join(appDir.user_data_dir, "archives")
     models_dir: str = os.path.join(appDir.user_data_dir, "models")
 
+
 def create_required_dirs(config):
     os.makedirs(config.cache_dir, exist_ok=True)
     os.makedirs(config.config_dir, exist_ok=True)
     os.makedirs(config.data_dir, exist_ok=True)
     os.makedirs(config.models_dir, exist_ok=True)
     os.makedirs(config.archive_dir, exist_ok=True)
+
 
 def get_inventory(url, save_location, force_download=False):
     def get_inventory_fresh(url):
@@ -44,11 +46,13 @@ def get_inventory(url, save_location, force_download=False):
             data = json.load(models_file)
             return data
 
+
 def hardCodeFpaths(url):
     o = urlparse(url)
-    fname = os.path.basename(o.path) # something tar.gz.
+    fname = os.path.basename(o.path)  # something tar.gz.
     fname_without_extension = fname.replace(".tar.gz", "")
     return fname_without_extension
+
 
 def listModels(config):
     data = get_inventory(config.url, config.models_file)
@@ -57,7 +61,7 @@ def listModels(config):
     for model in data["models"]:
         fprefix = hardCodeFpaths(model["url"])
         model_dir = os.path.join(config.models_dir, fprefix)
-        if (os.path.exists(model_dir)):
+        if os.path.exists(model_dir):
             counter += 1
-            print(' {}.'.format(str(counter).rjust(4)), model["code"], model["name"])
+            print(" {}.".format(str(counter).rjust(4)), model["code"], model["name"])
     print()
