@@ -7,41 +7,9 @@ from argparse import ArgumentParser
 from ._bergamot import Service, ResponseOptions, ServiceConfig, VectorString
 from .config import Config, get_inventory, hardCodeFpaths
 
-
-if __name__ == "__main__":
-    parser = ArgumentParser("Translate a sample blob of text in python")
-    parser.add_argument(
-        "--model-code",
-        type=str,
-        help="Path to model file to use in tag-transfer translation",
-        required=True,
-    )
-    parser.add_argument(
-        "--num-workers",
-        type=int,
-        help="Number of worker threads to use to translate",
-        default=4,
-    )
-    parser.add_argument(
-        "--cache-size",
-        type=int,
-        help="How many sentences to hold in cache",
-        default=2000,
-    )
-    parser.add_argument(
-        "--cache-mutex-buckets",
-        type=int,
-        help="How many mutex buckets to use to reduce contention in cache among workers",
-        default=20,
-    )
-
-    args = parser.parse_args()
-
-    # Create config
+def translate_fn(args):
     config = ServiceConfig()
     config.numWorkers = args.num_workers
-    config.cacheSize = args.cache_size
-    config.cacheMutexBuckets = args.cache_mutex_buckets
 
     # Build service
     service = Service(config)
@@ -67,3 +35,48 @@ if __name__ == "__main__":
 
     for response in responses:
         print(response.target.text)
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser("bergamot")
+    subparsers = parser.add_subparsers(
+        title="subcommands",
+        description="valid subcommands",
+        help="additional help",
+        dest="subcommand",
+    )
+
+    ls = subparsers.add_parser("ls")
+
+    fetch = subparsers.add_parser("fetch")
+    fetch.add_argument(
+        "--code",
+        type=str,
+        required=False,
+        help="Fetch model with given code. Use ls to list available models",
+    )
+    fetch.add_argument("--all", type=bool)
+
+    translate = subparsers.add_parser("translate")
+    translate.add_argument(
+        "--model-code",
+        type=str,
+        help="Path to model file to use in tag-transfer translation",
+        required=True,
+    )
+    translate.add_argument(
+        "--num-workers",
+        type=int,
+        help="Number of worker threads to use to translate",
+        default=4,
+    )
+
+    args = parser.parse_args()
+    config = Config()
+
+    if args.subcommand == "fetch":
+        download(config)
+    elif args.subcommand == "ls":
+        listModels(config)
+    elif args.subcommand == "translate":
+        translate_fn(args)

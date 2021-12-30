@@ -76,30 +76,3 @@ def download(config):
             patch_marian_for_bergamot(config_path, bergamot_config_path)
             print("Done.")
 
-
-if __name__ == "__main__":
-    parser = ArgumentParser("Model manager to download models for bergamot")
-    subparsers = parser.add_subparsers(
-        title="subcommands",
-        description="valid subcommands",
-        help="additional help",
-        dest="subcommand",
-    )
-
-    ls = subparsers.add_parser("ls")
-    fetch = subparsers.add_parser("fetch")
-    fetch.add_argument(
-        "--code",
-        type=str,
-        required=False,
-        help="Fetch model with given code. Use ls to list available models",
-    )
-    fetch.add_argument("--all", type=bool)
-
-    args = parser.parse_args()
-    config = Config()
-
-    if args.subcommand == "fetch":
-        download(config)
-    elif args.subcommand == "ls":
-        listModels(config)
