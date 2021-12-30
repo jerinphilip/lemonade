@@ -36,7 +36,7 @@ def translate_fn(args):
     responses = service.translate(model, VectorString([source]), options)
 
     for response in responses:
-        print(response.target.text)
+        print(response.target.text, end='')
 
 
 if __name__ == "__main__":
