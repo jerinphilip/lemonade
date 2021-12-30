@@ -8,16 +8,15 @@ Lemonade showcases applications and extensions to
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) outside
 the [official deliverables](https://browser.mt/deliverables). 
 
-The idea is to have a linux system wide translation-service, which multiple
-applications use (iBus, WebExtension) etc, this providing the
-translation-service locally addressing many privacy concerns discussed in
-https://browser.mt/. 
+**Disclaimer** This repository is experimental and is very unstable. The
+current state of source for most features showcased here is
+intended as proof of concept, pending refinement.
 
-For library, cross-platfrom, configurability look at the applications offered
-by [bergamot-translator](https://github.com/browsermt/bergamot-translator).
-You might also want to checkout
-[translateLocally](https://github.com/XapaJIaMnu/translateLocally), which is
-cross-platform and GUI.
+For using a C++ library which is cross-platfrom, by
+[bergamot-translator](https://github.com/browsermt/bergamot-translator).
+
+If you're looking for a GUI local translator with more stability, Please
+checkout [translateLocally](https://github.com/XapaJIaMnu/translateLocally).
 
 ## Dependencies
 
@@ -55,6 +54,9 @@ Hallo Welt.
 
 ```
 
+It is expected that pybindings will be merged into bergamot-translator
+eventually when mature.
+
 #### Python bindings on macOS
 Assuming you have Qt installed through the official Qt distribution, it would
 be something this, where you might need to change the path to your version of
@@ -69,8 +71,10 @@ CMAKE_ARGS="-DCMAKE_PREFIX_PATH=$HOME/Qt/6.2.2/macos;$(brew --prefix pybind11)" 
 [iBus](https://en.wikipedia.org/wiki/Intelligent_Input_Bus) provides a method
 to hijack the keyboard-input and insert modified text into any graphical
 application. The author believes doing this will be superior to a web-extension
-due to 1) minimal interference with page HTML unlike a web-extension and
-wider-coverage across all GUI applications (any box where text can be entered).
+due to:
+
+1. minimal interference with page HTML unlike a web-extension and
+2. wider-coverage across all GUI applications (any box where text can be entered).
 
 Find a demonstration of iBus in action on LibreOffice below:
 
@@ -85,6 +89,3 @@ part of the Bergamot project. The translation engine used is
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) which
 is based on [marian](https://github.com/marian-nmt/marian-dev).
 
-**Disclaimer** This repository is experimental, early stages and is very
-unstable. The current state of source for most features showcased here is
-intended as proof of concept, pending refinement.
