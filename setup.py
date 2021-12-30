@@ -146,5 +146,11 @@ setup(
         'requests',
         'pyyaml',
         'appdirs'
-    ]
+    ],
+    entry_points={
+    'console_scripts': [
+        'bergamot = bergamot.__main__:main',
+    ],
+},
+
 )

@@ -39,13 +39,13 @@ def translate_fn(args):
         print(response.target.text, end="")
 
 
-if __name__ == "__main__":
+def main():
     parser = ArgumentParser("bergamot")
     subparsers = parser.add_subparsers(
-        title="subcommands",
-        description="valid subcommands",
-        help="additional help",
-        dest="subcommand",
+        title="actions",
+        description="The following actions are available through the bergamot package",
+        help="To obtain help on how to run these actions supply <cmd> -h.",
+        dest="action",
     )
 
     ls = subparsers.add_parser("ls")
@@ -80,9 +80,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config = Config()
 
-    if args.subcommand == "download":
+    if args.action == "download":
         download(config)
-    elif args.subcommand == "ls":
+    elif args.action == "ls":
         listModels(config)
-    elif args.subcommand == "translate":
+    elif args.action == "translate":
         translate_fn(args)
+    else:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
