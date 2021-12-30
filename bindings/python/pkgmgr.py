@@ -75,4 +75,3 @@ def download(config):
             bergamot_config_path = os.path.join(link, "config.bergamot.yml")
             patch_marian_for_bergamot(config_path, bergamot_config_path)
             print("Done.")
-

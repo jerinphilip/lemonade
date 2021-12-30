@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from ._bergamot import Service, ResponseOptions, ServiceConfig, VectorString
 from .config import Config, get_inventory, hardCodeFpaths
 
+
 def translate_fn(args):
     config = ServiceConfig()
     config.numWorkers = args.num_workers
