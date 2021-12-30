@@ -9,7 +9,7 @@ promise of stability on API.
 Lemonade showcases applications and extensions to
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) outside
 the [official deliverables](https://browser.mt/deliverables). Some of these
-undertakings outside official commitments have found eventual application for
+undertakings outside official commitments have found eventual application 
 as development or evaluation aides - take a look at
 https://github.com/jerinphilip/tagtransfer for example.
 
