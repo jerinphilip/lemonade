@@ -10,13 +10,11 @@ Lemonade showcases applications and extensions to
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) outside
 the [official deliverables](https://browser.mt/deliverables). 
 
-For using a C++ library which is cross-platfrom, by
-[bergamot-translator](https://github.com/browsermt/bergamot-translator).
-
-If you're interested a GUI local translator with more stability, Please
+If you're interested in using a more stable C++ library which is
+cross-platfrom, head over-to
+[bergamot-translator](https://github.com/browsermt/bergamot-translator). If
+you're interested a GUI local translator based on bergamot-translator, please
 checkout [translateLocally](https://github.com/XapaJIaMnu/translateLocally).
-
-
 
 ## Dependencies
 
@@ -54,10 +52,11 @@ Hallo Welt.
 
 ```
 
-It is expected that pybindings will be merged into bergamot-translator
-eventually when mature.
+Wishful thinking for pybindings is to be merged into bergamot-translator when
+mature.
 
 #### Python bindings on macOS
+
 Assuming you have Qt installed through the official Qt distribution, it would
 be something this, where you might need to change the path to your version of
 Qt.
