@@ -3,20 +3,20 @@
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) 
 [![build/ubuntu-latest](https://github.com/jerinphilip/lemonade/actions/workflows/main.yml/badge.svg)](./.github/workflows/main.yml)
 
+**Disclaimer** This repository is experimental and there is currently no
+promise of stability on API. 
 
 Lemonade showcases applications and extensions to
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) outside
 the [official deliverables](https://browser.mt/deliverables). 
 
-**Disclaimer** This repository is experimental and is very unstable. The
-current state of source for most features showcased here is
-intended as proof of concept, pending refinement.
-
 For using a C++ library which is cross-platfrom, by
 [bergamot-translator](https://github.com/browsermt/bergamot-translator).
 
-If you're looking for a GUI local translator with more stability, Please
+If you're interested a GUI local translator with more stability, Please
 checkout [translateLocally](https://github.com/XapaJIaMnu/translateLocally).
+
+
 
 ## Dependencies
 
