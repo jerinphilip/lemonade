@@ -20,7 +20,7 @@ def translate_fn(args):
     appConfig = Config()
     inventory = get_inventory(appConfig.url, appConfig.models_file)
     model_config = {entry["code"]: entry for entry in inventory["models"]}
-    model_entry = model_config[args.model_code]
+    model_entry = model_config[args.model]
     fprefix = hardCodeFpaths(model_entry["url"])
     model_dir = os.path.join(appConfig.models_dir, fprefix)
     model_config = os.path.join(model_dir, "config.bergamot.yml")
@@ -52,17 +52,20 @@ if __name__ == "__main__":
 
     dl = subparsers.add_parser("download")
     dl.add_argument(
-        "--code",
+        "-m",
+        "--model",
         type=str,
         required=False,
+        default=None,
         help="Fetch model with given code. Use ls to list available models",
     )
 
-    dl.add_argument("--all", type=bool)
+    dl.add_argument("--all", type=bool, default=True)
 
     translate = subparsers.add_parser("translate")
     translate.add_argument(
-        "--model-code",
+        "-m",
+        "--model",
         type=str,
         help="Path to model file to use in tag-transfer translation",
         required=True,
