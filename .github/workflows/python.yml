@@ -78,7 +78,7 @@ jobs:
 
       - name: Fetch models from translateLocally repository.
         run: |-
-          python3 -m bergamot fetch 
+          python3 -m bergamot download 
 
       - name: Run the sample python script shipped with module
         run: |-
@@ -167,7 +167,7 @@ jobs:
 
       - name: Fetch models from translateLocally repository.
         run: |-
-          python3 -m bergamot fetch 
+          python3 -m bergamot download 
 
       - name: Run the sample python script shipped with module
         run: |-

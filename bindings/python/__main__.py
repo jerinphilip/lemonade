@@ -36,7 +36,7 @@ def translate_fn(args):
     responses = service.translate(model, VectorString([source]), options)
 
     for response in responses:
-        print(response.target.text, end='')
+        print(response.target.text, end="")
 
 
 if __name__ == "__main__":
@@ -50,14 +50,14 @@ if __name__ == "__main__":
 
     ls = subparsers.add_parser("ls")
 
-    fetch = subparsers.add_parser("fetch")
-    fetch.add_argument(
+    download = subparsers.add_parser("download")
+    download.add_argument(
         "--code",
         type=str,
         required=False,
         help="Fetch model with given code. Use ls to list available models",
     )
-    fetch.add_argument("--all", type=bool)
+    download.add_argument("--all", type=bool)
 
     translate = subparsers.add_parser("translate")
     translate.add_argument(
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config = Config()
 
-    if args.subcommand == "fetch":
+    if args.subcommand == "download":
         download(config)
     elif args.subcommand == "ls":
         listModels(config)
