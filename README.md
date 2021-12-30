@@ -8,11 +8,13 @@ promise of stability on API.
 
 Lemonade showcases applications and extensions to
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) outside
-the [official deliverables](https://browser.mt/deliverables). 
+the [official deliverables](https://browser.mt/deliverables). Some of these
+undertakings outside official commitments have found eventual application for
+as development or evaluation aides - take a look at
+https://github.com/jerinphilip/tagtransfer for example.
 
 If you're interested in using a more stable C++ library which is
-cross-platfrom, head over-to
-[bergamot-translator](https://github.com/browsermt/bergamot-translator). If
+cross-platfrom, head over-to [bergamot-translator](https://github.com/browsermt/bergamot-translator). If
 you're interested a GUI local translator based on bergamot-translator, please
 checkout [translateLocally](https://github.com/XapaJIaMnu/translateLocally).
 
@@ -36,18 +38,17 @@ It is recommended to use a virtual-environment for installation. To install:
 
 ```bash
 python3 setup.py bdist_wheel
-python3 -m pip -U install --force-reinstall dist/bergamot-*.whl
+python3 -m pip install --force-reinstall dist/bergamot-*.whl
 ```
 
 In addition to bindings to the library which you may use for-your use-cases, a
 command-line interface is provided along with an entry-point which you may use
-to download models, and translate input text.
+to download models, and translate input text as demonstrated below.
 
 ```bash
 $ bergamot download # download models from the web.
 
-# translate from stdin
-$ echo "Hello World." | bergamot translate -m en-de-tiny  
+$ echo "Hello World." | bergamot translate -m en-de-tiny # translate from stdin
 Hallo Welt.
 
 ```
@@ -82,7 +83,7 @@ Find a demonstration of iBus in action on LibreOffice below:
 ## Acknowledgements
 
 This project was made possible through the combined effort of all researchers
-and [partners](https://browser.mt/partners/) in the Bergamot project . The
+and [partners](https://browser.mt/partners/) in the Bergamot project. The
 [translation models](https://github.com/browsermt/students) are prepared as
 part of the Bergamot project. The translation engine used is
 [bergamot-translator](https://github.com/browsermt/bergamot-translator) which
