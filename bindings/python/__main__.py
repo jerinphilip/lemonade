@@ -50,14 +50,15 @@ if __name__ == "__main__":
 
     ls = subparsers.add_parser("ls")
 
-    download = subparsers.add_parser("download")
-    download.add_argument(
+    dl = subparsers.add_parser("download")
+    dl.add_argument(
         "--code",
         type=str,
         required=False,
         help="Fetch model with given code. Use ls to list available models",
     )
-    download.add_argument("--all", type=bool)
+
+    dl.add_argument("--all", type=bool)
 
     translate = subparsers.add_parser("translate")
     translate.add_argument(
