@@ -11,7 +11,7 @@ from .pkgmgr import download, listModels
 
 def translate_fn(args):
     # Build service
-    config = ServiceConfig(numWorkers = args.num_workers)
+    config = ServiceConfig(numWorkers=args.num_workers)
     service = Service(config)
 
     # Work with one model, loaded from config file
