@@ -153,7 +153,7 @@ PYBIND11_MODULE(_bergamot, m) {
                                     sentenceMappings, strategy};
            }),
            py::arg("qualityScores") = true, py::arg("alignment") = false,
-           py::arg("HTML") = false, py::arg("sentence_mappings") = true,
+           py::arg("HTML") = false, py::arg("sentenceMappings") = true,
            py::arg("concatStrategy") = ConcatStrategy::FAITHFUL)
       .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
       .def_readwrite("HTML", &ResponseOptions::HTML)
@@ -173,8 +173,8 @@ PYBIND11_MODULE(_bergamot, m) {
              return Service::Config{numWorkers, cacheEnabled, cacheSize,
                                     cacheMutexBuckets};
            }),
-           py::arg("num_workers") = 1, py::arg("cache_enabled") = false,
-           py::arg("cache_size") = 20000, py::arg("cache_mutex_buckets") = 1)
+           py::arg("numWorkers") = 1, py::arg("cacheEnabled") = false,
+           py::arg("cacheSize") = 20000, py::arg("cacheMutexBuckets") = 1)
       .def_readwrite("numWorkers", &Service::Config::numWorkers)
       .def_readwrite("cacheEnabled", &Service::Config::cacheEnabled)
       .def_readwrite("cacheSize", &Service::Config::cacheSize)
