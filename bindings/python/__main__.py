@@ -10,10 +10,8 @@ from .pkgmgr import download, listModels
 
 
 def translate_fn(args):
-    config = ServiceConfig()
-    config.numWorkers = args.num_workers
-
     # Build service
+    config = ServiceConfig(numWorkers = args.num_workers)
     service = Service(config)
 
     # Work with one model, loaded from config file
@@ -28,9 +26,7 @@ def translate_fn(args):
     model = service.modelFromConfigPath(model_config)
 
     # Configure a few options which require how a Response is constructed
-    options = ResponseOptions()
-    options.alignment = True
-    options.qualityScores = True
+    options = ResponseOptions(alignment=True, qualityScores=True)
 
     source = sys.stdin.read()
     responses = service.translate(model, VectorString([source]), options)
