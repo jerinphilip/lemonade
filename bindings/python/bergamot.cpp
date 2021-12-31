@@ -141,16 +141,26 @@ PYBIND11_MODULE(_bergamot, m) {
   py::bind_vector<std::vector<std::string>>(m, "VectorString");
   py::bind_vector<std::vector<Response>>(m, "VectorResponse");
 
-  py::class_<ResponseOptions>(m, "ResponseOptions")
-      .def(py::init<>())
-      .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
-      .def_readwrite("HTML", &ResponseOptions::HTML)
-      .def_readwrite("alignment", &ResponseOptions::alignment);
-
   py::enum_<ConcatStrategy>(m, "ConcatStrategy")
       .value("FAITHFUL", ConcatStrategy::FAITHFUL)
       .value("SPACE", ConcatStrategy::SPACE)
       .export_values();
+
+  py::class_<ResponseOptions>(m, "ResponseOptions")
+      .def(py::init<>())
+      .def(py::init<>([](bool qualityScores, bool alignment, bool HTML,
+                         bool sentenceMappings, ConcatStrategy strategy) {
+             return ResponseOptions{qualityScores, alignment, HTML,
+                                    sentenceMappings, strategy};
+           }),
+           py::arg("qualityScores") = true, py::arg("alignment") = false,
+           py::arg("HTML") = false, py::arg("sentence_mappings") = true,
+           py::arg("concatStrategy") = ConcatStrategy::FAITHFUL)
+      .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
+      .def_readwrite("HTML", &ResponseOptions::HTML)
+      .def_readwrite("alignment", &ResponseOptions::alignment)
+      .def_readwrite("concatStrategy", &ResponseOptions::concatStrategy)
+      .def_readwrite("sentenceMappings", &ResponseOptions::sentenceMappings);
 
   py::class_<ServicePyAdapter>(m, "Service")
       .def(py::init<const Service::Config &>())
