@@ -147,7 +147,6 @@ PYBIND11_MODULE(_bergamot, m) {
       .export_values();
 
   py::class_<ResponseOptions>(m, "ResponseOptions")
-      .def(py::init<>())
       .def(py::init<>([](bool qualityScores, bool alignment, bool HTML,
                          bool sentenceMappings, ConcatStrategy strategy) {
              return ResponseOptions{qualityScores, alignment, HTML,
@@ -169,7 +168,6 @@ PYBIND11_MODULE(_bergamot, m) {
       .def("translate", &ServicePyAdapter::translate);
 
   py::class_<Service::Config>(m, "ServiceConfig")
-      .def(py::init<>())
       .def(py::init<>([](size_t numWorkers, bool cacheEnabled, size_t cacheSize,
                          size_t cacheMutexBuckets) {
              return Service::Config{numWorkers, cacheEnabled, cacheSize,
