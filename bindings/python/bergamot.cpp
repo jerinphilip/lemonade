@@ -170,7 +170,15 @@ PYBIND11_MODULE(_bergamot, m) {
 
   py::class_<Service::Config>(m, "ServiceConfig")
       .def(py::init<>())
+      .def(py::init<>([](size_t numWorkers, bool cacheEnabled, size_t cacheSize,
+                         size_t cacheMutexBuckets) {
+             return Service::Config{numWorkers, cacheEnabled, cacheSize,
+                                    cacheMutexBuckets};
+           }),
+           py::arg("num_workers") = 1, py::arg("cache_enabled") = false,
+           py::arg("cache_size") = 20000, py::arg("cache_mutex_buckets") = 1)
       .def_readwrite("numWorkers", &Service::Config::numWorkers)
+      .def_readwrite("cacheEnabled", &Service::Config::cacheEnabled)
       .def_readwrite("cacheSize", &Service::Config::cacheSize)
       .def_readwrite("cacheMutexBuckets", &Service::Config::cacheMutexBuckets);
 
