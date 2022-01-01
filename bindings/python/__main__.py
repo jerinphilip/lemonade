@@ -26,7 +26,9 @@ def translate_fn(args):
     model = service.modelFromConfigPath(model_config)
 
     # Configure a few options which require how a Response is constructed
-    options = ResponseOptions(alignment=args.alignment, qualityScores=args.quality_scores, HTML=args.html)
+    options = ResponseOptions(
+        alignment=args.alignment, qualityScores=args.quality_scores, HTML=args.html
+    )
 
     source = sys.stdin.read()
     responses = service.translate(model, VectorString([source]), options)
