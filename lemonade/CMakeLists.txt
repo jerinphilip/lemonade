@@ -1,4 +1,7 @@
 
 add_subdirectory(lib)
 add_subdirectory(bin)
-add_subdirectory(ibus)
+
+if(!APPLE)
+  add_subdirectory(ibus)
+endif(!APPLE)
