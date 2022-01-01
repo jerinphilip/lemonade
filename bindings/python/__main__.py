@@ -26,7 +26,9 @@ def translate_fn(args):
     model = service.modelFromConfigPath(model_config)
 
     # Configure a few options which require how a Response is constructed
-    options = ResponseOptions(alignment=True, qualityScores=True)
+    options = ResponseOptions(
+        alignment=args.alignment, qualityScores=args.quality_scores, HTML=args.html
+    )
 
     source = sys.stdin.read()
     responses = service.translate(model, VectorString([source]), options)
@@ -72,6 +74,12 @@ def main():
         help="Number of worker threads to use to translate",
         default=4,
     )
+
+    # Tweak response-options for quick HTML in out via commandline
+    options = translate.add_argument_group("response-options")
+    options.add_argument("--html", type=bool, default=False)
+    options.add_argument("--alignment", type=bool, default=False)
+    options.add_argument("--quality-scores", type=bool, default=False)
 
     args = parser.parse_args()
     config = Config()
