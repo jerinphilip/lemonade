@@ -67,9 +67,14 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
 
   } break;
   case IBUS_Return: {
+    if (translationBuffer_.empty()) {
+      // We have no use for empty enters.
+      return false;
+    }
     translationBuffer_ += "\n";
     commit();
     retval = TRUE;
+
   } break;
   case IBUS_BackSpace: {
     if (!buffer_.empty()) {
@@ -126,6 +131,7 @@ void LemonadeEngine::commit() {
   g::Text text(translationBuffer_);
   commitText(text);
   hideLookupTable();
+
   buffer_.clear();
   translationBuffer_.clear();
 
