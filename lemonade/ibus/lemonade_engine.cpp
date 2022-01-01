@@ -186,7 +186,9 @@ void LemonadeEngine::commit() {
   updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
-void LemonadeEngine::focusIn(void) { registerProperties(propList_); }
+void LemonadeEngine::focusIn(void) {
+  // registerProperties(propList_);
+}
 
 void LemonadeEngine::focusOut(void) { Engine::focusOut(); }
 
