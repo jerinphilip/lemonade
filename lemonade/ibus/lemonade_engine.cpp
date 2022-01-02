@@ -10,29 +10,27 @@ namespace lemonade::ibus {
 
 LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
   LemonadeEngine::PropertyRegistry registry;
-  std::vector<std::string> LANGS = {"English", "German", "Czech", "Estonian",
-                                    "Italian"};
 
-  g::PropList sources;
-  bool first = false;
-  for (auto &lang : LANGS) {
-    std::string key = "source" + lang;
-    auto state = PROP_STATE_UNCHECKED;
-    if (first) {
-      state = PROP_STATE_CHECKED;
-      first = false;
+  auto props = [](std::string side) {
+    bool first = false;
+    std::vector<std::string> LANGS = {"English", "German", "Czech", "Estonian",
+                                      "Italian"};
+    g::PropList langs;
+    for (auto &lang : LANGS) {
+      std::string key = side + lang;
+      g::Property langProperty = g::Property(/*key=*/key.c_str(),
+                                             /*type=*/PROP_TYPE_RADIO,
+                                             /*label=*/g::Text(lang),
+                                             /*icon=*/nullptr,
+                                             /*tooltip=*/g::Text(lang),
+                                             /*sensitive=*/TRUE,
+                                             /*visible=*/TRUE,
+                                             /*state=*/PROP_STATE_UNCHECKED,
+                                             /*props=*/nullptr);
+      langs.append(langProperty);
     }
-    g::Property langProperty = g::Property(/*key=*/key.c_str(),
-                                           /*type=*/PROP_TYPE_NORMAL,
-                                           /*label=*/g::Text(lang),
-                                           /*icon=*/nullptr,
-                                           /*tooltip=*/g::Text(lang),
-                                           /*sensitive=*/TRUE,
-                                           /*visible=*/TRUE,
-                                           /*state=*/PROP_STATE_UNCHECKED,
-                                           /*props=*/nullptr);
-    sources.append(langProperty);
-  }
+    return langs;
+  };
 
   registry.emplace_back(/*key=*/"source",
                         /*type=*/PROP_TYPE_MENU,
@@ -42,7 +40,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*sensitive=*/TRUE,
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_CHECKED,
-                        /*props=*/sources);
+                        /*props=*/props("source"));
   registry.emplace_back(/*key=*/"target",
                         /*type=*/PROP_TYPE_MENU,
                         /*label=*/g::Text("target"),
@@ -51,7 +49,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*sensitive=*/TRUE,
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_CHECKED,
-                        /*props=*/nullptr);
+                        /*props=*/props("target"));
   return registry;
 }
 
