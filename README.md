@@ -70,15 +70,15 @@ CMAKE_ARGS="-DCMAKE_PREFIX_PATH=$HOME/Qt/6.2.2/macos;$(brew --prefix pybind11)" 
 
 [iBus](https://en.wikipedia.org/wiki/Intelligent_Input_Bus) provides a method
 to hijack the keyboard-input and insert modified text into any graphical
-application. The author believes doing this will be superior to a web-extension
-due to:
+application. The author believes doing this will be superior to a web-extension for 
+outbound translation due to:
 
 1. minimal interference with page HTML unlike a web-extension and
 2. wider-coverage across all GUI applications (any box where text can be entered).
 
 Find a demonstration of iBus in action on LibreOffice below:
 
-![iBus](https://user-images.githubusercontent.com/727292/147791520-b3732b87-a142-4f95-b1a9-75e49e9488df.gif)
+<img src="https://user-images.githubusercontent.com/727292/147887982-690f5a65-ad8c-4743-8035-56f7e4f4a6b2.gif" width=720 alt="iBus translation in action"/>
 
 ## Acknowledgements
 
