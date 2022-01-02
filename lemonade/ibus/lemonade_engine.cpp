@@ -27,8 +27,8 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                                            /*label=*/g::Text(lang),
                                            /*icon=*/nullptr,
                                            /*tooltip=*/g::Text(lang),
-                                           /*sensitive=*/FALSE,
-                                           /*visible=*/FALSE,
+                                           /*sensitive=*/TRUE,
+                                           /*visible=*/TRUE,
                                            /*state=*/PROP_STATE_UNCHECKED,
                                            /*props=*/nullptr);
     sources.append(langProperty);
