@@ -39,7 +39,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*label=*/g::Text("source"),
                         /*icon=*/nullptr,
                         /*tooltip=*/g::Text("Source language"),
-                        /*sensitive=*/FALSE,
+                        /*sensitive=*/TRUE,
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_CHECKED,
                         /*props=*/sources);
@@ -48,7 +48,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*label=*/g::Text("target"),
                         /*icon=*/nullptr,
                         /*tooltip=*/g::Text("Target language"),
-                        /*sensitive=*/FALSE,
+                        /*sensitive=*/TRUE,
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_CHECKED,
                         /*props=*/nullptr);
@@ -186,9 +186,7 @@ void LemonadeEngine::commit() {
   updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
-void LemonadeEngine::focusIn(void) {
-  // registerProperties(propList_);
-}
+void LemonadeEngine::focusIn(void) { registerProperties(propList_); }
 
 void LemonadeEngine::focusOut(void) { Engine::focusOut(); }
 
