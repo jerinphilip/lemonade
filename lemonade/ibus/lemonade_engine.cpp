@@ -11,22 +11,24 @@ namespace lemonade::ibus {
 LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
   LemonadeEngine::PropertyRegistry registry;
 
-  auto props = [](std::string side) {
+  auto props = [](std::string side, std::string defaultLang) {
     bool first = false;
-    std::vector<std::string> LANGS = {"English", "German", "Czech", "Estonian",
-                                      "Italian"};
+    std::vector<std::string> LANGS = {"English",  "German",  "Czech",
+                                      "Estonian", "Italian", "Spanish"};
     g::PropList langs;
     for (auto &lang : LANGS) {
-      std::string key = side + lang;
-      g::Property langProperty = g::Property(/*key=*/key.c_str(),
-                                             /*type=*/PROP_TYPE_RADIO,
-                                             /*label=*/g::Text(lang),
-                                             /*icon=*/nullptr,
-                                             /*tooltip=*/g::Text(lang),
-                                             /*sensitive=*/TRUE,
-                                             /*visible=*/TRUE,
-                                             /*state=*/PROP_STATE_UNCHECKED,
-                                             /*props=*/nullptr);
+      std::string key = side + "_" + lang;
+      g::Property langProperty =
+          g::Property(/*key=*/key.c_str(),
+                      /*type=*/PROP_TYPE_RADIO,
+                      /*label=*/g::Text(lang),
+                      /*icon=*/nullptr,
+                      /*tooltip=*/g::Text(lang),
+                      /*sensitive=*/TRUE,
+                      /*visible=*/TRUE,
+                      /*state=*/lang == defaultLang ? PROP_STATE_CHECKED
+                                                    : PROP_STATE_UNCHECKED,
+                      /*props=*/nullptr);
       langs.append(langProperty);
     }
     return langs;
@@ -40,7 +42,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*sensitive=*/TRUE,
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_CHECKED,
-                        /*props=*/props("source"));
+                        /*props=*/props("source", "English"));
   registry.emplace_back(/*key=*/"target",
                         /*type=*/PROP_TYPE_MENU,
                         /*label=*/g::Text("target"),
@@ -49,7 +51,7 @@ LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
                         /*sensitive=*/TRUE,
                         /*visible=*/TRUE,
                         /*state=*/PROP_STATE_CHECKED,
-                        /*props=*/props("target"));
+                        /*props=*/props("target", "German"));
   return registry;
 }
 
@@ -71,6 +73,10 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
     propList_.append(property);
     logger_.log("Adding property");
   }
+
+  // Hardcode the following for now.
+  sourceLang_ = "English";
+  targetLang_ = "German";
 }
 
 /* destructor */
@@ -156,7 +162,7 @@ void LemonadeEngine::updateBuffer(const std::string &append) {
 void LemonadeEngine::refreshTranslation() {
   std::string bufferCopy = buffer_;
   auto translation =
-      translator_.btranslate(std::move(bufferCopy), "English", "German");
+      translator_.btranslate(std::move(bufferCopy), sourceLang_, targetLang_);
 
   translationBuffer_ = translation.target.text;
   std::vector<std::string> entries = {buffer_};
@@ -209,6 +215,19 @@ inline void LemonadeEngine::showSetupDialog(void) {
 
 gboolean LemonadeEngine::propertyActivate(const char *prop_name,
                                           guint prop_state) {
+  if (prop_state == 1) {
+    // source_
+    // target_
+    std::string serialized(prop_name);
+    std::string side = serialized.substr(0, 6);
+    std::string lang = serialized.substr(7, serialized.size());
+    logger_.log(fmt::format("[{}] [{}]", side, lang));
+    if (side == "source") {
+      sourceLang_ = lang;
+    } else {
+      targetLang_ = lang;
+    }
+  }
   return FALSE;
 }
 

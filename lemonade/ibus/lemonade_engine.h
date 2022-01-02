@@ -49,6 +49,9 @@ private:
   Logger logger_;
   Translator translator_;
 
+  std::string sourceLang_;
+  std::string targetLang_;
+
   PropertyRegistry propertyRegistry_;
   g::PropList propList_;
 };
