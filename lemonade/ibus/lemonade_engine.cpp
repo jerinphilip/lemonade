@@ -84,6 +84,11 @@ LemonadeEngine::~LemonadeEngine(void) { hideLookupTable(); }
 
 gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
                                          guint modifiers) {
+  // If both langs are set to equal, translation mechanism needn't kick in.
+  if (sourceLang_ == targetLang_) {
+    return false;
+  }
+
   if (contentIsPassword())
     return FALSE;
 
