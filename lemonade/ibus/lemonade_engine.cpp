@@ -203,7 +203,11 @@ void LemonadeEngine::commit() {
 
 void LemonadeEngine::focusIn(void) { registerProperties(propList_); }
 
-void LemonadeEngine::focusOut(void) { Engine::focusOut(); }
+void LemonadeEngine::focusOut(void) {
+  buffer_.clear();
+  translationBuffer_.clear();
+  Engine::focusOut();
+}
 
 void LemonadeEngine::reset(void) {}
 
