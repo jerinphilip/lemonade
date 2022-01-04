@@ -89,12 +89,13 @@ class TranslateLocally(Repository):
 
     def __init__(self, appDir: AppDirs):
         self.repository = "translateLocally"
+        f = os.path.join
         self.dirs = {
-            "cache": os.path.join(appDir.user_cache_dir, self.repository),
-            "config": os.path.join(appDir.user_config_dir, self.repository),
-            "data": os.path.join(appDir.user_data_dir, self.repository),
-            "archive": os.path.join(appDir.user_data_dir, self.repository, "archives"),
-            "models": os.path.join(appDir.user_data_dir, self.repository, "models"),
+            "cache": f(appDir.user_cache_dir),
+            "config": f(appDir.user_config_dir),
+            "data": f(appDir.user_data_dir),
+            "archive": f(appDir.user_data_dir, "archives"),
+            "models": f(appDir.user_data_dir, "models"),
         }
 
         for directory in self.dirs.values():
