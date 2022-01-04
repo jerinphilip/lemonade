@@ -80,12 +80,14 @@ def main():
             repository.download(model)
     elif args.action == "ls":
         print("Available models: ")
-        for counter, model in enumerate(repository.models(filter_downloaded=True), 1):
-            modelEntry = repository.modelEntry(model)
+        for counter, identifier in enumerate(
+            repository.models(filter_downloaded=True), 1
+        ):
+            model = repository.model(identifier)
             print(
                 " {}.".format(str(counter).rjust(4)),
-                modelEntry["code"],
-                modelEntry["name"],
+                model["code"],
+                model["name"],
             )
         print()
 
