@@ -5,8 +5,7 @@ from collections import Counter
 from collections import defaultdict
 from argparse import ArgumentParser
 from ._bergamot import Service, ResponseOptions, ServiceConfig, VectorString
-from .config import Config, get_inventory, hardCodeFpaths
-from .pkgmgr import download, listModels
+from .config import repository
 
 
 def translate_fn(args):
@@ -15,14 +14,7 @@ def translate_fn(args):
     service = Service(config)
 
     # Work with one model, loaded from config file
-    appConfig = Config()
-    inventory = get_inventory(appConfig.url, appConfig.models_file)
-    model_config = {entry["code"]: entry for entry in inventory["models"]}
-    model_entry = model_config[args.model]
-    fprefix = hardCodeFpaths(model_entry["url"])
-    model_dir = os.path.join(appConfig.models_dir, fprefix)
-    model_config = os.path.join(model_dir, "config.bergamot.yml")
-
+    model_config = repository.modelConfigPath(args.model)
     model = service.modelFromConfigPath(model_config)
 
     # Configure a few options which require how a Response is constructed
@@ -82,12 +74,23 @@ def main():
     options.add_argument("--quality-scores", type=bool, default=False)
 
     args = parser.parse_args()
-    config = Config()
 
     if args.action == "download":
-        download(config)
+        for model in repository.models(filter_downloaded=False):
+            repository.download(model)
     elif args.action == "ls":
-        listModels(config)
+        print("Available models: ")
+        for counter, identifier in enumerate(
+            repository.models(filter_downloaded=True), 1
+        ):
+            model = repository.model(identifier)
+            print(
+                " {}.".format(str(counter).rjust(4)),
+                model["code"],
+                model["name"],
+            )
+        print()
+
     elif args.action == "translate":
         translate_fn(args)
     else:
