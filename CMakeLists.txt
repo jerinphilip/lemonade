@@ -68,6 +68,7 @@ set(LINK_LIBRARIES
 )
 
 if(UNIX)
+
 include(GNUInstallDirs)
 
 add_subdirectory(3rd_party)
@@ -78,12 +79,14 @@ if(COMPILE_PYTHON)
 endif(COMPILE_PYTHON)
 
 
+
 install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
-if(!APPLE)
+
+if(NOT APPLE)
   install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
   install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
-endif(!APPLE)
- # install(FILES ${CMAKE_SOURCE_DIR}/logo/lemonade_logo.png DESTINATION share/icons)
- # install(FILES ${CMAKE_SOURCE_DIR}/logo/lemonade_logo.svg DESTINATION share/icons)
+  install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
+endif(NOT APPLE)
+
 endif(UNIX)
 

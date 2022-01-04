@@ -182,16 +182,25 @@ PYBIND11_MODULE(_bergamot, m) {
   py::bind_vector<std::vector<std::string>>(m, "VectorString");
   py::bind_vector<std::vector<Response>>(m, "VectorResponse");
 
-  py::class_<ResponseOptions>(m, "ResponseOptions")
-      .def(py::init<>())
-      .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
-      .def_readwrite("HTML", &ResponseOptions::HTML)
-      .def_readwrite("alignment", &ResponseOptions::alignment);
-
   py::enum_<ConcatStrategy>(m, "ConcatStrategy")
       .value("FAITHFUL", ConcatStrategy::FAITHFUL)
       .value("SPACE", ConcatStrategy::SPACE)
       .export_values();
+
+  py::class_<ResponseOptions>(m, "ResponseOptions")
+      .def(py::init<>([](bool qualityScores, bool alignment, bool HTML,
+                         bool sentenceMappings, ConcatStrategy strategy) {
+             return ResponseOptions{qualityScores, alignment, HTML,
+                                    sentenceMappings, strategy};
+           }),
+           py::arg("qualityScores") = true, py::arg("alignment") = false,
+           py::arg("HTML") = false, py::arg("sentenceMappings") = true,
+           py::arg("concatStrategy") = ConcatStrategy::FAITHFUL)
+      .def_readwrite("qualityScores", &ResponseOptions::qualityScores)
+      .def_readwrite("HTML", &ResponseOptions::HTML)
+      .def_readwrite("alignment", &ResponseOptions::alignment)
+      .def_readwrite("concatStrategy", &ResponseOptions::concatStrategy)
+      .def_readwrite("sentenceMappings", &ResponseOptions::sentenceMappings);
 
   py::class_<ServicePyAdapter>(m, "Service")
       .def(py::init<const Service::Config &>())
@@ -201,8 +210,15 @@ PYBIND11_MODULE(_bergamot, m) {
       .def("pivot", &ServicePyAdapter::pivot);
 
   py::class_<Service::Config>(m, "ServiceConfig")
-      .def(py::init<>())
+      .def(py::init<>([](size_t numWorkers, bool cacheEnabled, size_t cacheSize,
+                         size_t cacheMutexBuckets) {
+             return Service::Config{numWorkers, cacheEnabled, cacheSize,
+                                    cacheMutexBuckets};
+           }),
+           py::arg("numWorkers") = 1, py::arg("cacheEnabled") = false,
+           py::arg("cacheSize") = 20000, py::arg("cacheMutexBuckets") = 1)
       .def_readwrite("numWorkers", &Service::Config::numWorkers)
+      .def_readwrite("cacheEnabled", &Service::Config::cacheEnabled)
       .def_readwrite("cacheSize", &Service::Config::cacheSize)
       .def_readwrite("cacheMutexBuckets", &Service::Config::cacheMutexBuckets);
 

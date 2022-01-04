@@ -1,0 +1,25 @@
+name: "Python Style"
+'on':
+  push:
+    branches:
+    - master
+    - unstable
+  pull_request:
+    branches:
+    - '**'
+
+jobs:
+    python-ubuntu:
+      name: "ubuntu pybindings"
+      runs-on: "ubuntu-latest"
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install Dependencies
+        run: |-
+            python3 -m pip install black
+      - name: Run check for formatting using black
+        run: |
+            python3 -m black --check bindings/python/

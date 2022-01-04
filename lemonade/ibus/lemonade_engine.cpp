@@ -8,6 +8,53 @@
 
 namespace lemonade::ibus {
 
+LemonadeEngine::PropertyRegistry LemonadeEngine::makeProperties() {
+  LemonadeEngine::PropertyRegistry registry;
+
+  auto props = [](std::string side, std::string defaultLang) {
+    bool first = false;
+    std::vector<std::string> LANGS = {"English",  "German",  "Czech",
+                                      "Estonian", "Italian", "Spanish"};
+    g::PropList langs;
+    for (auto &lang : LANGS) {
+      std::string key = side + "_" + lang;
+      g::Property langProperty =
+          g::Property(/*key=*/key.c_str(),
+                      /*type=*/PROP_TYPE_RADIO,
+                      /*label=*/g::Text(lang),
+                      /*icon=*/nullptr,
+                      /*tooltip=*/g::Text(lang),
+                      /*sensitive=*/TRUE,
+                      /*visible=*/TRUE,
+                      /*state=*/lang == defaultLang ? PROP_STATE_CHECKED
+                                                    : PROP_STATE_UNCHECKED,
+                      /*props=*/nullptr);
+      langs.append(langProperty);
+    }
+    return langs;
+  };
+
+  registry.emplace_back(/*key=*/"source",
+                        /*type=*/PROP_TYPE_MENU,
+                        /*label=*/g::Text("source"),
+                        /*icon=*/nullptr,
+                        /*tooltip=*/g::Text("Source language"),
+                        /*sensitive=*/TRUE,
+                        /*visible=*/TRUE,
+                        /*state=*/PROP_STATE_CHECKED,
+                        /*props=*/props("source", "English"));
+  registry.emplace_back(/*key=*/"target",
+                        /*type=*/PROP_TYPE_MENU,
+                        /*label=*/g::Text("target"),
+                        /*icon=*/nullptr,
+                        /*tooltip=*/g::Text("Target language"),
+                        /*sensitive=*/TRUE,
+                        /*visible=*/TRUE,
+                        /*state=*/PROP_STATE_CHECKED,
+                        /*props=*/props("target", "German"));
+  return registry;
+}
+
 namespace {
 std::string getIBUSLoggingDirectory() {
   // FIXME, hardcode for now. IBUS will be fixed separately.
@@ -18,9 +65,18 @@ std::string getIBUSLoggingDirectory() {
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine)
     : Engine(engine), logger_("ibus-engine", {getIBUSLoggingDirectory()}),
-      translator_(/*maxModels=*/4, /*numWorkers=*/1) {
+      translator_(/*maxModels=*/4, /*numWorkers=*/1),
+      propertyRegistry_(makeProperties()) {
   logger_.log("Lemonade engine started");
   gint i;
+  for (auto &property : propertyRegistry_) {
+    propList_.append(property);
+    logger_.log("Adding property");
+  }
+
+  // Hardcode the following for now.
+  sourceLang_ = "English";
+  targetLang_ = "German";
 }
 
 /* destructor */
@@ -28,6 +84,10 @@ LemonadeEngine::~LemonadeEngine(void) { hideLookupTable(); }
 
 gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
                                          guint modifiers) {
+  // If both langs are set to equal, translation mechanism needn't kick in.
+  if (sourceLang_ == targetLang_) {
+    return false;
+  }
 
   if (contentIsPassword())
     return FALSE;
@@ -67,9 +127,14 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
 
   } break;
   case IBUS_Return: {
+    if (translationBuffer_.empty()) {
+      // We have no use for empty enters.
+      return false;
+    }
     translationBuffer_ += "\n";
     commit();
     retval = TRUE;
+
   } break;
   case IBUS_BackSpace: {
     if (!buffer_.empty()) {
@@ -107,7 +172,7 @@ void LemonadeEngine::updateBuffer(const std::string &append) {
 void LemonadeEngine::refreshTranslation() {
   std::string bufferCopy = buffer_;
   auto translation =
-      translator_.btranslate(std::move(bufferCopy), "English", "German");
+      translator_.btranslate(std::move(bufferCopy), sourceLang_, targetLang_);
 
   translationBuffer_ = translation.target.text;
   std::vector<std::string> entries = {buffer_};
@@ -126,6 +191,7 @@ void LemonadeEngine::commit() {
   g::Text text(translationBuffer_);
   commitText(text);
   hideLookupTable();
+
   buffer_.clear();
   translationBuffer_.clear();
 
@@ -135,9 +201,13 @@ void LemonadeEngine::commit() {
   updatePreeditText(preEdit, cursorPos_, TRUE);
 }
 
-void LemonadeEngine::focusIn(void) {}
+void LemonadeEngine::focusIn(void) { registerProperties(propList_); }
 
-void LemonadeEngine::focusOut(void) { Engine::focusOut(); }
+void LemonadeEngine::focusOut(void) {
+  buffer_.clear();
+  translationBuffer_.clear();
+  Engine::focusOut();
+}
 
 void LemonadeEngine::reset(void) {}
 
@@ -160,6 +230,19 @@ inline void LemonadeEngine::showSetupDialog(void) {
 
 gboolean LemonadeEngine::propertyActivate(const char *prop_name,
                                           guint prop_state) {
+  if (prop_state == 1) {
+    // source_
+    // target_
+    std::string serialized(prop_name);
+    std::string side = serialized.substr(0, 6);
+    std::string lang = serialized.substr(7, serialized.size());
+    logger_.log(fmt::format("[{}] [{}]", side, lang));
+    if (side == "source") {
+      sourceLang_ = lang;
+    } else {
+      targetLang_ = lang;
+    }
+  }
   return FALSE;
 }
 
