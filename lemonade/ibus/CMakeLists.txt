@@ -2,7 +2,7 @@
 set(IBUS_BUS_NAME "org.freedesktop.IBus.Lemonade")
 set(IBUS_COMMANDLINE "")
 set(IBUS_TEXTDOMAIN "lemonade-ime")
-set(IBUS_ICON "/usr/share/icons/lemonade.svg")
+set(IBUS_ICON "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/bergamot.png")
 set(IBUS_LAYOUT "us")
 set(IBUS_LANGUAGE "en")
 

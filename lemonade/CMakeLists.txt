@@ -2,6 +2,6 @@
 add_subdirectory(lib)
 add_subdirectory(bin)
 
-if(!APPLE)
+if(NOT APPLE)
   add_subdirectory(ibus)
-endif(!APPLE)
+endif(NOT APPLE)
