@@ -2,8 +2,7 @@ name: "ubuntu-latest"
 'on':
   push:
     branches:
-    - master
-    - unstable
+    - main
   pull_request:
     branches:
     - '**'

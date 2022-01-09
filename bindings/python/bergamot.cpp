@@ -35,30 +35,19 @@ PYBIND11_MAKE_OPAQUE(Alignments);
 
 class ServicePyAdapter {
 public:
-  ServicePyAdapter(const Service::Config &config) {
-    py::scoped_ostream_redirect outstream(
-        std::cout,                                // std::ostream&
-        py::module_::import("sys").attr("stdout") // Python output
-    );
-    py::scoped_ostream_redirect errstream(
-        std::cerr,                                // std::ostream&
-        py::module_::import("sys").attr("stderr") // Python output
-    );
-
-    py::call_guard<py::gil_scoped_release> gil_guard;
-    service_.reset(std::move(new Service(config)));
-  }
+  ServicePyAdapter(const Service::Config &config)
+      : service_(make_service(config)) {}
 
   std::shared_ptr<_Model> modelFromConfig(const std::string &config) {
-    return service_->createCompatibleModel(config);
+    return service_.createCompatibleModel(config);
   }
 
   std::shared_ptr<_Model> modelFromConfigPath(const std::string &configPath) {
     auto config = marian::bergamot::parseOptionsFromFilePath(configPath);
-    return service_->createCompatibleModel(config);
+    return service_.createCompatibleModel(config);
   }
 
-  std::vector<Response> translate(Model model, std::vector<std::string> inputs,
+  std::vector<Response> translate(Model model, std::vector<std::string> &inputs,
                                   const ResponseOptions &options) {
     py::scoped_ostream_redirect outstream(
         std::cout,                                // std::ostream&
@@ -82,8 +71,8 @@ public:
         promises[i].set_value(std::move(response));
       };
 
-      service_->translate(model, std::move(inputs[i]), std::move(callback),
-                          options);
+      service_.translate(model, std::move(inputs[i]), std::move(callback),
+                         options);
 
       futures.push_back(std::move(promises[i].get_future()));
     }
@@ -99,19 +88,8 @@ public:
   }
 
   std::vector<Response> pivot(Model first, Model second,
-                              std::vector<std::string> inputs,
+                              std::vector<std::string> &inputs,
                               const ResponseOptions &options) {
-    py::scoped_ostream_redirect outstream(
-        std::cout,                                // std::ostream&
-        py::module_::import("sys").attr("stdout") // Python output
-    );
-    py::scoped_ostream_redirect errstream(
-        std::cerr,                                // std::ostream&
-        py::module_::import("sys").attr("stderr") // Python output
-    );
-
-    py::call_guard<py::gil_scoped_release> gil_guard;
-
     // Prepare promises, save respective futures. Have callback's in async set
     // value to the promises.
     std::vector<std::future<Response>> futures;
@@ -123,8 +101,8 @@ public:
         promises[i].set_value(std::move(response));
       };
 
-      service_->pivot(first, second, std::move(inputs[i]), std::move(callback),
-                      options);
+      service_.pivot(first, second, std::move(inputs[i]), std::move(callback),
+                     options);
 
       futures.push_back(std::move(promises[i].get_future()));
     }
@@ -139,8 +117,24 @@ public:
     return responses;
   }
 
-private:
-  std::unique_ptr<Service> service_{nullptr};
+private /*functions*/:
+  static Service make_service(const Service::Config &config) {
+    py::scoped_ostream_redirect outstream(
+        std::cout,                                // std::ostream&
+        py::module_::import("sys").attr("stdout") // Python output
+    );
+    py::scoped_ostream_redirect errstream(
+        std::cerr,                                // std::ostream&
+        py::module_::import("sys").attr("stderr") // Python output
+    );
+
+    py::call_guard<py::gil_scoped_release> gil_guard;
+
+    return Service(config);
+  }
+
+private /*data*/:
+  Service service_;
 };
 
 PYBIND11_MODULE(_bergamot, m) {
