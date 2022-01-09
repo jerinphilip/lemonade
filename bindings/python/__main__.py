@@ -106,6 +106,8 @@ def main():
         if len(args.model) > 2:
             print("Error, more than two models specified.", file=sys.stderr)
             parser.print_help(sys.stderr)
+            sys.exit(1)
+
         translate_fn(args)
     else:
         parser.print_help(sys.stderr)
