@@ -14,8 +14,11 @@ def translate_fn(args):
     service = Service(config)
 
     # Work with one model, loaded from config file
-    model_config = repository.modelConfigPath(args.model)
-    model = service.modelFromConfigPath(model_config)
+
+    models = [
+        service.modelFromConfigPath(repository.modelConfigPath(model))
+        for model in args.model
+    ]
 
     # Configure a few options which require how a Response is constructed
     options = ResponseOptions(
@@ -23,7 +26,14 @@ def translate_fn(args):
     )
 
     source = sys.stdin.read()
-    responses = service.translate(model, VectorString([source]), options)
+
+    responses = None
+    if len(models) == 1:
+        [model] = models
+        responses = service.translate(model, VectorString([source]), options)
+    else:
+        [first, second] = models
+        responses = service.pivot(first, second, VectorString([source]), options)
 
     for response in responses:
         print(response.target.text, end="")
@@ -57,7 +67,8 @@ def main():
         "-m",
         "--model",
         type=str,
-        help="Path to model file to use in tag-transfer translation",
+        nargs="+",
+        help="Path to at max 2 model files to use in tag-transfer translation. 1 model implies only forward translation. If two models are provided",
         required=True,
     )
     translate.add_argument(
@@ -92,6 +103,9 @@ def main():
         print()
 
     elif args.action == "translate":
+        if len(args.model) > 2:
+            print("Error, more than two models specified.", file=sys.stderr)
+            parser.print_help(sys.stderr)
         translate_fn(args)
     else:
         parser.print_help(sys.stderr)
