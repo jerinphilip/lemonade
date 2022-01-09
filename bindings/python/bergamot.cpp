@@ -58,7 +58,7 @@ public:
     return service_->createCompatibleModel(config);
   }
 
-  std::vector<Response> translate(Model model, std::vector<std::string> inputs,
+  std::vector<Response> translate(Model model, std::vector<std::string> &inputs,
                                   const ResponseOptions &options) {
     py::scoped_ostream_redirect outstream(
         std::cout,                                // std::ostream&
