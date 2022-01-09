@@ -2,8 +2,7 @@ name: "Python Bindings"
 'on':
   push:
     branches:
-    - master
-    - unstable
+    - main
   pull_request:
     branches:
     - '**'
