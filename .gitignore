@@ -7,3 +7,4 @@ lemonade/ibus/application.h
 *.pyc
 __pycache__
 env/
+*.py.in
