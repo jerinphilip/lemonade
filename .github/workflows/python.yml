@@ -202,5 +202,5 @@ jobs:
            prerelease: true
            title: "Latest Build"
            files: |
-                  ${{github.workspace}}/dist/*.whl
+                  ${{github.workspace}}/artifact/*.whl
   
