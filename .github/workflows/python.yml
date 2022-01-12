@@ -68,7 +68,7 @@ jobs:
           ccache -z # Zero cache entry
       - name: setup.py 
         run: |-
-          python3 setup.py bdist_wheel
+          BUILD_ARCH=core-avx-i python3 setup.py bdist_wheel --universal
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
@@ -157,7 +157,7 @@ jobs:
       - name: setup.py 
         run: |-
           ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
-          ${pythonLocation}/bin/python3 setup.py bdist_wheel
+          BUILD_ARCH=core-avx-i ${pythonLocation}/bin/python3 setup.py bdist_wheel --universal
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
