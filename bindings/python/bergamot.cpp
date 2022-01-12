@@ -4,6 +4,7 @@
 #include <pybind11/stl_bind.h>
 #include <translator/annotation.h>
 #include <translator/parser.h>
+#include <translator/project_version.h>
 #include <translator/response.h>
 #include <translator/response_options.h>
 #include <translator/service.h>
@@ -106,6 +107,8 @@ private /*data*/:
 };
 
 PYBIND11_MODULE(_bergamot, m) {
+  m.doc() = "Bergamot pybind11 bindings";
+  m.attr("__version__") = marian::bergamot::bergamotBuildVersion();
   py::class_<ByteRange>(m, "ByteRange")
       .def(py::init<>())
       .def_readonly("begin", &ByteRange::begin)

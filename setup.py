@@ -1,12 +1,12 @@
+import io
 import os
 import re
 import subprocess
 import sys
 
-from setuptools import Extension, setup
+from setuptools import Command, Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
-from setuptools import setup, find_packages
-
+from setuptools.command.build_py import build_py as _build_py
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -15,7 +15,6 @@ PLAT_TO_CMAKE = {
     "win-arm32": "ARM",
     "win-arm64": "ARM64",
 }
-
 
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
@@ -52,9 +51,8 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_C_COMPILER_LAUNCHER=ccache",
             f"-DCOMPILE_PYTHON=ON",
             f"-DSSPLIT_USE_INTERNAL_PCRE2=ON",
-
         ]
-        build_args = ['-t', '_bergamot']
+        build_args = ["-t", "_bergamot"]
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
@@ -116,7 +114,7 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
 
-        print("cmake", ext.sourcedir, ' '.join(cmake_args))
+        print("cmake", ext.sourcedir, " ".join(cmake_args))
 
         subprocess.check_call(
             ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp
@@ -126,31 +124,81 @@ class CMakeBuild(build_ext):
         )
 
 
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Import the README and use it as the long-description.
+# Note: this will only work if 'README.md' is present in your MANIFEST.in file!
+with io.open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = "\n" + f.read()
+
+version = None
+with open(os.path.join(here, "lemonade.version")) as f:
+    version = f.read().strip()
+
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = "Build and publish the package."
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Prints things in bold."""
+        print("\033[1m{0}\033[0m".format(s))
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status("Removing previous builds…")
+            rmtree(os.path.join(here, "dist"))
+        except OSError:
+            pass
+
+        self.status("Building Source and Wheel (universal) distribution…")
+        os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
+
+        self.status("Pushing git tags…")
+        os.system("git push --tags")
+
+        self.status("Uploading the package to PyPI via Twine…")
+        os.system("twine upload dist/*")
+
+        sys.exit()
+
+
+class build_py(_build_py):
+    def run(self):
+        self.run_command("build_ext")
+        return super().run()
+
+
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="bergamot",
-    version="0.0.1",
+    version=version,
     author="Jerin Philip",
     author_email="jerinphilip@live.in",
-    description="Bergamot translation python binding.",
+    description="Bergamot translator python binding.",
     long_description="",
     ext_modules=[CMakeExtension("bergamot/_bergamot")],
-    cmdclass={"build_ext": CMakeBuild},
+    cmdclass={"build_py": build_py, "build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
+    license_files=("LICENSE.txt",),
     python_requires=">=3.6",
-    packages=['bergamot'],
-    package_dir={'bergamot': 'bindings/python'},
-    install_requires=[
-        'requests',
-        'pyyaml',
-        'appdirs'
-    ],
+    packages=["bergamot"],
+    package_dir={"bergamot": "bindings/python"},
+    install_requires=["requests", "pyyaml", "appdirs"],
     entry_points={
-    'console_scripts': [
-        'bergamot = bergamot.__main__:main',
-    ],
-},
-
+        "console_scripts": [
+            "bergamot = bergamot.__main__:main",
+        ],
+    },
 )
