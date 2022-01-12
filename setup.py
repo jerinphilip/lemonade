@@ -52,9 +52,8 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_C_COMPILER_LAUNCHER=ccache",
             f"-DCOMPILE_PYTHON=ON",
             f"-DSSPLIT_USE_INTERNAL_PCRE2=ON",
-
         ]
-        build_args = ['-t', '_bergamot']
+        build_args = ["-t", "_bergamot"]
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
@@ -116,7 +115,7 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
 
-        print("cmake", ext.sourcedir, ' '.join(cmake_args))
+        print("cmake", ext.sourcedir, " ".join(cmake_args))
 
         subprocess.check_call(
             ["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp
@@ -187,19 +186,14 @@ setup(
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
-    license_files=("LICENSE.txt", ),
+    license_files=("LICENSE.txt",),
     python_requires=">=3.6",
-    packages=['bergamot'],
-    package_dir={'bergamot': 'bindings/python'},
-    install_requires=[
-        'requests',
-        'pyyaml',
-        'appdirs'
-    ],
+    packages=["bergamot"],
+    package_dir={"bergamot": "bindings/python"},
+    install_requires=["requests", "pyyaml", "appdirs"],
     entry_points={
-    'console_scripts': [
-        'bergamot = bergamot.__main__:main',
-    ],
-},
-
+        "console_scripts": [
+            "bergamot = bergamot.__main__:main",
+        ],
+    },
 )
