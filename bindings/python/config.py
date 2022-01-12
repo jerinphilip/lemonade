@@ -1,15 +1,16 @@
-from appdirs import AppDirs
 import json
-import yaml
 import os
+import tarfile
 import typing as t
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from functools import partial
 from urllib.parse import urlparse
-import requests
-import tarfile
 
-from .typing_utils import PathLike, URL
+import requests
+import yaml
+from appdirs import AppDirs
+
+from .typing_utils import URL, PathLike
 
 
 def download_resource(url: URL, save_location: PathLike, force_download=False):

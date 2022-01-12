@@ -1,15 +1,12 @@
+import io
 import os
 import re
 import subprocess
 import sys
-import io
 
-from setuptools import Extension, setup
-from setuptools.command.build_py import build_py as _build_py
+from setuptools import Command, Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
-from setuptools import setup, find_packages, Command
-
-
+from setuptools.command.build_py import build_py as _build_py
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -173,6 +170,7 @@ class UploadCommand(Command):
         os.system("twine upload dist/*")
 
         sys.exit()
+
 
 class build_py(_build_py):
     def run(self):
