@@ -1,4 +1,4 @@
-name: "Python Style"
+name: "py-style"
 'on':
   push:
     branches:
@@ -9,7 +9,7 @@ name: "Python Style"
 
 jobs:
     python-ubuntu:
-      name: "ubuntu pybindings"
+      name: "isort, black"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
@@ -18,7 +18,8 @@ jobs:
           submodules: recursive
       - name: Install Dependencies
         run: |-
-            python3 -m pip install black
+            python3 -m pip install black isort
       - name: Run check for formatting using black
         run: |
-            python3 -m black --check bindings/python/
+            python3 -m black --check bindings/python/ setup.py
+            python3 -m isort --profile black --diff-check bindings/python setup.py
