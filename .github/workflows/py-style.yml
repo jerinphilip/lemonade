@@ -22,4 +22,4 @@ jobs:
       - name: Run check for formatting using black
         run: |
             python3 -m black --check bindings/python/ setup.py
-            python3 -m isort --profile black --diff-check bindings/python setup.py
+            python3 -m isort --profile black --diff --check bindings/python setup.py
