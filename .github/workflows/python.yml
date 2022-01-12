@@ -68,7 +68,7 @@ jobs:
           ccache -z # Zero cache entry
       - name: setup.py 
         run: |-
-          python3 setup.py bdist_wheel
+          BUILD_ARCH=core-avx-i python3 setup.py bdist_wheel --universal
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
@@ -85,6 +85,11 @@ jobs:
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
+
+      - uses: actions/upload-artifact@v2
+        with:
+            path: ${{github.workspace}}/dist/bergamot-*.whl
+
 
     python-macos:
       name: "macos pybindings"
@@ -157,7 +162,7 @@ jobs:
       - name: setup.py 
         run: |-
           ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
-          ${pythonLocation}/bin/python3 setup.py bdist_wheel
+          BUILD_ARCH=core-avx-i ${pythonLocation}/bin/python3 setup.py bdist_wheel --universal
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
@@ -174,3 +179,28 @@ jobs:
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
+
+      - uses: actions/upload-artifact@v2
+        with:
+            path: ${{github.workspace}}/dist/bergamot-*.whl
+
+  # Try to upload a release using https://github.com/marvinpinto/actions/issues/177#issuecomment-917605585 as a model
+    release:
+      name: Release build
+      runs-on: ubuntu-latest
+      needs: [python-ubuntu, python-macos]
+      if: github.ref == 'refs/heads/master'
+      steps:
+       - name: Download artifacts
+         uses: actions/download-artifact@v2
+  
+       - name: Update GitHub prerelease
+         uses: marvinpinto/action-automatic-releases@latest
+         with:
+           repo_token: ${{ secrets.GITHUB_TOKEN }}
+           automatic_release_tag: latest
+           prerelease: true
+           title: "Latest Build"
+           files: |
+                  ${{github.workspace}}/artifact/*.whl
+  

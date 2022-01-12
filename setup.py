@@ -39,6 +39,7 @@ class CMakeBuild(build_ext):
         # CMake lets you override the generator - we need to check this.
         # Can be set with Conda-Build, for example.
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
+        build_arch = os.environ.get("BUILD_ARCH", "native")
 
         # Set Python_EXECUTABLE instead if you use PYBIND11_FINDPYTHON
         # EXAMPLE_VERSION_INFO shows you how to pass a value into the C++ code
@@ -51,6 +52,7 @@ class CMakeBuild(build_ext):
             f"-DCMAKE_C_COMPILER_LAUNCHER=ccache",
             f"-DCOMPILE_PYTHON=ON",
             f"-DSSPLIT_USE_INTERNAL_PCRE2=ON",
+            f"-DBUILD_ARCH={build_arch}",
         ]
         build_args = ["-t", "_bergamot"]
         # Adding CMake arguments set as environment variable
