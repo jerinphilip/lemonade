@@ -5,8 +5,10 @@ import sys
 import io
 
 from setuptools import Extension, setup
+from setuptools.command.build_py import build_py as _build_py
 from setuptools.command.build_ext import build_ext
 from setuptools import setup, find_packages, Command
+
 
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
@@ -172,6 +174,11 @@ class UploadCommand(Command):
 
         sys.exit()
 
+class build_py(_build_py):
+    def run(self):
+        self.run_command("build_ext")
+        return super().run()
+
 
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
@@ -183,7 +190,7 @@ setup(
     description="Bergamot translator python binding.",
     long_description="",
     ext_modules=[CMakeExtension("bergamot/_bergamot")],
-    cmdclass={"build_ext": CMakeBuild},
+    cmdclass={"build_py": build_py, "build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
     license_files=("LICENSE.txt",),
