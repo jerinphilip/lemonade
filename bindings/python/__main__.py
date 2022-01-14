@@ -1,10 +1,10 @@
+import argparse
 import os
 import sys
-import argparse
-from collections import Counter
-from collections import defaultdict
 from argparse import ArgumentParser
-from ._bergamot import Service, ResponseOptions, ServiceConfig, VectorString
+from collections import Counter, defaultdict
+
+from . import ResponseOptions, Service, ServiceConfig, VectorString
 from .config import repository
 
 

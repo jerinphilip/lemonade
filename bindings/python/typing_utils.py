@@ -1,5 +1,5 @@
-from typing import TypeVar
 import pathlib
+import typing as t
 
-PathLike = TypeVar("PathLike", str, pathlib.Path, None)
+PathLike = t.TypeVar("PathLike", str, pathlib.Path)
 URL = str
