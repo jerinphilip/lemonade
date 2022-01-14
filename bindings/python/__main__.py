@@ -4,8 +4,8 @@ import sys
 from argparse import ArgumentParser
 from collections import Counter, defaultdict
 
-from ._bergamot import ResponseOptions, Service, ServiceConfig, VectorString
 from .config import repository
+from . import ResponseOptions, Service, ServiceConfig, VectorString
 
 
 def translate_fn(args):

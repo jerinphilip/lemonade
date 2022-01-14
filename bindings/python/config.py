@@ -52,7 +52,7 @@ def patch_marian_for_bergamot(
     )
 
     if quality:
-        data.update({"quality": args.quality, "skip-cost": False})
+        data.update({"quality": quality, "skip-cost": False})
 
     # Write-out.
     with open(bergamot_config_path, "w") as output_file:
@@ -109,7 +109,7 @@ class TranslateLocally(Repository):
         for model in self.data["models"]:
             self.data_by_code[model["code"]] = model
 
-    def update(self, models_file_path: PathLike) -> t.List[t.Any]:
+    def update(self, models_file_path: PathLike) -> t.Dict[str, t.Any]:
         url = "https://translatelocally.com/models.json"
         inventory = requests.get(url).text
         with open(models_file_path, "w+") as models_file:
