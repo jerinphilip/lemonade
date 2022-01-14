@@ -1,4 +1,4 @@
 try:
-    from ._bergamot import * 
+    from ._bergamot import *
 except ImportError:
     raise
