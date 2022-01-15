@@ -124,12 +124,6 @@ jobs:
         with:
             path: ${{github.workspace}}/dist/bergamot-*.whl
       
-      - name: pytype typechecks
-        run: |
-            python3 -m pip install pytype
-            mkdir -p build/wheel-extracted && unzip -d build/wheel-extracted ${{github.workspace}}/dist/bergamot-*.whl
-            python3 -m pytype build/wheel-extracted/bergamot
-
 
     python-macos:
       name: "macos pybindings"
