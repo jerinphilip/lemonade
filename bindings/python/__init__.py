@@ -1,4 +1,6 @@
+import typing
+
 try:
-    from ._bergamot import *
+    from ._bergamot import *  # type: ignore
 except ImportError:
     raise
