@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 
 from .cmds import CMDS
 
+
 def main() -> None:
     parser = ArgumentParser("bergamot")
     subparsers = parser.add_subparsers(

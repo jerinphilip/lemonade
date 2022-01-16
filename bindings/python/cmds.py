@@ -52,9 +52,10 @@ class Translate:
         config = ServiceConfig(numWorkers=args.num_workers)
         service = Service(config)
 
-        # Work with one model, loaded from config file
-        model_config = repository.modelConfigPath(args.model)
-        model = service.modelFromConfigPath(model_config)
+        models = [
+            service.modelFromConfigPath(repository.modelConfigPath(model))
+            for model in args.model
+        ]
 
         # Configure a few options which require how a Response is constructed
         options = ResponseOptions(
