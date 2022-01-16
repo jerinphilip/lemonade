@@ -9,7 +9,7 @@ name: "py-style"
 
 jobs:
     python-ubuntu:
-      name: "isort, black"
+      name: "formatting and typechecks"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
@@ -18,8 +18,11 @@ jobs:
           submodules: recursive
       - name: Install Dependencies
         run: |-
-            python3 -m pip install black isort
-      - name: Run check for formatting using black
+            python3 -m pip install black isort pytype
+      - name: "Formatting checks: black, isort"
         run: |
             python3 -m black --check bindings/python/ setup.py
             python3 -m isort --profile black --diff --check bindings/python setup.py
+      - name: "Static typing checks: pytype"
+        run: |-
+            python3 -m pytype bindings/python
