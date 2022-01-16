@@ -30,9 +30,11 @@ class Translate:
             "-m",
             "--model",
             type=str,
+            nargs="+",
             help="Path to model file to use in tag-transfer translation",
             required=True,
         )
+
         translate.add_argument(
             "--num-workers",
             type=int,
