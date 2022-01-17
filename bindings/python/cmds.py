@@ -30,9 +30,11 @@ class Translate:
             "-m",
             "--model",
             type=str,
+            nargs="+",
             help="Path to model file to use in tag-transfer translation",
             required=True,
         )
+
         translate.add_argument(
             "--num-workers",
             type=int,
@@ -52,9 +54,10 @@ class Translate:
         config = ServiceConfig(numWorkers=args.num_workers)
         service = Service(config)
 
-        # Work with one model, loaded from config file
-        model_config = repository.modelConfigPath(args.model)
-        model = service.modelFromConfigPath(model_config)
+        models = [
+            service.modelFromConfigPath(repository.modelConfigPath(model))
+            for model in args.model
+        ]
 
         # Configure a few options which require how a Response is constructed
         options = ResponseOptions(
@@ -62,7 +65,13 @@ class Translate:
         )
 
         source = sys.stdin.read()
-        responses = service.translate(model, VectorString([source]), options)
+        responses = None
+        if len(models) == 1:
+            [model] = models
+            responses = service.translate(model, VectorString([source]), options)
+        else:
+            [first, second] = models
+            responses = service.pivot(first, second, VectorString([source]), options)
 
         for response in responses:
             print(response.target.text, end="")

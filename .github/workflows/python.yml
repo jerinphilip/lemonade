@@ -112,10 +112,12 @@ jobs:
       - name: Fetch models from translateLocally repository.
         run: |-
           python3 -m bergamot download -m en-de-tiny
+          python3 -m bergamot download -m de-en-tiny
 
       - name: Run the sample python script shipped with module
         run: |-
           python3 -m bergamot translate --model en-de-tiny <<< "Hello World"
+          python3 -m bergamot translate --model en-de-tiny de-en-tiny <<< "Hello World"
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
@@ -206,10 +208,12 @@ jobs:
       - name: Fetch models from translateLocally repository.
         run: |-
           python3 -m bergamot download -m en-de-tiny
+          python3 -m bergamot download -m de-en-tiny
 
       - name: Run the sample python script shipped with module
         run: |-
           python3 -m bergamot translate --model en-de-tiny <<< "Hello World"
+          python3 -m bergamot translate --model en-de-tiny de-en-tiny <<< "Hello World"
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
