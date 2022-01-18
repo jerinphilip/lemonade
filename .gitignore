@@ -9,6 +9,5 @@ __pycache__
 env/
 bindings/python/_version.py
 
-docs/Makefile
 docs/_build
 docs/make.bat
