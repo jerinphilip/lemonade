@@ -120,8 +120,9 @@ class List:
             )
         print()
 
-def make_parser():
-    parser = ArgumentParser("bergamot")
+
+def make_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser("bergamot")
     subparsers = parser.add_subparsers(
         title="actions",
         description="The following actions are available through the bergamot package",
@@ -131,5 +132,4 @@ def make_parser():
 
     for key, cls in CMDS.items():
         cls.embed_subparser(key, subparsers)
-    retrun parser
-
+    return parser
