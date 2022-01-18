@@ -10,6 +10,15 @@ Welcome to Bergamot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+
+Command line
+------------
+
+.. argparse::
+   :ref: bergamot.cmds.make_parser
+   :prog: bergamot
+
+
 Module Documentation
 --------------------
 
