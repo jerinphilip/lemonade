@@ -119,3 +119,17 @@ class List:
                 model["name"],
             )
         print()
+
+def make_parser():
+    parser = ArgumentParser("bergamot")
+    subparsers = parser.add_subparsers(
+        title="actions",
+        description="The following actions are available through the bergamot package",
+        help="To obtain help on how to run these actions supply <cmd> -h.",
+        dest="action",
+    )
+
+    for key, cls in CMDS.items():
+        cls.embed_subparser(key, subparsers)
+    retrun parser
+
