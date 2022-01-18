@@ -2,7 +2,7 @@ import argparse
 import sys
 from argparse import ArgumentParser
 
-from .cmds import CMDs, make_parser
+from .cmds import CMDS, make_parser
 
 
 def main() -> None:
