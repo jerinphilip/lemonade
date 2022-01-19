@@ -40,7 +40,8 @@ public:
       : service_(make_service(config)) {}
 
   std::shared_ptr<_Model> modelFromConfig(const std::string &config) {
-    return service_.createCompatibleModel(config);
+    auto parsedConfig = marian::bergamot::parseOptionsFromString(config);
+    return service_.createCompatibleModel(parsedConfig);
   }
 
   std::shared_ptr<_Model> modelFromConfigPath(const std::string &configPath) {
