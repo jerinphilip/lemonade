@@ -25,13 +25,16 @@ def _register_cmd(cmd: str):
 class Translate:
     @staticmethod
     def embed_subparser(key: str, subparsers: argparse._SubParsersAction):
-        translate = subparsers.add_parser(key)
+        translate = subparsers.add_parser(
+            key,
+            description="translate using a given model. Multiple models mean pivoting",
+        )
         translate.add_argument(
             "-m",
             "--model",
             type=str,
             nargs="+",
-            help="Path to model file to use in tag-transfer translation",
+            help="Path to model file(s) to use in forward or pivot translation",
             required=True,
         )
 
@@ -81,7 +84,9 @@ class Translate:
 class Download:
     @staticmethod
     def embed_subparser(key: str, subparsers: argparse._SubParsersAction):
-        download = subparsers.add_parser(key)
+        download = subparsers.add_parser(
+            key, description="Download models from the web."
+        )
         download.add_argument(
             "-m",
             "--model",
@@ -104,7 +109,7 @@ class Download:
 class List:
     @staticmethod
     def embed_subparser(key: str, subparsers: argparse._SubParsersAction):
-        ls = subparsers.add_parser(key)
+        ls = subparsers.add_parser(key, description="List available models.")
 
     @staticmethod
     def execute(args: argparse.Namespace):
@@ -119,3 +124,17 @@ class List:
                 model["name"],
             )
         print()
+
+
+def make_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser("bergamot")
+    subparsers = parser.add_subparsers(
+        title="actions",
+        description="The following actions are available through the bergamot package",
+        help="To obtain help on how to run these actions supply <cmd> -h.",
+        dest="action",
+    )
+
+    for key, cls in CMDS.items():
+        cls.embed_subparser(key, subparsers)
+    return parser
