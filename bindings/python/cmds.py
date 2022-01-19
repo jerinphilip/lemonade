@@ -44,6 +44,14 @@ class Translate:
             help="Number of worker threads to use to translate",
             default=4,
         )
+
+        translate.add_argument(
+            "--log-level",
+            type=str,
+            default="off",
+            help="Set verbosity level of logging: trace, debug, info, warn, err(or), critical, off",
+        )
+
         # Tweak response-options for quick HTML in out via commandline
         options = translate.add_argument_group("response-options")
         options.add_argument("--html", type=bool, default=False)
@@ -128,12 +136,6 @@ class List:
 
 def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("bergamot")
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="off",
-        description="Set verbosity level of logging: trace, debug, info, warn, err(or), critical, off",
-    )
     subparsers = parser.add_subparsers(
         title="actions",
         description="The following actions are available through the bergamot package",
