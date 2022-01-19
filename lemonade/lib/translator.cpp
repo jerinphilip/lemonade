@@ -24,16 +24,10 @@ void Translator::translate(std::string input, const std::string &source,
       // FIXME
       modelConfig->set("workspace", 128);
 
-      marian::timer::Timer bundleTimer;
-      marian::bergamot::MemoryBundle memoryBundle =
-          marian::bergamot::getMemoryBundleFromConfig(modelConfig);
-      std::cout << fmt::format("Bundle loading from disk {} seconds.\n",
-                               bundleTimer.elapsed());
       marian::timer::Timer timer;
-      model =
-          service_.createCompatibleModel(modelConfig, std::move(memoryBundle));
+      model = service_.createCompatibleModel(modelConfig);
 
-      std::cout << fmt::format("Model building from bundle took {} seconds.\n",
+      std::cerr << fmt::format("Model building from bundle took {} seconds.\n",
                                timer.elapsed());
       manager_.cacheModel(m.code, model);
     }
