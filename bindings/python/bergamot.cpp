@@ -40,7 +40,8 @@ public:
       : service_(make_service(config)) {}
 
   std::shared_ptr<_Model> modelFromConfig(const std::string &config) {
-    return service_.createCompatibleModel(config);
+    auto parsedConfig = marian::bergamot::parseOptionsFromString(config);
+    return service_.createCompatibleModel(parsedConfig);
   }
 
   std::shared_ptr<_Model> modelFromConfigPath(const std::string &configPath) {
@@ -208,12 +209,18 @@ PYBIND11_MODULE(_bergamot, m) {
 
   py::class_<Service::Config>(m, "ServiceConfig")
       .def(py::init<>([](size_t numWorkers, bool cacheEnabled, size_t cacheSize,
-                         size_t cacheMutexBuckets) {
-             return Service::Config{numWorkers, cacheEnabled, cacheSize,
-                                    cacheMutexBuckets};
+                         size_t cacheMutexBuckets, std::string logging) {
+             Service::Config config;
+             config.numWorkers = numWorkers;
+             config.cacheEnabled = cacheEnabled;
+             config.cacheSize = cacheSize;
+             config.cacheMutexBuckets = cacheMutexBuckets;
+             config.logger.level = logging;
+             return config;
            }),
            py::arg("numWorkers") = 1, py::arg("cacheEnabled") = false,
-           py::arg("cacheSize") = 20000, py::arg("cacheMutexBuckets") = 1)
+           py::arg("cacheSize") = 20000, py::arg("cacheMutexBuckets") = 1,
+           py::arg("logLevel") = "off")
       .def_readwrite("numWorkers", &Service::Config::numWorkers)
       .def_readwrite("cacheEnabled", &Service::Config::cacheEnabled)
       .def_readwrite("cacheSize", &Service::Config::cacheSize)
