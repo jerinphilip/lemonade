@@ -54,7 +54,7 @@ class Translate:
     def execute(args: argparse.Namespace):
         # Build service
 
-        config = ServiceConfig(numWorkers=args.num_workers)
+        config = ServiceConfig(numWorkers=args.num_workers, logLevel=args.log_level)
         service = Service(config)
 
         models = [
@@ -128,6 +128,12 @@ class List:
 
 def make_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("bergamot")
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="off",
+        description="Set verbosity level of logging: trace, debug, info, warn, err(or), critical, off",
+    )
     subparsers = parser.add_subparsers(
         title="actions",
         description="The following actions are available through the bergamot package",
