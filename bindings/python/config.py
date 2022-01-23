@@ -12,6 +12,7 @@ from appdirs import AppDirs
 
 from .typing_utils import URL, PathLike
 
+APP = "bergamot"
 
 def download_resource(url: URL, save_location: PathLike, force_download=False):
     """
@@ -81,16 +82,18 @@ class Repository(ABC):
         pass
 
 
-class TranslateLocally(Repository):
+class TranslateLocallyLike(Repository):
     """
     This class implements Repository to fetch models from translateLocally.
     AppDirs is used to standardize directories and further specialization
     happens with translateLocally identifier.
     """
 
-    def __init__(self, appDir: AppDirs):
-        self.repository = "translateLocally"
-        f = os.path.join
+    def __init__(self, name, url):
+        self.url = url
+        self.repository = name
+        appDir = AppDirs(APP)
+        f = lambda *args: os.path.join(*args, self.repository)
         self.dirs = {
             "cache": f(appDir.user_cache_dir),
             "config": f(appDir.user_config_dir),
@@ -110,8 +113,7 @@ class TranslateLocally(Repository):
             self.data_by_code[model["code"]] = model
 
     def update(self, models_file_path: PathLike) -> t.Dict[str, t.Any]:
-        url = "https://translatelocally.com/models.json"
-        inventory = requests.get(url).text
+        inventory = requests.get(self.url).text
         with open(models_file_path, "w+") as models_file:
             models_file.write(inventory)
         return json.loads(inventory)
@@ -175,6 +177,4 @@ class TranslateLocally(Repository):
         return fname_without_extension
 
 
-APP = "lemonade"
-appDir = AppDirs("lemonade")
-repository = TranslateLocally(appDir)
+repository = TranslateLocallyLike("browsermt", "https://translatelocally.com/models.json")
