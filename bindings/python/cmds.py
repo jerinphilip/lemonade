@@ -29,6 +29,7 @@ class Translate:
             key,
             description="translate using a given model. Multiple models mean pivoting",
         )
+
         translate.add_argument(
             "-m",
             "--model",
@@ -36,6 +37,15 @@ class Translate:
             nargs="+",
             help="Path to model file(s) to use in forward or pivot translation",
             required=True,
+        )
+
+        translate.add_argument(
+            "-r",
+            "--repository",
+            type=str,
+            help="Repository to download model from",
+            choices=repository.available(),
+            default="browsermt",
         )
 
         translate.add_argument(
@@ -66,7 +76,9 @@ class Translate:
         service = Service(config)
 
         models = [
-            service.modelFromConfigPath(repository.modelConfigPath(model))
+            service.modelFromConfigPath(
+                repository.modelConfigPath(args.repository, model)
+            )
             for model in args.model
         ]
 
@@ -95,6 +107,7 @@ class Download:
         download = subparsers.add_parser(
             key, description="Download models from the web."
         )
+
         download.add_argument(
             "-m",
             "--model",
@@ -104,13 +117,22 @@ class Download:
             help="Fetch model with given code. Use ls to list available models. Optional, if none supplied all models are downloaded.",
         )
 
+        download.add_argument(
+            "-r",
+            "--repository",
+            type=str,
+            help="Repository to download model from",
+            choices=repository.available(),
+            default="browsermt",
+        )
+
     @staticmethod
     def execute(args: argparse.Namespace):
         if args.model is not None:
-            repository.download(args.model)
+            repository.download(args.repository, args.model)
         else:
-            for model in repository.models(filter_downloaded=False):
-                repository.download(model)
+            for model in repository.models(args.repository, filter_downloaded=False):
+                repository.download(args.repository, model)
 
 
 @_register_cmd("ls")
@@ -118,14 +140,22 @@ class List:
     @staticmethod
     def embed_subparser(key: str, subparsers: argparse._SubParsersAction):
         ls = subparsers.add_parser(key, description="List available models.")
+        ls.add_argument(
+            "-r",
+            "--repository",
+            type=str,
+            help="Repository to list models from",
+            choices=repository.available(),
+            default="browsermt",
+        )
 
     @staticmethod
     def execute(args: argparse.Namespace):
         print("Available models: ")
         for counter, identifier in enumerate(
-            repository.models(filter_downloaded=True), 1
+            repository.models(args.repository, filter_downloaded=True), 1
         ):
-            model = repository.model(identifier)
+            model = repository.model(args.repository, identifier)
             print(
                 " {}.".format(str(counter).rjust(4)),
                 model["code"],
