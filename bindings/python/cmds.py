@@ -29,6 +29,7 @@ class Translate:
             key,
             description="translate using a given model. Multiple models mean pivoting",
         )
+
         translate.add_argument(
             "-m",
             "--model",
@@ -36,6 +37,15 @@ class Translate:
             nargs="+",
             help="Path to model file(s) to use in forward or pivot translation",
             required=True,
+        )
+
+        translate.add_argument(
+            "-r",
+            "--repository",
+            type=str,
+            help="Repository to download model from",
+            choices=repository.available(),
+            default="browsermt",
         )
 
         translate.add_argument(
