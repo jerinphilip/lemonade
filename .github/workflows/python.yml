@@ -59,9 +59,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             ccache  libprotobuf-dev protobuf-compiler \
-            libboost-all-dev libibus-1.0-dev  \
-            qttools5-dev qtbase5-dev libqt5svg5-dev libarchive-dev \
-            pybind11-dev python3-setuptools python3-pybind11 
+            python3-setuptools python3-pybind11 
 
       - name: Install MKL
         run: |-
@@ -170,21 +168,6 @@ jobs:
         run: |-
           ccache -s # Print current cache stats
           ccache -z # Zero cache entry
-
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v2
-        with:
-          path: "${{ github.workspace }}/qt/"
-          key: qt-${{job.name }}-${{ env.qt_version }}
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-          version: ${{ env.qt_version }}
-          dir: "${{ github.workspace }}/qt/"
-
 
       - name: Apply required patches
         run: |-
