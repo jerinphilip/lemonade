@@ -205,24 +205,6 @@ jobs:
         with:
             path: ${{github.workspace}}/dist/bergamot-*.whl
 
-    manylinux:
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - uses: RalfG/python-wheels-manylinux-build@v0.4.2-manylinux2014_x86_64
-        with:
-          python-versions: 'cp36-cp36m cp37-cp37m'
-          build-requirements: 'cython numpy'
-          system-packages: 'protobuf protobuf-devel ccache'
-          pre-build-command: 'bash scripts/manylinux-setup.sh'
-          package-path: '.'
-          pip-wheel-args: '-w ./dist --no-deps'
-
-
   # Try to upload a release using https://github.com/marvinpinto/actions/issues/177#issuecomment-917605585 as a model
     release-latest:
       name: Release Latest Build
