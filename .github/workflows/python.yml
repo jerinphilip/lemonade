@@ -180,8 +180,8 @@ jobs:
 
       - name: setup.py 
         run: |-
-          ${pythonLocation}/bin/python3 -m pip install --upgrade packaging wheel
-          BUILD_ARCH=core-avx-i ${pythonLocation}/bin/python3 setup.py bdist_wheel --universal
+          python3 -m pip install --upgrade packaging wheel
+          BUILD_ARCH=core-avx-i python3 setup.py bdist_wheel --universal
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
