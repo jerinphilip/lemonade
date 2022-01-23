@@ -122,7 +122,7 @@ jobs:
         run: |-
           python3 -m bergamot translate --model en-de-tiny <<< "Hello World"
           python3 -m bergamot translate --model en-de-tiny de-en-tiny <<< "Hello World"
-          python3 -m bergamot translate --model en-fin-tiny --repository opus <<< "Hello World"
+          python3 -m bergamot translate --model eng-fin-tiny --repository opus <<< "Hello World"
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
@@ -209,7 +209,7 @@ jobs:
         run: |-
           python3 -m bergamot translate --model en-de-tiny <<< "Hello World"
           python3 -m bergamot translate --model en-de-tiny de-en-tiny <<< "Hello World"
-          python3 -m bergamot translate --model en-fin-tiny --repository opus <<< "Hello World"
+          python3 -m bergamot translate --model eng-fin-tiny --repository opus <<< "Hello World"
 
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
