@@ -200,7 +200,7 @@ class TranslateLocallyLike(Repository):
 class Aggregator:
     def __init__(self, repositories: t.List[Repository]):
         self.repositories = {}
-        for repository in self.repositories:
+        for repository in repositories:
             if repository.name in self.repositories:
                 raise ValueError("Duplicate repository found.")
             self.repositories[repository.name] = repository
