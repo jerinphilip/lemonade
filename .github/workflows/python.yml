@@ -234,7 +234,7 @@ jobs:
         with:
           python-versions: 'cp36-cp36m cp37-cp37m'
           build-requirements: 'cython numpy'
-          system-packages: 'protobuf protobuf-devel ccache platform-python-devel.x86_64'
+          system-packages: 'protobuf protobuf-devel ccache'
           pre-build-command: 'bash scripts/manylinux-setup.sh'
           package-path: '.'
           pip-wheel-args: '-w ./dist --no-deps'
