@@ -92,6 +92,10 @@ class Repository(ABC):
         """returns modelConfigPath for for a given model-identifier"""
         pass
 
+    @abstractmethod
+    def download(self, model_identifier: str):
+        pass
+
 
 class TranslateLocallyLike(Repository):
     """
@@ -193,7 +197,7 @@ class TranslateLocallyLike(Repository):
         return fname_without_extension
 
 
-class Aggregator(Repository):
+class Aggregator:
     def __init__(self, repositories: t.List[Repository]):
         self.repositories = {}
         for repository in self.repositories:
@@ -202,33 +206,28 @@ class Aggregator(Repository):
             self.repositories[repository.name] = repository
 
         # Default is self.repostiory
-        self.default_repository = repositories[0].name
+        self.default_repository = repositories[0]
 
-    @property
-    def name(self):
-        return "Aggregate({})".format(
-            ", ".join([repository.name for repository in self.repositories])
-        )
-
-    def update(self, name: t.Optional[str] = None) -> None:
+    def update(self, name: str) -> None:
         self.repositories.get(name, self.default_repository).update()
 
-    def modelConfigPath(self, code: str, name: t.Optional[str] = None) -> PathLike:
+    def modelConfigPath(self, name: str, code: str) -> PathLike:
         return self.repositories.get(name, self.default_repository).modelConfigPath(
             code
         )
 
-    def models(
-        self, filter_downloaded: bool = True, name: t.Optional[str] = None
-    ) -> t.List[str]:
+    def models(self, name: str, filter_downloaded: bool = True) -> t.List[str]:
         return self.repositories.get(name, self.default_repository).models()
 
-    def model(self, model_identifier: str, name: t.Optional[str] = None) -> t.Any:
+    def model(self, name: str, model_identifier: str) -> t.Any:
         return self.repositories.get(name, self.default_repository).model(
             model_identifier
         )
 
-    def download(self, model_identifier: str, name: t.Optional[str] = None) -> None:
+    def available(self):
+        return [repository.name for repository in self.repositories]
+
+    def download(self, name: str, model_identifier: str) -> None:
         self.repositories.get(name, self.default_repository).download(model_identifier)
 
 
