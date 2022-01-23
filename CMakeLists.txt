@@ -31,62 +31,53 @@ SET(USE_SENTENCEPIECE ON CACHE BOOL "Download and compile SentencePiece")
 SET(USE_STATIC_LIBS ON CACHE BOOL "Link statically against non-system libs")
 SET(USE_WASM_COMPATIBLE_SOURCE OFF CACHE BOOL "Don't build wasm compatible sources")
 
-find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
-find_package(OpenSSL REQUIRED)
-
 include(GetVersionFromFile)
 message(STATUS "Project name: ${PROJECT_NAME}")
 message(STATUS "Project version: ${PROJECT_VERSION_STRING_FULL}")
 
-
-set(AUTHOR "Jerin Philip <jerinphilip@live.in>")
-set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
-
-set(PROJECT_SHORTNAME "lemonade")
-set(PROJECT_LONGNAME "Lemonade")
-set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
-set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
-set(PROJECT_LICENSE "GPL")
-
-set(LEMONADE_INCLUDE_DIRECTORIES 
-    ${CMAKE_SOURCE_DIR}/3rd_party/CLI
-    ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
-    ${OPENSSL_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}
-)
-
-set(LINK_LIBRARIES
-    bergamot-translator
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::Network
-    Qt${QT_VERSION_MAJOR}::DBus
-    ${LibArchive_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    ${CMAKE_DL_LIBS} # On unix necessary sometimes
-)
-
-if(UNIX)
-
-include(GNUInstallDirs)
-
 add_subdirectory(3rd_party)
-add_subdirectory(lemonade)
 
 if(COMPILE_PYTHON)
-  add_subdirectory(bindings/python)
+    add_subdirectory(bindings/python)
+else(COMPILE_PYTHON)
+    set(AUTHOR "Jerin Philip <jerinphilip@live.in>")
+    set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
+
+    set(PROJECT_SHORTNAME "lemonade")
+    set(PROJECT_LONGNAME "Lemonade")
+    set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
+    set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
+    set(PROJECT_LICENSE "GPL")
+
+    set(LEMONADE_INCLUDE_DIRECTORIES 
+        ${CMAKE_SOURCE_DIR}/3rd_party/CLI
+        ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
+        ${OPENSSL_INCLUDE_DIR}
+        ${CMAKE_SOURCE_DIR}
+    )
+
+    find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
+    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
+    find_package(OpenSSL REQUIRED)
+
+    set(LINK_LIBRARIES
+        bergamot-translator
+        Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::DBus
+        ${LibArchive_LIBRARIES}
+        ${OPENSSL_LIBRARIES}
+        ${CMAKE_DL_LIBS} # On unix necessary sometimes
+    )
+
+    include(GNUInstallDirs)
+    add_subdirectory(lemonade)
+    install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
+    if(NOT APPLE)
+      install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+      install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
+      install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
+    endif(NOT APPLE)
 endif(COMPILE_PYTHON)
-
-
-
-install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
-
-if(NOT APPLE)
-  install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
-  install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
-  install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
-endif(NOT APPLE)
-
-endif(UNIX)
 
