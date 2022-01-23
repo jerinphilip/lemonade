@@ -225,7 +225,7 @@ class Aggregator:
         )
 
     def available(self):
-        return [repository.name for repository in self.repositories]
+        return list(self.repositories.keys())
 
     def download(self, name: str, model_identifier: str) -> None:
         self.repositories.get(name, self.default_repository).download(model_identifier)

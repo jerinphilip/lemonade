@@ -111,6 +111,12 @@ jobs:
         run: |-
           python3 -m bergamot download -m en-de-tiny
           python3 -m bergamot download -m de-en-tiny
+          python3 -m bergamot ls
+
+      - name: Fetch models from opus repository.
+        run: |-
+          python3 -m bergamot download -m eng-fin-tiny -r opus
+          python3 -m bergamot ls -r opus
 
       - name: Run the sample python script shipped with module
         run: |-
