@@ -14,6 +14,7 @@ from .typing_utils import URL, PathLike
 
 APP = "bergamot"
 
+
 def download_resource(url: URL, save_location: PathLike, force_download=False):
     """
     Downloads a resource from url into save_location, overwrites only if
@@ -66,6 +67,11 @@ class Repository(ABC):
     use of translateLocally and Mozilla repositories for usage through python.
     """
 
+    @property
+    @abstractmethod
+    def name(self):
+        pass
+
     @abstractmethod
     def update(self):
         """Updates the model list"""
@@ -74,6 +80,11 @@ class Repository(ABC):
     @abstractmethod
     def models(self) -> t.List[str]:
         """returns identifiers for available models"""
+        pass
+
+    @abstractmethod
+    def model(self, model_identifier: str) -> t.Any:
+        """returns entry for the  for available models"""
         pass
 
     @abstractmethod
@@ -91,9 +102,9 @@ class TranslateLocallyLike(Repository):
 
     def __init__(self, name, url):
         self.url = url
-        self.repository = name
+        self._name = name
         appDir = AppDirs(APP)
-        f = lambda *args: os.path.join(*args, self.repository)
+        f = lambda *args: os.path.join(*args, self._name)
         self.dirs = {
             "cache": f(appDir.user_cache_dir),
             "config": f(appDir.user_config_dir),
@@ -105,18 +116,23 @@ class TranslateLocallyLike(Repository):
         for directory in self.dirs.values():
             os.makedirs(directory, exist_ok=True)
 
-        self.models_file = os.path.join(self.dirs["config"], "models.json")
-        self.data = self.update(self.models_file)
+        self.models_file_path = os.path.join(self.dirs["config"], "models.json")
+        self.update()
 
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def update(self) -> None:
+        inventory = requests.get(self.url).text
+        with open(self.models_file_path, "w+") as models_file:
+            models_file.write(inventory)
+        self.data = json.loads(inventory)
+
+        # Update inverse lookup.
         self.data_by_code = {}
         for model in self.data["models"]:
             self.data_by_code[model["code"]] = model
-
-    def update(self, models_file_path: PathLike) -> t.Dict[str, t.Any]:
-        inventory = requests.get(self.url).text
-        with open(models_file_path, "w+") as models_file:
-            models_file.write(inventory)
-        return json.loads(inventory)
 
     def models(self, filter_downloaded: bool = True) -> t.List[str]:
         codes = []
@@ -177,4 +193,50 @@ class TranslateLocallyLike(Repository):
         return fname_without_extension
 
 
-repository = TranslateLocallyLike("browsermt", "https://translatelocally.com/models.json")
+class Aggregator(Repository):
+    def __init__(self, repositories: t.List[Repository]):
+        self.repositories = {}
+        for repository in self.repositories:
+            if repository.name in self.repositories:
+                raise ValueError("Duplicate repository found.")
+            self.repositories[repository.name] = repository
+
+        # Default is self.repostiory
+        self.default_repository = repositories[0].name
+
+    @property
+    def name(self):
+        return "Aggregate({})".format(
+            ", ".join([repository.name for repository in self.repositories])
+        )
+
+    def update(self, name: t.Optional[str] = None) -> None:
+        self.repositories.get(name, self.default_repository).update()
+
+    def modelConfigPath(self, code: str, name: t.Optional[str] = None) -> PathLike:
+        return self.repositories.get(name, self.default_repository).modelConfigPath(
+            code
+        )
+
+    def models(
+        self, filter_downloaded: bool = True, name: t.Optional[str] = None
+    ) -> t.List[str]:
+        return self.repositories.get(name, self.default_repository).models()
+
+    def model(self, model_identifier: str, name: t.Optional[str] = None) -> t.Any:
+        return self.repositories.get(name, self.default_repository).model(
+            model_identifier
+        )
+
+    def download(self, model_identifier: str, name: t.Optional[str] = None) -> None:
+        self.repositories.get(name, self.default_repository).download(model_identifier)
+
+
+repository = Aggregator(
+    [
+        TranslateLocallyLike("browsermt", "https://translatelocally.com/models.json"),
+        TranslateLocallyLike(
+            "opus", "https://object.pouta.csc.fi/OPUS-MT-models/app/models.json"
+        ),
+    ]
+)
