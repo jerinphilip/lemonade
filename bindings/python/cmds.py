@@ -2,8 +2,7 @@ import argparse
 import sys
 from collections import Counter, defaultdict
 
-from . import ResponseOptions, Service, ServiceConfig, VectorString
-from .config import repository
+from . import ResponseOptions, Service, ServiceConfig, VectorString, repository
 
 CMDS = {}
 
