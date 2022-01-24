@@ -2,7 +2,7 @@ import argparse
 import sys
 from collections import Counter, defaultdict
 
-from . import ResponseOptions, Service, ServiceConfig, VectorString, repository
+from . import REPOSITORY, ResponseOptions, Service, ServiceConfig, VectorString
 
 CMDS = {}
 
@@ -43,7 +43,7 @@ class Translate:
             "--repository",
             type=str,
             help="Repository to download model from",
-            choices=repository.available(),
+            choices=REPOSITORY.available(),
             default="browsermt",
         )
 
@@ -76,7 +76,7 @@ class Translate:
 
         models = [
             service.modelFromConfigPath(
-                repository.modelConfigPath(args.repository, model)
+                REPOSITORY.modelConfigPath(args.repository, model)
             )
             for model in args.model
         ]
@@ -121,17 +121,17 @@ class Download:
             "--repository",
             type=str,
             help="Repository to download model from",
-            choices=repository.available(),
+            choices=REPOSITORY.available(),
             default="browsermt",
         )
 
     @staticmethod
     def execute(args: argparse.Namespace):
         if args.model is not None:
-            repository.download(args.repository, args.model)
+            REPOSITORY.download(args.repository, args.model)
         else:
-            for model in repository.models(args.repository, filter_downloaded=False):
-                repository.download(args.repository, model)
+            for model in REPOSITORY.models(args.repository, filter_downloaded=False):
+                REPOSITORY.download(args.repository, model)
 
 
 @_register_cmd("ls")
@@ -144,7 +144,7 @@ class List:
             "--repository",
             type=str,
             help="Repository to list models from",
-            choices=repository.available(),
+            choices=REPOSITORY.available(),
             default="browsermt",
         )
 
@@ -152,9 +152,9 @@ class List:
     def execute(args: argparse.Namespace):
         print("Available models: ")
         for counter, identifier in enumerate(
-            repository.models(args.repository, filter_downloaded=True), 1
+            REPOSITORY.models(args.repository, filter_downloaded=True), 1
         ):
-            model = repository.model(args.repository, identifier)
+            model = REPOSITORY.model(args.repository, identifier)
             print(
                 " {}.".format(str(counter).rjust(4)),
                 model["code"],
