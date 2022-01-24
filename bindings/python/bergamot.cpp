@@ -31,9 +31,6 @@ PYBIND11_MAKE_OPAQUE(std::vector<Response>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::string>);
 PYBIND11_MAKE_OPAQUE(Alignments);
 
-// Nothing fancy; Super wasteful.  It is simply easier to do analysis in a
-// Jupyter notebook, @jerinphilip is not doing efficiency here.
-
 class ServicePyAdapter {
 public:
   ServicePyAdapter(const Service::Config &config)
