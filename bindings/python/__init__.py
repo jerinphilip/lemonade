@@ -2,7 +2,7 @@ import typing
 
 try:
     from ._bergamot import *  # type: ignore
-    from .repository import Aggregator
+    from .repository import Aggregator, TranslateLocallyLike
 
     repository = Aggregator(
         [
