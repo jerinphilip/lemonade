@@ -261,7 +261,7 @@ jobs:
            files: |
                   ${{github.workspace}}/artifact/*.whl
   
-    python-ubuntu:
+    python-checks:
       name: "formatting and typechecks"
       runs-on: "ubuntu-latest"
       steps:
