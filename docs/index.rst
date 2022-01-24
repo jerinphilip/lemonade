@@ -49,15 +49,15 @@ C++ Exports
 Pure Python 
 +++++++++++
 
-.. autoclass:: bergamot.config.Repository
+.. autoclass:: bergamot.repository.Repository
    :members:
    :undoc-members:
 
-.. autoclass:: bergamot.config.TranslateLocally
+.. autoclass:: bergamot.repository.TranslateLocallyLike
    :members:
    :undoc-members:
 
-.. autofunction:: bergamot.config.patch_marian_for_bergamot
+.. autofunction:: bergamot.utils.patch_marian_for_bergamot
 
 
 
