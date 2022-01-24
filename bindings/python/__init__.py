@@ -4,7 +4,10 @@ try:
     from ._bergamot import *  # type: ignore
     from .repository import Aggregator, TranslateLocallyLike
 
-    repository = Aggregator(
+    repository: typing.Annotated[
+        repository,
+        "Object aggregating multiple model providers to provide an API to query and get models by (repository-name, model-code)",
+    ] = Aggregator(
         [
             TranslateLocallyLike(
                 "browsermt", "https://translatelocally.com/models.json"
