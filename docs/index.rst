@@ -64,8 +64,6 @@ library primitives that can be used to build translation workflows.
 Model Inventory
 +++++++++++++++
 
-.. autoclass:: bergamot.repository
-
 .. autoclass:: bergamot.repository.Repository
    :members:
    :undoc-members:
