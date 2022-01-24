@@ -14,5 +14,10 @@ try:
             ),
         ]
     )
+    """
+    REPOSITORY is a global object that aggregates multiple model-providers to
+    provide a (model-provider: str, model-code: str) based query mechanism to
+    get models.
+    """
 except ImportError:
     raise
