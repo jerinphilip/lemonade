@@ -133,7 +133,7 @@ jobs:
 
 
     python-macos:
-      name: "macos pybindings"
+      name: "MacOS 10.15 / py3.10"
       runs-on: "macos-10.15"
       steps:
       - name: Checkout
@@ -261,3 +261,21 @@ jobs:
            files: |
                   ${{github.workspace}}/artifact/*.whl
   
+    python-checks:
+      name: "formatting and typechecks"
+      runs-on: "ubuntu-latest"
+      steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Install Dependencies
+        run: |-
+            python3 -m pip install black isort pytype
+      - name: "Formatting checks: black, isort"
+        run: |
+            python3 -m black --check bindings/python/ setup.py
+            python3 -m isort --profile black --diff --check bindings/python setup.py
+      - name: "Static typing checks: pytype"
+        run: |-
+            python3 -m pytype bindings/python
