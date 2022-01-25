@@ -69,6 +69,7 @@ else(COMPILE_PYTHON)
         ${LibArchive_LIBRARIES}
         ${OPENSSL_LIBRARIES}
         ${CMAKE_DL_LIBS} # On unix necessary sometimes
+        ${CMAKE_THREAD_LIBS_INIT} # -lpthread missing solution?
     )
 
     include(GNUInstallDirs)
