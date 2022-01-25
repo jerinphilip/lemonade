@@ -69,7 +69,7 @@ jobs:
         run: |-
           mkdir -p build
           cd build
-          cmake -L .. -DCOMPILE_TESTS=on -DCOMPILE_PYTHON=on ${{ env.ccache_cmake }}
+          cmake -L .. -DCOMPILE_TESTS=on ${{ env.ccache_cmake }}
       - name: Build from source
         working-directory: build
         run: |
