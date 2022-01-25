@@ -73,7 +73,6 @@ else(COMPILE_PYTHON)
 
     include(GNUInstallDirs)
     add_subdirectory(lemonade)
-    install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
     if(NOT APPLE)
       install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
       install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
