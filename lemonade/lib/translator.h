@@ -31,6 +31,8 @@ private:
   using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
   using Service = marian::bergamot::AsyncService;
 
+  Translator::Model getModel(const ModelInventory::ModelInfo &info);
+
   ModelManager manager_;
   ModelInventory inventory_;
 
