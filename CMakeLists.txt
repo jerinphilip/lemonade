@@ -68,8 +68,8 @@ else(COMPILE_PYTHON)
         Qt${QT_VERSION_MAJOR}::DBus
         ${LibArchive_LIBRARIES}
         ${OPENSSL_LIBRARIES}
-        ${CMAKE_DL_LIBS} # On unix necessary sometimes
-        ${CMAKE_THREAD_LIBS_INIT} # -lpthread missing solution?
+        Threads::Threads
+        ${CMAKE_DL_LIBS} 
     )
 
     include(GNUInstallDirs)
