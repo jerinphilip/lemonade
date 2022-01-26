@@ -56,7 +56,7 @@ jobs:
       - name: Replace BERGAMOT_VERSION with python friendly name
         run: |
           SHA256SHORT=$(git rev-parse --short HEAD)
-          cat BERGAMOT_VERSION | sed 's/^v//g' / sed "s/$/+${SHA256SHORT}" > BERGAMOT_VERSION
+          cat BERGAMOT_VERSION | sed 's/^v//g' | sed "s/$/+${SHA256SHORT}" > BERGAMOT_VERSION
           cat BERGAMOT_VERSION
 
       - name: Install Dependencies
