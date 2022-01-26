@@ -23,6 +23,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address -static-libasan")
 
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -pthread")
+
 
 SET(COMPILE_CUDA OFF CACHE BOOL "Compile GPU version")
 SET(COMPILE_WASM OFF CACHE BOOL "Don't do wasm whatever this is")
@@ -68,12 +74,12 @@ else(COMPILE_PYTHON)
         Qt${QT_VERSION_MAJOR}::DBus
         ${LibArchive_LIBRARIES}
         ${OPENSSL_LIBRARIES}
-        ${CMAKE_DL_LIBS} # On unix necessary sometimes
+        Threads::Threads
+        ${CMAKE_DL_LIBS} 
     )
 
     include(GNUInstallDirs)
     add_subdirectory(lemonade)
-    install(TARGETS lemonade-bin lemonade-server lemonade-client RUNTIME)
     if(NOT APPLE)
       install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
       install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)

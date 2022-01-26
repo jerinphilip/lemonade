@@ -21,6 +21,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/application.h.in
 ## Create your Executable and link it. `.....` your sources
 add_executable(ibus-engine-lemonade main.cpp engine_compat.cpp lemonade_engine.cpp)
 ## `....` place your created libraries
-target_link_libraries(ibus-engine-lemonade PUBLIC ${GLIB2_LIBRARIES} ${IBUS_LIBRARIES} lemonade simple-websocket-server)
+target_link_libraries(ibus-engine-lemonade PUBLIC ${GLIB2_LIBRARIES} ${IBUS_LIBRARIES} lemonade)
 target_include_directories(ibus-engine-lemonade PRIVATE ${GLIB2_INCLUDE_DIRS} ${IBUS_INCLUDE_DIRS} ${LEMONADE_INCLUDE_DIRECTORIES})
 
