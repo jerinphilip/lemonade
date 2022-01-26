@@ -32,39 +32,9 @@ are welcome.
 
 ### Python Bindings
 
-You can find the minimal python-bindings to create a local-translation service
-in [bindings/python](./bindings/python) folder. 
-It is recommended to use a virtual-environment for installation. To install:
+Python bindings have been merged to
+[bergamot-translator](https://github.com/browsermt/bergamot-translator/pull/310).
 
-```bash
-python3 setup.py bdist_wheel
-python3 -m pip install --force-reinstall dist/bergamot-*.whl
-```
-
-In addition to bindings to the library which you may use for-your use-cases, a
-command-line interface is provided along with an entry-point which you may use
-to download models, and translate input text as demonstrated below.
-
-```bash
-$ bergamot download # download models from the web.
-
-$ echo "Hello World." | bergamot translate -m en-de-tiny # translate from stdin
-Hallo Welt.
-
-```
-
-Wishful thinking for pybindings is to be merged into bergamot-translator when
-mature.
-
-#### Python bindings on macOS
-
-Assuming you have Qt installed through the official Qt distribution, it would
-be something this, where you might need to change the path to your version of
-Qt.
-
-```sh
-CMAKE_ARGS="-DCMAKE_PREFIX_PATH=$HOME/Qt/6.2.2/macos;$(brew --prefix pybind11)" pip3 install path/to/lemonade
-```
 
 ### iBus Engine
 

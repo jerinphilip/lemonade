@@ -43,47 +43,43 @@ message(STATUS "Project version: ${PROJECT_VERSION_STRING_FULL}")
 
 add_subdirectory(3rd_party)
 
-if(COMPILE_PYTHON)
-    add_subdirectory(bindings/python)
-else(COMPILE_PYTHON)
-    set(AUTHOR "Jerin Philip <jerinphilip@live.in>")
-    set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
+set(AUTHOR "Jerin Philip <jerinphilip@live.in>")
+set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
 
-    set(PROJECT_SHORTNAME "lemonade")
-    set(PROJECT_LONGNAME "Lemonade")
-    set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
-    set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
-    set(PROJECT_LICENSE "GPL")
+set(PROJECT_SHORTNAME "lemonade")
+set(PROJECT_LONGNAME "Lemonade")
+set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
+set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
+set(PROJECT_LICENSE "GPL")
 
-    set(LEMONADE_INCLUDE_DIRECTORIES 
-        ${CMAKE_SOURCE_DIR}/3rd_party/CLI
-        ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
-        ${OPENSSL_INCLUDE_DIR}
-        ${CMAKE_SOURCE_DIR}
-    )
+set(LEMONADE_INCLUDE_DIRECTORIES 
+    ${CMAKE_SOURCE_DIR}/3rd_party/CLI
+    ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
+    ${OPENSSL_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}
+)
 
-    find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
-    find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
+find_package(OpenSSL REQUIRED)
 
-    set(LINK_LIBRARIES
-        bergamot-translator
-        Qt${QT_VERSION_MAJOR}::Core
-        Qt${QT_VERSION_MAJOR}::Network
-        Qt${QT_VERSION_MAJOR}::DBus
-        ${LibArchive_LIBRARIES}
-        ${OPENSSL_LIBRARIES}
-        Threads::Threads
-        ${CMAKE_DL_LIBS} 
-    )
+set(LINK_LIBRARIES
+    bergamot-translator
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Network
+    Qt${QT_VERSION_MAJOR}::DBus
+    ${LibArchive_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    Threads::Threads
+    ${CMAKE_DL_LIBS} 
+)
 
-    include(GNUInstallDirs)
-    add_subdirectory(lemonade)
-    if(NOT APPLE)
-      install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
-      install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
-      install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
-    endif(NOT APPLE)
-endif(COMPILE_PYTHON)
+include(GNUInstallDirs)
+add_subdirectory(lemonade)
+if(NOT APPLE)
+  install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+  install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
+  install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
+endif(NOT APPLE)
 
