@@ -53,13 +53,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Replace lemonade.version with python friendly name
-        if: github.ref == 'refs/heads/main'
-        run: |
-          SHA256SHORT=$(git rev-parse --short HEAD)
-          cat lemonade.version | sed 's/^v//g' | sed "s/$/+${SHA256SHORT}/" > lemonade.version
-          cat lemonade.version
-
       - name: Install Dependencies
         run: |-
           sudo apt-get update
@@ -106,7 +99,7 @@ jobs:
       - name: setup.py 
         run: |-
           python3 -m pip install wheel
-          BUILD_ARCH=core-avx-i python3 setup.py bdist_wheel --universal
+          BUILD_ARCH=core-avx-i PYTHON_LOCAL_VERSION_IDENTIFIER=$(git rev-parse --short HEAD) python3 setup.py bdist_wheel --universal
 
       # We're happy with just compile for the moment, so cache gets some seeding.
       - name: Install onto root python lib
