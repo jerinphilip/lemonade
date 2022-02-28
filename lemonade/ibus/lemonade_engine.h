@@ -3,8 +3,8 @@
 #include "engine_compat.h"
 #include "lemonade/lib/logging.h"
 #include "lemonade/lib/translator.h"
+#include <list>
 #include <string>
-#include <vector>
 
 namespace lemonade::ibus {
 
@@ -14,7 +14,6 @@ namespace lemonade::ibus {
 // 2. The second suggestion is the raw text the user entered.
 class LemonadeEngine : public Engine {
 public:
-  using PropertyRegistry = std::vector<g::Property>;
   LemonadeEngine(IBusEngine *engine);
   ~LemonadeEngine(void);
 
@@ -33,7 +32,6 @@ public:
   void candidateClicked(guint index, guint button, guint state);
 
 private:
-  PropertyRegistry makeProperties();
   void showSetupDialog(void);
 
   g::LookupTable generateLookupTable(const std::vector<std::string> &entries);
@@ -52,8 +50,13 @@ private:
   std::string sourceLang_;
   std::string targetLang_;
 
-  PropertyRegistry propertyRegistry_;
-  g::PropList propList_;
+  std::list<g::Property>
+      propertyPool_;     // RAII storage for properties created, list because we
+                         // want the references to survive container growth.
+  g::PropList propList_; // PropList only stores references, so pointers from
+                         // propertyPool_.
+                         //
+  bool verify_ = false;
 };
 
 } // namespace lemonade::ibus

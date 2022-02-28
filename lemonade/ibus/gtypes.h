@@ -11,24 +11,29 @@ public:
 
   ~Pointer(void) { set(NULL); }
 
+  void set(T *p) {
+    if (pointer_) {
+      g_object_unref(pointer_);
+    }
+
+    pointer_ = p;
+    if (p) {
+#if 0
+        g_debug ("%s, floating = %d",G_OBJECT_TYPE_NAME (p), g_object_is_floating (p));
+#endif
+      g_object_ref_sink(p);
+    }
+  }
+
   Pointer<T> &operator=(T *p) {
     set(p);
     return *this;
   }
 
-  // Note: Forbid operations on something declared const.
-  Pointer<T> &operator=(const Pointer<T> &p) = delete; /*{
+  Pointer<T> &operator=(const Pointer<T> &p) {
     set(p.pointer_);
     return *this;
   }
-  */
-
-  Pointer<T>(Pointer<T> &&p) {
-    set(p.pointer_);
-    p.set(NULL);
-  }
-
-  Pointer<T>(const Pointer<T> &p) = delete;
 
   const T *operator->(void) const { return pointer_; }
 
@@ -40,21 +45,6 @@ public:
 
 private:
   T *pointer_;
-
-  void set(T *p) {
-    if (pointer_) {
-      g_object_unref(pointer_);
-    }
-
-    pointer_ = p;
-    if (p) {
-#ifdef DEBUG
-      g_debug("%s, floating = %d", G_OBJECT_TYPE_NAME(p),
-              g_object_is_floating(p));
-#endif
-      g_object_ref_sink(p);
-    }
-  }
 };
 
 class Object {
