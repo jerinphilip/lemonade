@@ -39,6 +39,7 @@ private:
   void updateBuffer(const std::string &append);
   void refreshTranslation();
   void commit();
+  void setupProperties();
 
   std::string buffer_ = "";
   std::string translationBuffer_ = "";
