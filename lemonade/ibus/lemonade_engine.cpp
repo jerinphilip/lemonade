@@ -20,8 +20,20 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
     : Engine(engine), logger_("ibus-engine", {getIBUSLoggingDirectory()}),
       translator_(/*maxModels=*/4, /*numWorkers=*/1) {
   logger_.log("Lemonade engine started");
+  setupProperties();
+}
+
+void LemonadeEngine::setupProperties() {
+  // Setup properties (these are the top-right UI elements
+
+  // The following is used to repeat properties across source and target
+  // langauges. Source languages have their name prefixed with "source", while
+  // target with "target". On property activate, the names are read and the
+  // suffix language used to set the direction accordingly.
   auto props = [this](std::string side, std::string defaultLang) {
     bool first = false;
+
+    // Avaialble langauges.
     std::vector<std::string> LANGS = {"English",  "German",  "Czech",
                                       "Estonian", "Italian", "Spanish"};
     g::PropList langs;
@@ -69,6 +81,7 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
   propList_.append(source);
   propList_.append(target);
 
+  // The verification button controls a verify by backtranslation feature.
   auto verify = propertyPool_.emplace_back(
       /*key=*/"verify",
       /*type=*/PROP_TYPE_TOGGLE,
@@ -125,11 +138,14 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
   switch (keyval) {
   case IBUS_space: {
     if (buffer_.empty()) {
+      // Empty and space commits.
       updateBuffer(" ");
       commit();
     } else if (buffer_.back() == ' ') {
+      // Double space commits.
       commit();
     } else {
+      // Otherwise we just wait for double space.
       updateBuffer(" ");
       retval = TRUE;
     }
@@ -191,6 +207,7 @@ void LemonadeEngine::refreshTranslation() {
         translator_.btranslate(std::move(targetCopy), targetLang_, sourceLang_);
     entries.push_back(backtranslation.target.text);
   }
+
   g::LookupTable table = generateLookupTable(entries);
   updateLookupTable(table, /*visible=*/!entries.empty());
 
