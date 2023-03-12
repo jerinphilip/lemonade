@@ -179,26 +179,30 @@ void LemonadeEngine::updateBuffer(const std::string &append) {
 }
 
 void LemonadeEngine::refreshTranslation() {
-  std::string bufferCopy = buffer_;
-  auto translation =
-      translator_.btranslate(std::move(bufferCopy), sourceLang_, targetLang_);
-
-  translationBuffer_ = translation.target.text;
-  std::vector<std::string> entries = {buffer_};
-  if (verify_) {
-    std::string targetCopy = translation.target.text;
-    auto backtranslation =
-        translator_.btranslate(std::move(targetCopy), targetLang_, sourceLang_);
-    entries.push_back(backtranslation.target.text);
-  }
-  g::LookupTable table = generateLookupTable(entries);
-  updateLookupTable(table, /*visible=*/!entries.empty());
-
   if (!buffer_.empty()) {
+    std::string bufferCopy = buffer_;
+    auto translation =
+        translator_.btranslate(std::move(bufferCopy), sourceLang_, targetLang_);
+
+    translationBuffer_ = translation.target.text;
+    std::vector<std::string> entries = {buffer_};
+    if (verify_) {
+      std::string targetCopy = translation.target.text;
+      auto backtranslation = translator_.btranslate(std::move(targetCopy),
+                                                    targetLang_, sourceLang_);
+      entries.push_back(backtranslation.target.text);
+    }
+    g::LookupTable table = generateLookupTable(entries);
+    updateLookupTable(table, /*visible=*/!entries.empty());
+
     cursorPos_ = translationBuffer_.size();
     g::Text preEdit(translationBuffer_);
     updatePreeditText(preEdit, cursorPos_, TRUE);
     showLookupTable();
+  } else {
+    // Buffer is already clear.
+    translationBuffer_.clear();
+    hideLookupTable();
   }
 }
 
