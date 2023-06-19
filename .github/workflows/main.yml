@@ -74,9 +74,5 @@ jobs:
         working-directory: build
         run: |
           make -j2
-          make lemonade-server
-          make lemonade-client
-          make rest-server
-          make lemonade-bin
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
