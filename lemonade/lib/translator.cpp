@@ -8,9 +8,17 @@
 
 namespace lemonade {
 
-void Translator::translate(std::string input, const std::string &source,
-                           const std::string &target,
-                           marian::bergamot::CallbackType callback) {
+Translator::Response Translator::translate(std::string input,
+                                           const std::string &source,
+                                           const std::string &target) {
+
+  // I don't even know why added this.
+  std::promise<Response> p;
+  std::future<Response> f = p.get_future();
+  auto callback = [&p](Response &&response) {
+    p.set_value(std::move(response));
+  };
+
   if (source == "English" or target == "English") {
     std::optional<ModelInventory::ModelInfo> modelInfo =
         inventory_.query(source, target);
@@ -33,11 +41,15 @@ void Translator::translate(std::string input, const std::string &source,
     service_.pivot(sourceToPivot, pivotToTarget, std::move(input), callback,
                    responseOptions);
   }
+  f.wait();
+  return f.get();
 }
 
 Translator::Model Translator::getModel(const ModelInventory::ModelInfo &info) {
   Model model = manager_.lookup(info.code);
   if (!model) {
+    std::cerr << fmt::format("Model file {}", inventory_.configFile(info))
+              << std::endl;
     auto modelConfig =
         marian::bergamot::parseOptionsFromFilePath(inventory_.configFile(info));
 
@@ -53,22 +65,6 @@ Translator::Model Translator::getModel(const ModelInventory::ModelInfo &info) {
   }
 
   return model;
-}
-
-marian::bergamot::Response Translator::btranslate(std::string input,
-                                                  const std::string &source,
-                                                  const std::string &target) {
-
-  using Response = marian::bergamot::Response;
-  std::promise<Response> p;
-  std::future<Response> f = p.get_future();
-  auto callback = [&p](Response &&response) {
-    p.set_value(std::move(response));
-  };
-
-  translate(std::move(input), source, target, callback);
-  f.wait();
-  return f.get();
 }
 
 } // namespace lemonade

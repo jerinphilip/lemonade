@@ -1,7 +1,6 @@
 #include "lemonade_engine.h"
 #include "engine_compat.h"
 #include "lemonade/lib/logging.h"
-#include "lemonade/lib/utils.h"
 #include <cctype>
 #include <string>
 #include <vector>
@@ -22,8 +21,8 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
   logger_.log("Lemonade engine started");
   auto props = [this](std::string side, std::string defaultLang) {
     bool first = false;
-    std::vector<std::string> LANGS = {"English",  "German",  "Czech",
-                                      "Estonian", "Italian", "Spanish"};
+    std::vector<std::string> LANGS = {"English", "German",  "Czech", "Estonian",
+                                      "Italian", "Spanish", "French"};
     g::PropList langs;
     for (auto &lang : LANGS) {
       std::string key = side + "_" + lang;
@@ -182,14 +181,14 @@ void LemonadeEngine::refreshTranslation() {
   if (!buffer_.empty()) {
     std::string bufferCopy = buffer_;
     auto translation =
-        translator_.btranslate(std::move(bufferCopy), sourceLang_, targetLang_);
+        translator_.translate(std::move(bufferCopy), sourceLang_, targetLang_);
 
     translationBuffer_ = translation.target.text;
     std::vector<std::string> entries = {buffer_};
     if (verify_) {
       std::string targetCopy = translation.target.text;
-      auto backtranslation = translator_.btranslate(std::move(targetCopy),
-                                                    targetLang_, sourceLang_);
+      auto backtranslation = translator_.translate(std::move(targetCopy),
+                                                   targetLang_, sourceLang_);
       entries.push_back(backtranslation.target.text);
     }
     g::LookupTable table = generateLookupTable(entries);

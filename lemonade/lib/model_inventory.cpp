@@ -18,15 +18,16 @@ ModelInventory::ModelInventory() : logger_("inventory") {
   int argc = 0;
   char **argv = {};
   QCoreApplication(argc, argv);
-  QCoreApplication::setApplicationName("lemonade");
+  QCoreApplication::setApplicationName("bergamot");
 
-  modelsJSON_ =
-      QStandardPaths::locate(QStandardPaths::AppConfigLocation, "models.json")
-          .toStdString();
+  modelsJSON_ = QStandardPaths::locate(QStandardPaths::AppConfigLocation,
+                                       "browsermt/models.json")
+                    .toStdString();
 
   inventory_ = readInventoryFromDisk(modelsJSON_);
 
-  modelsDir_ = QStandardPaths::locate(QStandardPaths::AppDataLocation, "models",
+  modelsDir_ = QStandardPaths::locate(QStandardPaths::AppDataLocation,
+                                      "models/browsermt",
                                       QStandardPaths::LocateDirectory)
                    .toStdString();
   // LEMONADE_ABORT_IF(!inventory_.HasMember("models"), "No models found");
@@ -74,6 +75,11 @@ ModelInventory::Hash::operator()(const LanguageDirection &direction) const {
 rapidjson::Document
 ModelInventory::readInventoryFromDisk(const std::string &modelsJSON) {
   FILE *fp = fopen(modelsJSON.c_str(), "r"); // non-Windows use "r"
+
+  if (!fp) {
+    std::cerr << "File " << modelsJSON << "not found." << std::endl;
+    std::abort();
+  }
   char readBuffer[65536];
   rapidjson::FileReadStream fReadStream(fp, readBuffer, sizeof(readBuffer));
   rapidjson::Document d;

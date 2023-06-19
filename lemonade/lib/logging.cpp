@@ -1,10 +1,22 @@
 #include "logging.h"
 #include "spdlog/spdlog.h"
-#include "utils.h"
 #include <iostream>
 #include <memory>
 
 namespace lemonade {
+
+std::string currentTime() {
+  // https://stackoverflow.com/a/16358264/4565794
+  std::time_t rawtime;
+  struct tm *timeinfo;
+  char buffer[80];
+
+  std::time(&rawtime);
+  timeinfo = std::localtime(&rawtime);
+
+  strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+  return std::string(buffer);
+}
 
 Logger::Logger(const std::string &name,
                const std::vector<std::string> &files /*={}*/,

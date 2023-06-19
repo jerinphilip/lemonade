@@ -1,10 +1,7 @@
 set(LIBRARY_SOURCES
    logging.cpp
    model_inventory.cpp
-   translation_server.cpp
-   translation_client.cpp
    translator.cpp
-   utils.cpp
 )
 
 add_library(lemonade STATIC ${LIBRARY_SOURCES})

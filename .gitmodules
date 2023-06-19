@@ -4,9 +4,3 @@
 [submodule "3rd_party/rapidjson"]
 	path = 3rd_party/rapidjson
 	url = https://github.com/Tencent/rapidjson
-[submodule "3rd_party/Simple-WebSocket-Server"]
-	path = 3rd_party/Simple-WebSocket-Server
-	url = https://gitlab.com/eidheim/Simple-WebSocket-Server
-[submodule "3rd_party/crow"]
-	path = 3rd_party/crow
-	url = https://github.com/CrowCpp/crow

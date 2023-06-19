@@ -1,2 +1,0 @@
-
-namespace lemonade {} // namespace lemonade

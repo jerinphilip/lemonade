@@ -45,7 +45,6 @@ add_subdirectory(3rd_party)
 
 set(AUTHOR "Jerin Philip <jerinphilip@live.in>")
 set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
-
 set(PROJECT_SHORTNAME "lemonade")
 set(PROJECT_LONGNAME "Lemonade")
 set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
@@ -77,9 +76,7 @@ set(LINK_LIBRARIES
 
 include(GNUInstallDirs)
 add_subdirectory(lemonade)
-if(NOT APPLE)
-  install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
-  install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
-  install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
-endif(NOT APPLE)
+install(TARGETS ibus-engine-lemonade RUNTIME DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
+install(FILES ${CMAKE_BINARY_DIR}/lemonade.xml DESTINATION /usr/share/ibus/component)
+install(FILES ${CMAKE_SOURCE_DIR}/assets/bergamot.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons)
 
