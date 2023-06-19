@@ -1,3 +1,30 @@
+set(IBUS_BUS_NAME "org.freedesktop.IBus.Lemonade")
+set(IBUS_COMMANDLINE "${CMAKE_INSTALL_LIBEXECDIR}/ibus-engine-lemonade")
+set(IBUS_TEXTDOMAIN "ibus-lemonade")
+set(IBUS_ICON "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/bergamot.png")
+set(IBUS_LAYOUT "us")
+set(IBUS_LANGUAGE "en")
 
-add_subdirectory(lib)
-add_subdirectory(ibus)
+find_package(PkgConfig)
+pkg_check_modules(GLIB2 REQUIRED glib-2.0)
+pkg_check_modules(IBUS REQUIRED ibus-1.0)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lemonade.xml.in
+               ${CMAKE_BINARY_DIR}/lemonade.xml)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ibus_config.h.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/ibus_config.h @ONLY)
+
+add_library(lemonade STATIC engine_compat.cpp lemonade_engine.cpp
+                            translator.cpp logging.cpp)
+target_link_libraries(lemonade PUBLIC ${GLIB2_LIBRARIES} ${IBUS_LIBRARIES}
+                                      ${LINK_LIBRARIES})
+target_include_directories(
+  lemonade PUBLIC ${GLIB2_INCLUDE_DIRS} ${IBUS_INCLUDE_DIRS}
+                  ${LEMONADE_INCLUDE_DIRECTORIES})
+
+add_executable(ibus-engine-lemonade main.cpp)
+target_link_libraries(ibus-engine-lemonade PUBLIC lemonade)
+
+add_executable(test test.cpp)
+target_link_libraries(test PUBLIC lemonade)

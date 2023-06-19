@@ -3,17 +3,42 @@
 #include <glib-object.h>
 #include <string>
 
-// RAII wrap automating some things for a GLIB pointer object
 namespace g {
-template <typename T> struct Pointer {
-public:
-  Pointer(T *p = NULL) : pointer_(NULL) { set(p); }
 
-  ~Pointer(void) { set(NULL); }
+// RAII wrap automating some things for a GLIB pointer object
+template <typename T> struct SharedPointer {
+public:
+  SharedPointer(T *p = nullptr) : pointer_(nullptr) { set(p); }
+
+  ~SharedPointer(void) { set(nullptr); }
+
+  SharedPointer<T> &operator=(T *p) {
+    set(p);
+    return *this;
+  }
+
+  SharedPointer<T> &operator=(const SharedPointer<T> &p) {
+    set(p.pointer_);
+    return *this;
+  }
+
+  // Consider different cases of dereferencing a SharedPointer<T> t
+
+  // x = *t; const read
+  const T *operator->(void) const { return pointer_; }
+
+  // *t = x; not const, write.
+  operator T *(void) const { return pointer_; }
+
+  // t->fn(...) In case t is an object with methods.
+  T *operator->(void) { return pointer_; }
+
+private:
+  T *pointer_;
 
   void set(T *p) {
     if (pointer_) {
-      g_object_unref(pointer_);
+      g_object_unref((GObject *)pointer_);
     }
 
     pointer_ = p;
@@ -24,33 +49,12 @@ public:
       g_object_ref_sink(p);
     }
   }
-
-  Pointer<T> &operator=(T *p) {
-    set(p);
-    return *this;
-  }
-
-  Pointer<T> &operator=(const Pointer<T> &p) {
-    set(p.pointer_);
-    return *this;
-  }
-
-  const T *operator->(void) const { return pointer_; }
-
-  T *operator->(void) { return pointer_; }
-
-  operator T *(void) const { return pointer_; }
-
-  operator gboolean(void) const { return pointer_ != NULL; }
-
-private:
-  T *pointer_;
 };
 
 class Object {
 protected:
   template <typename T> Object(T *p) : pointer_((GObject *)p) {
-    g_assert(get<GObject *>() != NULL);
+    g_assert(get<GObject *>() != nullptr);
   }
 
   operator GObject *(void) const { return pointer_; }
@@ -58,7 +62,7 @@ protected:
   template <typename T> T *get(void) const { return (T *)(GObject *)pointer_; }
 
 private:
-  Pointer<GObject> pointer_;
+  SharedPointer<GObject> pointer_;
 };
 
 class Text : Object {
@@ -137,10 +141,10 @@ public:
 class Property : public Object {
 public:
   Property(const gchar *key, IBusPropType type = PROP_TYPE_NORMAL,
-           IBusText *label = NULL, const gchar *icon = NULL,
-           IBusText *tooltip = NULL, gboolean sensitive = TRUE,
+           IBusText *label = nullptr, const gchar *icon = nullptr,
+           IBusText *tooltip = nullptr, gboolean sensitive = TRUE,
            gboolean visible = TRUE, IBusPropState state = PROP_STATE_UNCHECKED,
-           IBusPropList *props = NULL)
+           IBusPropList *props = nullptr)
       : Object(ibus_property_new(key, type, label, icon, tooltip, sensitive,
                                  visible, state, props)) {}
 

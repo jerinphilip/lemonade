@@ -3,7 +3,7 @@
 
 #include "gtypes.h"
 
-namespace lemonade::ibus {
+namespace lemonade {
 
 #define IBUS_TYPE_LEMONADE_ENGINE (ibus_lemonade_engine_get_type())
 
@@ -12,7 +12,7 @@ GType ibus_lemonade_engine_get_type(void);
 class Engine {
 public:
   Engine(IBusEngine *engine);
-  virtual ~Engine(void);
+  virtual ~Engine(void) = default;
 
   gboolean contentIsPassword();
 
@@ -85,11 +85,11 @@ protected:
   }
 
 protected:
-  g::Pointer<IBusEngine> m_engine; // engine pointer
+  g::SharedPointer<IBusEngine> m_engine; // engine pointer
 
 #if IBUS_CHECK_VERSION(1, 5, 4)
   IBusInputPurpose m_input_purpose;
 #endif
 };
 
-} // namespace lemonade::ibus
+} // namespace lemonade

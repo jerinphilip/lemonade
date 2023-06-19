@@ -1,12 +1,12 @@
 #pragma once
 
 #include "engine_compat.h"
-#include "lemonade/lib/logging.h"
-#include "lemonade/lib/translator.h"
+#include "logging.h"
+#include "translator.h"
 #include <list>
 #include <string>
 
-namespace lemonade::ibus {
+namespace lemonade {
 
 /// Idea here is to maintain an active buffer string.
 //
@@ -44,7 +44,6 @@ private:
   std::string translationBuffer_ = "";
   gint cursorPos_;
 
-  Logger logger_;
   Translator translator_;
 
   std::string sourceLang_;
@@ -59,4 +58,4 @@ private:
   bool verify_ = false;
 };
 
-} // namespace lemonade::ibus
+} // namespace lemonade

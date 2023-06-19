@@ -2,12 +2,11 @@ build/
 dist/
 .*sw[op]
 
-lemonade/ibus/application.h
+lemonade/ibus_config.h
 *.egg-info
 *.pyc
 __pycache__
 env/
-bindings/python/_version.py
 
 docs/_build
 docs/make.bat

@@ -2,7 +2,7 @@
 #include "lemonade_engine.h"
 #include <cstring>
 
-namespace lemonade::ibus {
+namespace lemonade {
 
 /* code of engine class of GObject */
 #define IBUS_LEMONADE_ENGINE(obj)                                              \
@@ -215,6 +215,4 @@ void Engine::setContentType(guint purpose, guint hints) {
 }
 #endif
 
-Engine::~Engine(void) {}
-
-} // namespace lemonade::ibus
+} // namespace lemonade
