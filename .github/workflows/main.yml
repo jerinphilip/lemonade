@@ -70,6 +70,22 @@ jobs:
           mkdir -p build
           cd build
           cmake -L .. -DCOMPILE_TESTS=on ${{ env.ccache_cmake }}
+
+      - name: Test translator backend
+        working-directory: build/lemonade
+        run: |-
+          # Install bergamot, which will manage models.
+          python3 -m pip install bergamot -f https://github.com/jerinphilip/bergamot-translator/releases/expanded_assets/latest
+
+          # Download models.
+          bergamot download -m en-fr-tiny
+          bergamot download -m fr-en-tiny
+          bergamot download -m de-en-tiny
+          bergamot download -m en-de-tiny
+
+          ./test fake < ${{ github.workspace }}/data/samples.txt
+          ./test real < ${{ github.workspace }}/data/samples.txt
+
       - name: Build from source
         working-directory: build
         run: |
