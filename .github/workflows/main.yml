@@ -71,6 +71,11 @@ jobs:
           cd build
           cmake -L .. -DCOMPILE_TESTS=on ${{ env.ccache_cmake }}
 
+      - name: Build from source
+        working-directory: build
+        run: |
+          make -j2
+
       - name: Test translator backend
         working-directory: build/lemonade
         run: |-
@@ -86,9 +91,5 @@ jobs:
           ./test fake < ${{ github.workspace }}/data/samples.txt
           ./test real < ${{ github.workspace }}/data/samples.txt
 
-      - name: Build from source
-        working-directory: build
-        run: |
-          make -j2
       - name: ccache epilog
         run: 'ccache -s # Print current cache stats'
