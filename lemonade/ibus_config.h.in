@@ -12,6 +12,5 @@
 #define   IBUS_LAYOUT                   "@IBUS_LAYOUT@"
 #define   IBUS_LANGUAGE                 "@IBUS_LANGUAGE@"
 #define   IBUS_TEXTDOMAIN               "@IBUS_TEXTDOMAIN@"
-#define   IBUS_COMMANDLINE              "@IBUS_COMMANDLINE@"
-#define   IBUS_COMPONENT_COMMANDLINE    ""
+#define   IBUS_COMPONENT_COMMANDLINE    "@IBUS_COMPONENT_COMMANDLINE"
 // clang-format on

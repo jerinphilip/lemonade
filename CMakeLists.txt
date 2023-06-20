@@ -48,6 +48,7 @@ set(AUTHOR_XML_ESCAPED "Jerin Philip &lt;jerinphilip@live.in&gt;")
 set(PROJECT_SHORTNAME "lemonade")
 set(PROJECT_LONGNAME "Lemonade")
 set(PROJECT_DESCRIPTION "Lemonade provides client-side translation on the local *nix machine.")
+set(PROJECT_VERSION ${PROJECT_VERSION_STRING})
 set(PROJECT_HOMEPAGE "https://github.com/jerinphilip/lemonade")
 set(PROJECT_LICENSE "GPL")
 
