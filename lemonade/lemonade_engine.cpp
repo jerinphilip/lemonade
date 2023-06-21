@@ -137,7 +137,10 @@ gboolean LemonadeEngine::processKeyEvent(guint keyval, guint keycode,
 
   } break;
   case IBUS_BackSpace: {
-    if (!buffer_.empty()) {
+    if (buffer_.empty()) {
+      // Let the backspace through.
+      retval = FALSE;
+    } else {
       buffer_.pop_back();
       refreshTranslation();
       retval = TRUE;
@@ -188,11 +191,18 @@ void LemonadeEngine::refreshTranslation() {
 
     cursorPos_ = translationBuffer_.size();
     g::Text preEdit(translationBuffer_);
-    updatePreeditText(preEdit, cursorPos_, TRUE);
+    updatePreeditText(preEdit, cursorPos_, /*visible=*/TRUE);
     showLookupTable();
   } else {
-    // Buffer is already clear.
+    // Buffer is already clear (empty).
+    // We will manually clear the translationBuffer_.
     translationBuffer_.clear();
+
+    cursorPos_ = translationBuffer_.size();
+    g::Text preEdit(translationBuffer_);
+    updatePreeditText(preEdit, cursorPos_, /*visible=*/FALSE);
+    hidePreeditText();
+
     hideLookupTable();
   }
 }
