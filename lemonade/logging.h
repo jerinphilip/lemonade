@@ -1,13 +1,29 @@
 #pragma once
-#include "spdlog/spdlog.h"
+#include <cstdio>
 #include <memory>
+#include <string>
 
 namespace lemonade {
 
-static const char *kLoggerName = "ibus-engine-lemonade";
+class Logger {
+public:
+  Logger(const std::string &name, const std::string &file_path = "");
+  void set_log_path(const std::string &file_path);
+  FILE *sink() { return sink_; }
 
-void setupLogging(const std::string &file_path = "");
+  Logger(const Logger &) = delete;
+  Logger &operator=(const Logger &) = delete;
+  ~Logger();
 
-std::shared_ptr<spdlog::logger> getLogger();
+private:
+  std::string path_;
+  std::string name_;
+  FILE *sink_ = NULL;
+  bool owns_ = false;
+};
+
+extern Logger LOGGER;
+
+#define LOG(...) fprintf(LOGGER.sink(), __VA_ARGS__)
 
 } // namespace lemonade

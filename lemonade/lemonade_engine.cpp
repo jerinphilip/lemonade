@@ -10,7 +10,7 @@ namespace lemonade {
 /* constructor */
 LemonadeEngine::LemonadeEngine(IBusEngine *engine)
     : Engine(engine), translator_(/*maxModels=*/4, /*numWorkers=*/1) {
-  getLogger()->info("Lemonade engine started");
+  LOG("Lemonade engine started");
   auto props = [this](std::string side, std::string defaultLang) {
     bool first = false;
     std::vector<std::string> LANGS = {"English", "German",  "Czech", "Estonian",
@@ -252,13 +252,13 @@ gboolean LemonadeEngine::propertyActivate(const char *prop_name,
                                           guint prop_state) {
   std::string propName(prop_name);
   if (propName == "verify") {
-    getLogger()->info("Verify translation is {} -> {}", verify_, prop_state);
+    LOG("Verify translation is %d -> %d", verify_, prop_state);
     verify_ = prop_state;
   } else {
     std::string serialized(prop_name);
     std::string side = serialized.substr(0, 6);
     std::string lang = serialized.substr(7, serialized.size());
-    getLogger()->info(fmt::format("{} [{}] [{}]", propName, side, lang));
+    LOG("%s [%s] [%s]", propName.c_str(), side.c_str(), lang.c_str());
     if (prop_state == 1) {
       if (side == "source") {
         sourceLang_ = lang;

@@ -1,8 +1,5 @@
 #pragma once
 #include "rapidjson/document.h"
-#include "translator/response.h"          // for Response
-#include "translator/service.h"           // for AsyncService
-#include "translator/translation_model.h" // for TranslationModel
 #include <QStandardPaths>
 #include <cstddef> // for size_t
 #include <memory>  // for shared_ptr

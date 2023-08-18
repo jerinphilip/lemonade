@@ -1,10 +1,5 @@
-#include "translator.h"
-#include "common/timer.h" // for Timer
 #include "logging.h"
-#include "translator/byte_array_util.h"  // for getMemoryBundleFromConfig
-#include "translator/definitions.h"      // for MemoryBundle
-#include "translator/response_options.h" // for ResponseOptions
-#include <future>                        // for future, promise
+#include <future> // for future, promise
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
@@ -31,7 +26,7 @@ Response Translator::translate(std::string input, const std::string &source,
       marian::bergamot::ResponseOptions responseOptions;
       service_.translate(model, std::move(input), callback, responseOptions);
     } else {
-      getLogger()->info("No model found for {} -> {}", source, target);
+      LOG("No model found for %s -> %s\n", source.c_str(), target.c_str());
     }
   } else {
     // Try to translate by pivoting.
@@ -52,7 +47,7 @@ Response Translator::translate(std::string input, const std::string &source,
 Model Translator::getModel(const ModelInfo &info) {
   Model model = manager_.lookup(info.code);
   if (!model) {
-    getLogger()->info("Model file {}", inventory_.configFile(info));
+    LOG("Model file %s", inventory_.configFile(info).c_str());
     auto modelConfig =
         marian::bergamot::parseOptionsFromFilePath(inventory_.configFile(info));
 
@@ -62,8 +57,7 @@ Model Translator::getModel(const ModelInfo &info) {
     marian::timer::Timer timer;
     model = service_.createCompatibleModel(modelConfig);
 
-    getLogger()->info("Model building from bundle took {} seconds.\n",
-                      timer.elapsed());
+    LOG("Model building from bundle took %f seconds.\n", timer.elapsed());
     manager_.cacheModel(info.code, model);
   }
 
@@ -100,9 +94,9 @@ ModelInventory::ModelInventory() {
                           entry["code"].GetString(), direction};
 
       languageDirections_[direction] = modelInfo;
-      getLogger()->info(fmt::format("Found model {} ({} -> {})", modelInfo.code,
-                                    modelInfo.direction.first,
-                                    modelInfo.direction.second));
+      LOG("Found model %s (%s -> %s)", modelInfo.code.c_str(),
+          modelInfo.direction.first.c_str(),
+          modelInfo.direction.second.c_str());
     }
   }
 }
@@ -133,7 +127,7 @@ ModelInventory::readInventoryFromDisk(const std::string &modelsJSON) {
   FILE *fp = fopen(modelsJSON.c_str(), "r"); // non-Windows use "r"
 
   if (!fp) {
-    getLogger()->error("File {} not found", modelsJSON);
+    LOG("File %s not found", modelsJSON.c_str());
     std::abort();
   }
   char readBuffer[65536];
