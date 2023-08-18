@@ -1,5 +1,6 @@
 #pragma once
 #include "rapidjson/document.h"
+#include "slimt/slimt.hh"
 #include <QStandardPaths>
 #include <cstddef> // for size_t
 #include <memory>  // for shared_ptr
@@ -7,10 +8,8 @@
 
 namespace lemonade {
 
-using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
 using LanguageDirection = std::pair<std::string, std::string>;
-using Response = marian::bergamot::Response;
-using Service = marian::bergamot::AsyncService;
+using Model = slimt::Model;
 
 struct ModelInfo {
   std::string name;
@@ -57,31 +56,24 @@ private:
 };
 
 class Translator {
-
 public:
   Translator(size_t maxModels, size_t numWorkers)
-      : manager_(maxModels), config_{numWorkers, /*cacheSize=*/2000,
-                                     /*loggerConfig=*/{/*logLevel=*/"info"}},
-        service_(config_), inventory_() {}
+      : manager_(maxModels), inventory_() {}
 
-  Response translate(std::string input, const std::string &source,
-                     const std::string &target);
+  std::string translate(std::string input, const std::string &source,
+                        const std::string &target);
 
 private:
   Model getModel(const ModelInfo &info);
-
   ModelManager manager_;
   ModelInventory inventory_;
-
-  Service::Config config_;
-  Service service_;
 };
 
 class FakeTranslator {
 public:
   FakeTranslator(size_t /*maxModels*/, size_t /*numWorkers*/){};
-  Response translate(std::string input, const std::string &source_lang,
-                     const std::string &target_lang);
+  std::string translate(std::string input, const std::string &source_lang,
+                        const std::string &target_lang);
 };
 
 } // namespace lemonade

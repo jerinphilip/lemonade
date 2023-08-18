@@ -1,5 +1,7 @@
+#include "translator.h"
 #include "logging.h"
 #include <future> // for future, promise
+#include <optional>
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
@@ -8,13 +10,13 @@
 
 namespace lemonade {
 
-Response Translator::translate(std::string input, const std::string &source,
-                               const std::string &target) {
+std::string Translator::translate(std::string input, const std::string &source,
+                                  const std::string &target) {
 
   // I don't even know why added this.
-  std::promise<Response> p;
-  std::future<Response> f = p.get_future();
-  auto callback = [&p](Response &&response) {
+  std::promise<std::string> p;
+  std::future<std::string> f = p.get_future();
+  auto callback = [&p](std::string &&response) {
     p.set_value(std::move(response));
   };
 
@@ -23,7 +25,7 @@ Response Translator::translate(std::string input, const std::string &source,
 
     if (modelInfo) {
       Model model = getModel(modelInfo.value());
-      marian::bergamot::ResponseOptions responseOptions;
+      marian::bergamot::std::stringOptions responseOptions;
       service_.translate(model, std::move(input), callback, responseOptions);
     } else {
       LOG("No model found for %s -> %s\n", source.c_str(), target.c_str());
@@ -35,7 +37,7 @@ Response Translator::translate(std::string input, const std::string &source,
 
     Model sourceToPivot = getModel(first.value());
     Model pivotToTarget = getModel(second.value());
-    marian::bergamot::ResponseOptions responseOptions;
+    marian::bergamot::std::stringOptions responseOptions;
     service_.pivot(sourceToPivot, pivotToTarget, std::move(input), callback,
                    responseOptions);
   }
@@ -166,11 +168,11 @@ Model ModelManager::lookup(const std::string &key) {
   return nullptr;
 };
 
-Response FakeTranslator::translate(std::string input,
-                                   const std::string &source_lang,
-                                   const std::string &target_lang) {
+std::string FakeTranslator::translate(std::string input,
+                                      const std::string &source_lang,
+                                      const std::string &target_lang) {
 
-  Response response;
+  std::string response;
   if (input.empty()) {
     return response;
   }
