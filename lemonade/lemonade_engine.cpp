@@ -8,8 +8,7 @@
 namespace lemonade {
 
 /* constructor */
-LemonadeEngine::LemonadeEngine(IBusEngine *engine)
-    : Engine(engine), translator_(/*maxModels=*/4, /*numWorkers=*/1) {
+LemonadeEngine::LemonadeEngine(IBusEngine *engine) : Engine(engine) {
   LOG("Lemonade engine started");
   auto props = [this](std::string side, std::string defaultLang) {
     bool first = false;
@@ -38,6 +37,7 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine)
   // Hardcode the following for now.
   sourceLang_ = "English";
   targetLang_ = "French";
+  translator_.set_direction(sourceLang_, targetLang_);
 
   auto source = propertyPool_.emplace_back(
       /*key=*/"source",
@@ -174,16 +174,11 @@ void LemonadeEngine::updateBuffer(const std::string &append) {
 
 void LemonadeEngine::refreshTranslation() {
   if (!buffer_.empty()) {
-    std::string bufferCopy = buffer_;
-    auto translation =
-        translator_.translate(std::move(bufferCopy), sourceLang_, targetLang_);
-
+    auto translation = translator_.translate(buffer_);
     translationBuffer_ = translation;
     std::vector<std::string> entries = {buffer_};
     if (verify_) {
-      std::string targetCopy = translation;
-      auto backtranslation = translator_.translate(std::move(targetCopy),
-                                                   targetLang_, sourceLang_);
+      auto backtranslation = translator_.translate(translation);
       entries.push_back(backtranslation);
     }
     g::LookupTable table = generateLookupTable(entries);

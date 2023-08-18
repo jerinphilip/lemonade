@@ -51,12 +51,10 @@ public:
       : path_(load_path(config)), mmap_(mmap_from(path_)),
         vocabulary_(mmap_.vocab.data(), mmap_.vocab.size()),
         model_(load_model(vocabulary_, mmap_)) {}
-
   std::string translate(std::string input);
 
 private:
   Record<std::string> load_path(YAML::Node &config);
-
   Record<slimt::io::MmapFile> mmap_from(Record<std::string> &path);
 
   slimt::Model load_model(slimt::Vocabulary &vocabulary,
@@ -68,42 +66,30 @@ private:
   slimt::Model model_;
 };
 
-/// Manages models, LRU
-class ModelManager {
-  using Entry = std::pair<std::string, Model>;
-  using Container = std::list<Entry>;
-
-public:
-  ModelManager(size_t max_models_to_cache)
-      : max_models_to_cache_(max_models_to_cache) {}
-  void cacheModel(const std::string &key, Model &&model);
-  Model *lookup(const std::string &key);
-
-private:
-  size_t max_models_to_cache_{0};
-  Container models_;
-  std::unordered_map<std::string, Container::iterator> lookup_;
-};
-
 class Translator {
 public:
-  Translator(size_t max_models_to_cache, size_t numWorkers)
-      : manager_(max_models_to_cache), inventory_() {}
+  Translator() = default;
+  void set_direction(const std::string &source, const std::string &target);
+  std::string translate(const std::string &source);
 
-  std::string translate(std::string input, const std::string &source,
-                        const std::string &target);
+  bool pivot() { return m1_.get() != nullptr and m2_.get() != nullptr; }
 
 private:
-  Model *get_model(const Info &info);
-  ModelManager manager_;
+  std::unique_ptr<Model> get_model(const Info &info);
   Inventory inventory_;
+
+  const std::string source_;
+  const std::string target_;
+
+  std::unique_ptr<Model> m1_;
+  std::unique_ptr<Model> m2_;
 };
 
 class FakeTranslator {
 public:
-  FakeTranslator(size_t /*max_models_to_cache*/, size_t /*numWorkers*/){};
-  std::string translate(std::string input, const std::string &source_lang,
-                        const std::string &target_lang);
+  FakeTranslator() = default;
+  void set_direction(const std::string &source, const std::string &target);
+  std::string translate(std::string input);
 };
 
 } // namespace lemonade

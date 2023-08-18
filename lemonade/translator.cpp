@@ -12,43 +12,47 @@
 
 namespace lemonade {
 
-std::string Translator::translate(std::string input, const std::string &source,
-                                  const std::string &target) {
-
+void Translator::set_direction(const std::string &source,
+                               const std::string &target) {
   if (source == "English" or target == "English") {
     std::optional<Info> info = inventory_.query(source, target);
-
     if (info) {
-      Model *model = get_model(info.value());
+      m1_ = get_model(info.value());
       LOG("Found model %s (%s -> %s)", info->code.c_str(),
           info->direction.first.c_str(), info->direction.second.c_str());
     } else {
-      LOG("No model found for %s -> %s\n", source.c_str(), target.c_str());
+      LOG("No model found for %s -> %s", source.c_str(), target.c_str());
     }
   } else {
     // Try to translate by pivoting.
     std::optional<Info> first = inventory_.query(source, "English");
     std::optional<Info> second = inventory_.query("English", target);
 
-    Model *source_to_pivot = get_model(first.value());
-    Model *pivot_to_target = get_model(second.value());
+    m1_ = get_model(first.value());
+    m2_ = get_model(second.value());
   }
-  return "notimplemented";
 }
 
-Model *Translator::get_model(const Info &info) {
-  Model *model = manager_.lookup(info.code);
-  if (!model) {
-    std::string config_path = inventory_.configFile(info);
-    LOG("Model file %s", config_path.c_str());
-    YAML::Node config = YAML::LoadFile(config_path);
+std::string Translator::translate(const std::string &source) {
+  if (m1_ && m2_) {
+    // Pivoting.
+    std::string pivot = m1_->translate(source);
+    std::string translation = m2_->translate(pivot);
+    return translation;
   }
 
+  assert(m1_.get() != nullptr);
+
+  return m1_->translate(source);
+}
+
+std::unique_ptr<Model> Translator::get_model(const Info &info) {
+  std::string config_path = inventory_.configFile(info);
+  LOG("Model file %s", config_path.c_str());
+  YAML::Node config = YAML::LoadFile(config_path);
+
   LOG("Model building from bundle took %f seconds.\n", -1.0f);
-
-  // manager_.cacheModel(info.code, model);
-
-  return model;
+  return std::make_unique<Model>(config);
 }
 
 Inventory::Inventory() {
@@ -127,33 +131,11 @@ std::string Inventory::configFile(const Info &info) {
       modelsDir_ + "/" + info.code + "/config.bergamot.yml";
   return configFilePath;
 }
-void ModelManager::cacheModel(const std::string &key, Model &&model) {
-  // LRU cache.
-  while (1 + models_.size() > max_models_to_cache_) {
-    // Remove from the front.
-    auto toRemoveItr = models_.begin();
-    lookup_.erase(toRemoveItr->first);
-    models_.erase(toRemoveItr);
-  }
-  auto modelItr = models_.insert({key, std::move(model)});
-  lookup_[key] = modelItr;
-}
-Model *ModelManager::lookup(const std::string &key) {
-  auto query = lookup_.find(key);
-  if (query != lookup_.end()) {
-    auto entryItr = query->second;
-    auto entry = std::move(*entryItr);
-    models_.erase(entryItr);
-    auto ref = models_.emplace(models_.end(), std::move(entry));
-    lookup_[key] = ref;
-    return &(ref->second);
-  }
-  return nullptr;
-};
 
-std::string FakeTranslator::translate(std::string input,
-                                      const std::string &source_lang,
-                                      const std::string &target_lang) {
+void FakeTranslator::set_direction(const std::string &source,
+                                   const std::string &target) {}
+
+std::string FakeTranslator::translate(std::string input) {
 
   std::string response;
   if (input.empty()) {
