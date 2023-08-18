@@ -61,7 +61,7 @@ set(LEMONADE_INCLUDE_DIRECTORIES
 
 find_package(Threads REQUIRED) # Cross-platform compatible way to get threads?
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Network DBus REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets LinguistTools Network DBus Svg REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Network DBus REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 set(LINK_LIBRARIES
