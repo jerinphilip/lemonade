@@ -1,5 +1,5 @@
-name: "ubuntu-latest"
-'on':
+name: "g"
+on:
   push:
     branches:
     - main
@@ -17,7 +17,7 @@ env:
 
 jobs:
     main:
-      name: "[liblemonade + ibus-engine]"
+      name: "build-test"
       runs-on: "ubuntu-latest"
       steps:
       - name: Checkout
