@@ -10,6 +10,10 @@ if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
 
+if (POLICY CMP0002)
+  cmake_policy(SET CMP0002 NEW)
+endif()
+
 if(APPLE)
     set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
 endif()
