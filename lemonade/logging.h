@@ -24,6 +24,10 @@ private:
 
 extern Logger LOGGER;
 
+inline void setup_logging(const std::string log_path) {
+  LOGGER.set_log_path(log_path);
+}
+
 #define LOG(...) fprintf(LOGGER.sink(), __VA_ARGS__)
 
 } // namespace lemonade

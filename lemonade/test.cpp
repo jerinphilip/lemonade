@@ -16,8 +16,8 @@ template <class Translator> void repl() {
     std::cin >> src_lang;
     std::cin >> tgt_lang;
     std::getline(std::cin, input);
-    auto response = translator.translate(input, src_lang, tgt_lang);
-    std::cout << response.target.text << "\n";
+    auto translation = translator.translate(input, src_lang, tgt_lang);
+    std::cout << translation << "\n";
   }
 }
 
@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
   if (mode == "fake") {
     repl<lemonade::FakeTranslator>();
   } else {
-    lemonade::setupLogging();
     repl<lemonade::Translator>();
   }
 

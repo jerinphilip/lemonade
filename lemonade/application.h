@@ -11,9 +11,9 @@ class Application {
 public:
   Application(gboolean ibus) {
     // FIXME
-    std::string log_path =
-        fmt::format("{}/.ibus-engine-lemonade.log", std::getenv("HOME"));
-    setupLogging(log_path);
+    std::string log_path = std::getenv("HOME");
+    log_path += "/.ibus-engine-lemonade.log";
+    setup_logging(log_path);
 
     ibus_init();
 
@@ -21,13 +21,13 @@ public:
     bus = ibus_bus_new();
 
     if (!ibus_bus_is_connected(bus)) {
-      getLogger()->info("Cannot connect to ibus!");
+      LOG("Cannot connect to ibus!");
       g_warning("Can not connect to ibus!");
       std::abort();
     }
 
     if (!ibus_bus_get_config(bus)) {
-      getLogger()->info("IBus config component is not ready!");
+      LOG("IBus config component is not ready!");
       g_warning("IBus config component is not ready!");
       std::abort();
     }
@@ -37,17 +37,17 @@ public:
     auto callback = +[](IBusBus *bus, gpointer user_data) { ibus_quit(); };
     g_signal_connect(bus, "disconnected", G_CALLBACK(callback), NULL);
 
-    getLogger()->info("Adding factory");
+    LOG("Adding factory");
     factory = ibus_factory_new(ibus_bus_get_connection(bus));
 
     ibus_factory_add_engine(factory, PROJECT_SHORTNAME,
                             IBUS_TYPE_LEMONADE_ENGINE);
 
     if (ibus) {
-      getLogger()->info("ibus = true, requesting bus");
+      LOG("ibus = true, requesting bus");
       ibus_bus_request_name(bus, IBUS_BUS_NAME, 0);
     } else {
-      getLogger()->info("ibus = false, creating new bus");
+      LOG("ibus = false, creating new bus");
       g::SharedPointer<IBusComponent> component;
 
       component = ibus_component_new(IBUS_BUS_NAME,              //
@@ -60,7 +60,7 @@ public:
                                      IBUS_TEXTDOMAIN);
 
       if (component) {
-        getLogger()->info("creating component success");
+        LOG("creating component success");
       }
 
       ibus_component_add_engine(component,
@@ -77,9 +77,9 @@ public:
   }
 
   void run() {
-    getLogger()->info("Spawning ibus main");
+    LOG("Spawning ibus main");
     ibus_main();
-    getLogger()->info("Ending ibus main");
+    LOG("Ending ibus main");
   }
 
 private:

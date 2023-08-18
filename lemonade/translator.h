@@ -8,29 +8,29 @@
 
 namespace lemonade {
 
-using LanguageDirection = std::pair<std::string, std::string>;
+using Direction = std::pair<std::string, std::string>;
 using Model = slimt::Model;
 
-struct ModelInfo {
+struct Info {
   std::string name;
   std::string type;
   std::string code;
-  LanguageDirection direction;
+  Direction direction;
 };
 
-class ModelInventory {
+class Inventory {
 public:
-  ModelInventory();
-  std::optional<ModelInfo> query(const std::string &source,
-                                 const std::string &target) const;
-  std::string configFile(const ModelInfo &modelInfo);
+  Inventory();
+  std::optional<Info> query(const std::string &source,
+                            const std::string &target) const;
+  std::string configFile(const Info &info);
 
 private:
   struct Hash {
-    size_t operator()(const LanguageDirection &direction) const;
+    size_t operator()(const Direction &direction) const;
   };
 
-  std::unordered_map<LanguageDirection, ModelInfo, Hash> languageDirections_;
+  std::unordered_map<Direction, Info, Hash> directions_;
   rapidjson::Document inventory_;
   std::string modelsDir_;
   std::string modelsJSON_;
@@ -45,33 +45,34 @@ class ModelManager {
   using Container = std::list<Entry>;
 
 public:
-  ModelManager(size_t maxModels) : maxModels_(maxModels) {}
-  void cacheModel(const std::string &key, Model model);
-  Model lookup(const std::string &key);
+  ModelManager(size_t max_models_to_cache)
+      : max_models_to_cache_(max_models_to_cache) {}
+  void cacheModel(const std::string &key, Model &&model);
+  Model *lookup(const std::string &key);
 
 private:
-  size_t maxModels_{0};
+  size_t max_models_to_cache_{0};
   Container models_;
   std::unordered_map<std::string, Container::iterator> lookup_;
 };
 
 class Translator {
 public:
-  Translator(size_t maxModels, size_t numWorkers)
-      : manager_(maxModels), inventory_() {}
+  Translator(size_t max_models_to_cache, size_t numWorkers)
+      : manager_(max_models_to_cache), inventory_() {}
 
   std::string translate(std::string input, const std::string &source,
                         const std::string &target);
 
 private:
-  Model getModel(const ModelInfo &info);
+  Model *get_model(const Info &info);
   ModelManager manager_;
-  ModelInventory inventory_;
+  Inventory inventory_;
 };
 
 class FakeTranslator {
 public:
-  FakeTranslator(size_t /*maxModels*/, size_t /*numWorkers*/){};
+  FakeTranslator(size_t /*max_models_to_cache*/, size_t /*numWorkers*/){};
   std::string translate(std::string input, const std::string &source_lang,
                         const std::string &target_lang);
 };

@@ -178,13 +178,13 @@ void LemonadeEngine::refreshTranslation() {
     auto translation =
         translator_.translate(std::move(bufferCopy), sourceLang_, targetLang_);
 
-    translationBuffer_ = translation.target.text;
+    translationBuffer_ = translation;
     std::vector<std::string> entries = {buffer_};
     if (verify_) {
-      std::string targetCopy = translation.target.text;
+      std::string targetCopy = translation;
       auto backtranslation = translator_.translate(std::move(targetCopy),
                                                    targetLang_, sourceLang_);
-      entries.push_back(backtranslation.target.text);
+      entries.push_back(backtranslation);
     }
     g::LookupTable table = generateLookupTable(entries);
     updateLookupTable(table, /*visible=*/!entries.empty());
