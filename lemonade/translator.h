@@ -23,7 +23,7 @@ public:
   Inventory();
   std::optional<Info> query(const std::string &source,
                             const std::string &target) const;
-  std::string configFile(const Info &info);
+  std::pair<std::string, std::string> configFile(const Info &info);
 
 private:
   struct Hash {
@@ -47,21 +47,21 @@ template <class Field> struct Record {
 
 class Model {
 public:
-  Model(YAML::Node &config)
-      : path_(load_path(config)), mmap_(mmap_from(path_)),
+  Model(const std::string &root, YAML::Node &config)
+      : path_(load_path(root, config)), mmap_(mmap_from(path_)),
         vocabulary_(mmap_.vocab.data(), mmap_.vocab.size()),
         model_(load_model(vocabulary_, mmap_)) {}
   std::string translate(std::string input);
 
 private:
-  Record<std::string> load_path(YAML::Node &config);
+  Record<std::string> load_path(const std::string &root, YAML::Node &config);
   Record<slimt::io::MmapFile> mmap_from(Record<std::string> &path);
 
   slimt::Model load_model(slimt::Vocabulary &vocabulary,
                           Record<slimt::io::MmapFile> &mmap);
 
-  Record<slimt::io::MmapFile> mmap_;
   Record<std::string> path_;
+  Record<slimt::io::MmapFile> mmap_;
   slimt::Vocabulary vocabulary_;
   slimt::Model model_;
 };

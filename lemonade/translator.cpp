@@ -47,12 +47,11 @@ std::string Translator::translate(const std::string &source) {
 }
 
 std::unique_ptr<Model> Translator::get_model(const Info &info) {
-  std::string config_path = inventory_.configFile(info);
-  LOG("Model file %s", config_path.c_str());
-  YAML::Node config = YAML::LoadFile(config_path);
-
+  auto [model_root, config] = inventory_.configFile(info);
+  LOG("Model model_root %s, config %s", model_root.c_str(), config.c_str());
+  YAML::Node tree = YAML::LoadFile(model_root + "/" + config);
   LOG("Model building from bundle took %f seconds.\n", -1.0f);
-  return std::make_unique<Model>(config);
+  return std::make_unique<Model>(model_root, tree);
 }
 
 Inventory::Inventory() {
@@ -126,10 +125,8 @@ Inventory::readInventoryFromDisk(const std::string &modelsJSON) {
   return d;
 }
 
-std::string Inventory::configFile(const Info &info) {
-  std::string configFilePath =
-      modelsDir_ + "/" + info.code + "/config.bergamot.yml";
-  return configFilePath;
+std::pair<std::string, std::string> Inventory::configFile(const Info &info) {
+  return std::make_pair(modelsDir_ + "/" + info.code, "config.bergamot.yml");
 }
 
 void FakeTranslator::set_direction(const std::string &source,
@@ -207,13 +204,19 @@ std::string Model::translate(std::string input) {
   return result;
 }
 
-Record<std::string> Model::load_path(YAML::Node &config) {
-  auto prefix_browsermt = [](const std::string &path) { return path; };
-
-  std::string model_path = prefix_browsermt(config["model"].as<std::string>());
+Record<std::string> Model::load_path(const std::string &root,
+                                     YAML::Node &config) {
+  auto prefix_browsermt = [&root](const std::string &path) {
+    return root + "/" + path;
+  };
 
   using Strings = std::vector<std::string>;
-  Strings vocab_paths = config["vocab"].as<Strings>();
+
+  Strings model_paths = config["models"].as<Strings>();
+  std::string model_path = prefix_browsermt(model_paths[0]);
+  LOG("model_path: %s", model_path.c_str());
+
+  Strings vocab_paths = config["vocabs"].as<Strings>();
   std::string vocab_path = prefix_browsermt(vocab_paths[0]);
 
   Strings shortlist_args = config["shortlist"].as<Strings>();
