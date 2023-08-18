@@ -41,30 +41,35 @@ Application::Application(gboolean ibus) {
     ibus_bus_request_name(bus_, IBUS_BUS_NAME, 0);
   } else {
     LOG("ibus = false, creating new bus");
-    g::SharedPointer<IBusComponent> component;
-
-    component = ibus_component_new(IBUS_BUS_NAME,              //
-                                   PROJECT_DESCRIPTION,        //
-                                   PROJECT_VERSION,            //
-                                   PROJECT_LICENSE,            //
-                                   AUTHOR,                     //
-                                   PROJECT_HOMEPAGE,           //
-                                   IBUS_COMPONENT_COMMANDLINE, //
-                                   IBUS_TEXTDOMAIN);
+    g::SharedPointer<IBusComponent> component = //
+        ibus_component_new(                     //
+            IBUS_BUS_NAME,                      //
+            PROJECT_DESCRIPTION,                //
+            PROJECT_VERSION,                    //
+            PROJECT_LICENSE,                    //
+            AUTHOR,                             //
+            PROJECT_HOMEPAGE,                   //
+            IBUS_COMPONENT_COMMANDLINE,         //
+            IBUS_TEXTDOMAIN                     //
+        );
 
     if (component) {
       LOG("creating component success");
     }
 
-    ibus_component_add_engine(component,
-                              ibus_engine_desc_new(PROJECT_SHORTNAME,   //
-                                                   PROJECT_LONGNAME,    //
-                                                   PROJECT_DESCRIPTION, //
-                                                   IBUS_LANGUAGE,       //
-                                                   PROJECT_LICENSE,     //
-                                                   AUTHOR,              //
-                                                   IBUS_ICON,           //
-                                                   IBUS_LAYOUT));
+    g::SharedPointer<IBusEngineDesc> description = //
+        ibus_engine_desc_new(                      //
+            PROJECT_SHORTNAME,                     //
+            PROJECT_LONGNAME,                      //
+            PROJECT_DESCRIPTION,                   //
+            IBUS_LANGUAGE,                         //
+            PROJECT_LICENSE,                       //
+            AUTHOR,                                //
+            IBUS_ICON,                             //
+            IBUS_LAYOUT                            //
+        );
+
+    ibus_component_add_engine(component, description);
     ibus_bus_register_component(bus_, component);
   }
 }
