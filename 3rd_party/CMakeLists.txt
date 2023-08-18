@@ -1,2 +1,1 @@
-add_subdirectory(bergamot-translator EXCLUDE_FROM_ALL)
-
+add_subdirectory(slimt EXCLUDE_FROM_ALL)

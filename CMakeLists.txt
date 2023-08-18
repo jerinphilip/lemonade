@@ -65,7 +65,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui PrintSupport Widgets Ling
 find_package(OpenSSL REQUIRED)
 
 set(LINK_LIBRARIES
-    bergamot-translator
+    slimt
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::DBus
