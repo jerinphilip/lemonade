@@ -1,79 +1,63 @@
 #include "translator.h"
-#include "common/timer.h" // for Timer
 #include "logging.h"
-#include "translator/byte_array_util.h"  // for getMemoryBundleFromConfig
-#include "translator/definitions.h"      // for MemoryBundle
-#include "translator/response_options.h" // for ResponseOptions
-#include <future>                        // for future, promise
+#include <future>
+#include <optional>
+#include <random>
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#include "yaml-cpp/yaml.h"
 #include <QCommandLineParser>
 #include <QStandardPaths>
 
 namespace lemonade {
 
-Response Translator::translate(std::string input, const std::string &source,
+void Translator::set_direction(const std::string &source,
                                const std::string &target) {
-
-  // I don't even know why added this.
-  std::promise<Response> p;
-  std::future<Response> f = p.get_future();
-  auto callback = [&p](Response &&response) {
-    p.set_value(std::move(response));
-  };
-
   if (source == "English" or target == "English") {
-    std::optional<ModelInfo> modelInfo = inventory_.query(source, target);
-
-    if (modelInfo) {
-      Model model = getModel(modelInfo.value());
-      marian::bergamot::ResponseOptions responseOptions;
-      service_.translate(model, std::move(input), callback, responseOptions);
+    std::optional<Info> info = inventory_.query(source, target);
+    if (info) {
+      m1_ = get_model(info.value());
+      LOG("Found model %s (%s -> %s)", info->code.c_str(),
+          info->direction.first.c_str(), info->direction.second.c_str());
     } else {
-      getLogger()->info("No model found for {} -> {}", source, target);
+      LOG("No model found for %s -> %s", source.c_str(), target.c_str());
     }
   } else {
     // Try to translate by pivoting.
-    std::optional<ModelInfo> first = inventory_.query(source, "English");
-    std::optional<ModelInfo> second = inventory_.query("English", target);
+    std::optional<Info> first = inventory_.query(source, "English");
+    std::optional<Info> second = inventory_.query("English", target);
 
-    Model sourceToPivot = getModel(first.value());
-    Model pivotToTarget = getModel(second.value());
-    marian::bergamot::ResponseOptions responseOptions;
-    service_.pivot(sourceToPivot, pivotToTarget, std::move(input), callback,
-                   responseOptions);
+    m1_ = get_model(first.value());
+    m2_ = get_model(second.value());
   }
-
-  f.wait();
-  return f.get();
 }
 
-Model Translator::getModel(const ModelInfo &info) {
-  Model model = manager_.lookup(info.code);
-  if (!model) {
-    getLogger()->info("Model file {}", inventory_.configFile(info));
-    auto modelConfig =
-        marian::bergamot::parseOptionsFromFilePath(inventory_.configFile(info));
-
-    // FIXME
-    modelConfig->set("workspace", 128);
-
-    marian::timer::Timer timer;
-    model = service_.createCompatibleModel(modelConfig);
-
-    getLogger()->info("Model building from bundle took {} seconds.\n",
-                      timer.elapsed());
-    manager_.cacheModel(info.code, model);
+std::string Translator::translate(const std::string &source) {
+  if (m1_ && m2_) {
+    // Pivoting.
+    std::string pivot = m1_->translate(source);
+    std::string translation = m2_->translate(pivot);
+    return translation;
   }
 
-  return model;
+  assert(m1_.get() != nullptr);
+
+  return m1_->translate(source);
 }
 
-ModelInventory::ModelInventory() {
+std::unique_ptr<Model> Translator::get_model(const Info &info) {
+  auto [model_root, config] = inventory_.configFile(info);
+  LOG("Model model_root %s, config %s", model_root.c_str(), config.c_str());
+  YAML::Node tree = YAML::LoadFile(model_root + "/" + config);
+  LOG("Model building from bundle took %f seconds.\n", -1.0f);
+  return std::make_unique<Model>(model_root, tree);
+}
+
+Inventory::Inventory() {
   int argc = 0;
   char **argv = {};
-  QCoreApplication(argc, argv);
+  QCoreApplication(argc, argv); // NOLINT
   QCoreApplication::setApplicationName("bergamot");
 
   modelsJSON_ = QStandardPaths::locate(QStandardPaths::AppConfigLocation,
@@ -93,32 +77,29 @@ ModelInventory::ModelInventory() {
     const rapidjson::Value &entry = models[i];
     std::string type = entry["type"].GetString();
     if (type == "tiny") {
-      LanguageDirection direction =
+      Direction direction =
           std::make_pair(entry["src"].GetString(), entry["trg"].GetString());
 
-      ModelInfo modelInfo{entry["name"].GetString(), entry["type"].GetString(),
-                          entry["code"].GetString(), direction};
+      Info info{entry["name"].GetString(), entry["type"].GetString(),
+                entry["code"].GetString(), direction};
 
-      languageDirections_[direction] = modelInfo;
-      getLogger()->info(fmt::format("Found model {} ({} -> {})", modelInfo.code,
-                                    modelInfo.direction.first,
-                                    modelInfo.direction.second));
+      directions_[direction] = info;
+      LOG("Found model %s (%s -> %s)", info.code.c_str(),
+          info.direction.first.c_str(), info.direction.second.c_str());
     }
   }
 }
 
-std::optional<ModelInfo>
-ModelInventory::query(const std::string &source,
-                      const std::string &target) const {
-  auto query = languageDirections_.find(LanguageDirection{source, target});
-  if (query != languageDirections_.end()) {
+std::optional<Info> Inventory::query(const std::string &source,
+                                     const std::string &target) const {
+  auto query = directions_.find(Direction{source, target});
+  if (query != directions_.end()) {
     return query->second;
   }
   return std::nullopt;
 }
 
-size_t
-ModelInventory::Hash::operator()(const LanguageDirection &direction) const {
+size_t Inventory::Hash::operator()(const Direction &direction) const {
   auto hash_combine = [](size_t &seed, size_t next) {
     seed ^= std::hash<size_t>{}(next) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   };
@@ -129,11 +110,11 @@ ModelInventory::Hash::operator()(const LanguageDirection &direction) const {
 }
 
 rapidjson::Document
-ModelInventory::readInventoryFromDisk(const std::string &modelsJSON) {
+Inventory::readInventoryFromDisk(const std::string &modelsJSON) {
   FILE *fp = fopen(modelsJSON.c_str(), "r"); // non-Windows use "r"
 
   if (!fp) {
-    getLogger()->error("File {} not found", modelsJSON);
+    LOG("File %s not found", modelsJSON.c_str());
     std::abort();
   }
   char readBuffer[65536];
@@ -144,44 +125,19 @@ ModelInventory::readInventoryFromDisk(const std::string &modelsJSON) {
   return d;
 }
 
-std::string ModelInventory::configFile(const ModelInfo &modelInfo) {
-  std::string configFilePath =
-      fmt::format("{}/{}/config.bergamot.yml", modelsDir_, modelInfo.code);
-  return configFilePath;
+std::pair<std::string, std::string> Inventory::configFile(const Info &info) {
+  return std::make_pair(modelsDir_ + "/" + info.code, "config.bergamot.yml");
 }
-void ModelManager::cacheModel(const std::string &key, Model model) {
-  while (1 + models_.size() > maxModels_) {
-    auto toRemoveItr = models_.begin();
-    lookup_.erase(toRemoveItr->first);
-    models_.erase(toRemoveItr);
-  }
-  auto modelItr = models_.emplace(models_.end(), std::make_pair(key, model));
-  lookup_[key] = modelItr;
-}
-Model ModelManager::lookup(const std::string &key) {
-  auto query = lookup_.find(key);
-  if (query != lookup_.end()) {
-    auto entryItr = query->second;
-    auto entry = *entryItr;
 
-    models_.erase(entryItr);
-    auto ref = models_.emplace(models_.end(), entry);
-    lookup_[key] = ref;
-    return entry.second;
-  }
-  return nullptr;
-};
+void FakeTranslator::set_direction(const std::string &source,
+                                   const std::string &target) {}
 
-Response FakeTranslator::translate(std::string input,
-                                   const std::string &source_lang,
-                                   const std::string &target_lang) {
+std::string FakeTranslator::translate(std::string input) {
 
-  Response response;
+  std::string response;
   if (input.empty()) {
     return response;
   }
-
-  response.source.text = input;
 
   // For a given length, generates a 6 length set of tokens.
   // Entire string is changed by seeding with length each time.
@@ -196,8 +152,8 @@ Response FakeTranslator::translate(std::string input,
         target += " ";
       }
       size_t value = generator();
-      std::string hex = fmt::format("{:#x}", value);
-
+      std::string hex(' ', 20);
+      std::sprintf(hex.data(), "%x", static_cast<unsigned int>(value));
       // 2 to truncate 0x.
       target += hex.substr(2, truncate_length);
     }
@@ -212,6 +168,7 @@ Response FakeTranslator::translate(std::string input,
       if (isspace(c)) {
         // Check for space.
         if (!token.empty()) {
+          // Start of a new word.
           ++count;
           token = "";
         }
@@ -229,9 +186,80 @@ Response FakeTranslator::translate(std::string input,
 
   size_t count = token_count(input);
   std::string target = transform(count);
+  return target;
+}
 
-  response.target.text = target;
-  return response;
+std::string Model::translate(std::string input) {
+  using namespace slimt;
+  bool add_eos = true;
+  auto [words, views] = vocabulary_.encode(input, add_eos);
+  uint64_t batch_size = 1;
+  uint64_t sequence_length = words.size();
+  Batch batch(batch_size, sequence_length, vocabulary_.pad_id());
+  batch.add(words);
+
+  auto sentences = model_.translate(batch);
+  auto sentence = sentences[0];
+  auto [result, tgt_views] = vocabulary_.decode(sentence);
+  return result;
+}
+
+Record<std::string> Model::load_path(const std::string &root,
+                                     YAML::Node &config) {
+  auto prefix_browsermt = [&root](const std::string &path) {
+    return root + "/" + path;
+  };
+
+  using Strings = std::vector<std::string>;
+
+  Strings model_paths = config["models"].as<Strings>();
+  std::string model_path = prefix_browsermt(model_paths[0]);
+  LOG("model_path: %s", model_path.c_str());
+
+  Strings vocab_paths = config["vocabs"].as<Strings>();
+  std::string vocab_path = prefix_browsermt(vocab_paths[0]);
+
+  Strings shortlist_args = config["shortlist"].as<Strings>();
+  std::string shortlist_path = prefix_browsermt(shortlist_args[0]);
+
+  Record<std::string> path{
+      .model = model_path,        //
+      .vocab = vocab_path,        //
+      .shortlist = shortlist_path //
+  };
+  return path;
+}
+
+Record<slimt::io::MmapFile> Model::mmap_from(Record<std::string> &path) {
+  using namespace slimt;
+  auto prefix_browsermt = [](const std::string &path) { return path; };
+  return {
+      .model = io::MmapFile(path.model),         //
+      .vocab = io::MmapFile(path.vocab),         //
+      .shortlist = io::MmapFile(path.shortlist), //
+  };
+}
+
+slimt::Model Model::load_model(slimt::Vocabulary &vocabulary,
+                               Record<slimt::io::MmapFile> &mmap) {
+  using namespace slimt;
+  auto items = io::loadItems(mmap_.model.data());
+  ShortlistGenerator shortlist_generator(             //
+      mmap_.shortlist.data(), mmap_.shortlist.size(), //
+      vocabulary, vocabulary                          //
+  );
+
+  size_t encoder_layers = 6;
+  size_t decoder_layers = 2;
+  size_t ffn_depth = 2;
+
+  slimt::Model model(                //
+      Tag::tiny11,                   //
+      vocabulary,                    //
+      std::move(items),              //
+      std::move(shortlist_generator) //
+  );
+  return model;
 }
 
 } // namespace lemonade

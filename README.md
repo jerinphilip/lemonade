@@ -6,9 +6,11 @@
 
 Abuses [iBus](https://en.wikipedia.org/wiki/Intelligent_Input_Bus) to hijack
 text entered into a field by a user, to insert translated text into any
-graphical application. This allows you to enter text in a language you know,
-while the field gets the translated text. Useful when interacting with websites
-or agents in a foreign language.
+graphical application. 
+
+This allows you to enter text in a language you know, while the field gets the
+translated text. Useful when interacting with websites or agents in a foreign
+language.
 
 Find a demonstration of iBus in action on LibreOffice below:
 
@@ -27,6 +29,7 @@ contributing.
 
 * jerinphilip [at] live.in
 
+
 ## History 
 
 This repository was formerly a sandbox used to build proof-of-concept
@@ -43,11 +46,11 @@ See also:
 
 ## Acknowledgements
 
-
-This application was made possible through the combined effort of all researchers
-and [partners](https://browser.mt/partners/) in the Bergamot project. The
-[translation models](https://github.com/browsermt/students) are prepared as
-part of the Bergamot project. The translation engine used is
-[bergamot-translator](https://github.com/browsermt/bergamot-translator) which
-is based on [marian](https://github.com/marian-nmt/marian-dev).
+This application was made possible through the combined effort of all
+researchers and [partners](https://browser.mt/partners/) in the Bergamot
+project. The [translation models](https://github.com/browsermt/students) are
+prepared as part of the Bergamot project. The translation engine used is
+[slimt](https://github.com/jerinphilip/slimt/) which is an inference slice
+using only one class of models within is based on
+[marian](https://github.com/marian-nmt/marian-dev).
 

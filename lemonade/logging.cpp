@@ -1,34 +1,29 @@
 #include "logging.h"
+#include <cstdio>
+
 namespace lemonade {
 
-void setupLogging(const std::string &file_path) {
-
-  std::vector<spdlog::sink_ptr> sinks;
-
+Logger::Logger(const std::string &name, const std::string &file_path)
+    : name_(name), path_(file_path) {
   if (file_path.empty()) {
-    auto stderr_sink = spdlog::sinks::stderr_sink_mt::instance();
-    sinks.push_back(stderr_sink);
+    sink_ = stderr;
+  } else {
+    set_log_path(file_path);
   }
-
-  else {
-    auto file_sink =
-        std::make_shared<spdlog::sinks::simple_file_sink_st>(file_path, true);
-    sinks.push_back(file_sink);
-  }
-
-  auto logger =
-      std::make_shared<spdlog::logger>(kLoggerName, begin(sinks), end(sinks));
-
-  std::string pattern = fmt::format("[{}] {}", kLoggerName, "[%Y-%m-%d %T] %v");
-  logger->set_pattern(pattern);
-
-  spdlog::register_logger(logger);
 }
 
-std::shared_ptr<spdlog::logger> getLogger() {
-  // Just fetch by name.
-  std::shared_ptr<spdlog::logger> instance = spdlog::get(kLoggerName);
-  assert(instance != nullptr);
-  return instance;
+Logger::~Logger() {
+  if (owns_) {
+    owns_ = false;
+    fclose(sink_);
+  }
 }
+
+void Logger::set_log_path(const std::string &file_path) {
+  owns_ = true;
+  sink_ = fopen(path_.c_str(), "a+");
+}
+
+Logger LOGGER("lemonade");
+
 } // namespace lemonade

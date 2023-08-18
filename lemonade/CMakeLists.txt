@@ -16,7 +16,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ibus_config.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/ibus_config.h @ONLY)
 
 add_library(lemonade STATIC engine_compat.cpp lemonade_engine.cpp
-                            translator.cpp logging.cpp)
+                            translator.cpp logging.cpp application.cpp)
 target_link_libraries(lemonade PUBLIC ${GLIB2_LIBRARIES} ${IBUS_LIBRARIES}
                                       ${LINK_LIBRARIES})
 target_include_directories(

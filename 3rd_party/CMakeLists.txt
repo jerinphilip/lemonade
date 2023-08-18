@@ -1,2 +1,3 @@
-add_subdirectory(bergamot-translator EXCLUDE_FROM_ALL)
-
+add_subdirectory(slimt EXCLUDE_FROM_ALL)
+add_subdirectory(yaml-cpp EXCLUDE_FROM_ALL)
+add_subdirectory(rapidjson EXCLUDE_FROM_ALL)

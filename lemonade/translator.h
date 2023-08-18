@@ -1,40 +1,36 @@
 #pragma once
 #include "rapidjson/document.h"
-#include "translator/response.h"          // for Response
-#include "translator/service.h"           // for AsyncService
-#include "translator/translation_model.h" // for TranslationModel
+#include "slimt/slimt.hh"
+#include "yaml-cpp/yaml.h"
 #include <QStandardPaths>
-#include <cstddef> // for size_t
-#include <memory>  // for shared_ptr
+#include <cstddef>
+#include <memory>
 #include <optional>
 
 namespace lemonade {
 
-using Model = std::shared_ptr<marian::bergamot::TranslationModel>;
-using LanguageDirection = std::pair<std::string, std::string>;
-using Response = marian::bergamot::Response;
-using Service = marian::bergamot::AsyncService;
+using Direction = std::pair<std::string, std::string>;
 
-struct ModelInfo {
+struct Info {
   std::string name;
   std::string type;
   std::string code;
-  LanguageDirection direction;
+  Direction direction;
 };
 
-class ModelInventory {
+class Inventory {
 public:
-  ModelInventory();
-  std::optional<ModelInfo> query(const std::string &source,
-                                 const std::string &target) const;
-  std::string configFile(const ModelInfo &modelInfo);
+  Inventory();
+  std::optional<Info> query(const std::string &source,
+                            const std::string &target) const;
+  std::pair<std::string, std::string> configFile(const Info &info);
 
 private:
   struct Hash {
-    size_t operator()(const LanguageDirection &direction) const;
+    size_t operator()(const Direction &direction) const;
   };
 
-  std::unordered_map<LanguageDirection, ModelInfo, Hash> languageDirections_;
+  std::unordered_map<Direction, Info, Hash> directions_;
   rapidjson::Document inventory_;
   std::string modelsDir_;
   std::string modelsJSON_;
@@ -43,48 +39,57 @@ private:
   readInventoryFromDisk(const std::string &modelsJSON);
 };
 
-/// Manages models, LRU
-class ModelManager {
-  using Entry = std::pair<std::string, Model>;
-  using Container = std::list<Entry>;
+template <class Field> struct Record {
+  Field model;
+  Field vocab;
+  Field shortlist;
+};
 
+class Model {
 public:
-  ModelManager(size_t maxModels) : maxModels_(maxModels) {}
-  void cacheModel(const std::string &key, Model model);
-  Model lookup(const std::string &key);
+  Model(const std::string &root, YAML::Node &config)
+      : path_(load_path(root, config)), mmap_(mmap_from(path_)),
+        vocabulary_(mmap_.vocab.data(), mmap_.vocab.size()),
+        model_(load_model(vocabulary_, mmap_)) {}
+  std::string translate(std::string input);
 
 private:
-  size_t maxModels_{0};
-  Container models_;
-  std::unordered_map<std::string, Container::iterator> lookup_;
+  Record<std::string> load_path(const std::string &root, YAML::Node &config);
+  Record<slimt::io::MmapFile> mmap_from(Record<std::string> &path);
+
+  slimt::Model load_model(slimt::Vocabulary &vocabulary,
+                          Record<slimt::io::MmapFile> &mmap);
+
+  Record<std::string> path_;
+  Record<slimt::io::MmapFile> mmap_;
+  slimt::Vocabulary vocabulary_;
+  slimt::Model model_;
 };
 
 class Translator {
-
 public:
-  Translator(size_t maxModels, size_t numWorkers)
-      : manager_(maxModels), config_{numWorkers, /*cacheSize=*/2000,
-                                     /*loggerConfig=*/{/*logLevel=*/"info"}},
-        service_(config_), inventory_() {}
+  Translator() = default;
+  void set_direction(const std::string &source, const std::string &target);
+  std::string translate(const std::string &source);
 
-  Response translate(std::string input, const std::string &source,
-                     const std::string &target);
+  bool pivot() { return m1_.get() != nullptr and m2_.get() != nullptr; }
 
 private:
-  Model getModel(const ModelInfo &info);
+  std::unique_ptr<Model> get_model(const Info &info);
+  Inventory inventory_;
 
-  ModelManager manager_;
-  ModelInventory inventory_;
+  const std::string source_;
+  const std::string target_;
 
-  Service::Config config_;
-  Service service_;
+  std::unique_ptr<Model> m1_;
+  std::unique_ptr<Model> m2_;
 };
 
 class FakeTranslator {
 public:
-  FakeTranslator(size_t /*maxModels*/, size_t /*numWorkers*/){};
-  Response translate(std::string input, const std::string &source_lang,
-                     const std::string &target_lang);
+  FakeTranslator() = default;
+  void set_direction(const std::string &source, const std::string &target);
+  std::string translate(std::string input);
 };
 
 } // namespace lemonade
