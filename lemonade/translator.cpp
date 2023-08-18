@@ -6,6 +6,7 @@
 
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#include "yaml-cpp/yaml.h"
 #include <QCommandLineParser>
 #include <QStandardPaths>
 
@@ -14,17 +15,13 @@ namespace lemonade {
 std::string Translator::translate(std::string input, const std::string &source,
                                   const std::string &target) {
 
-  // I don't even know why added this.
-  std::promise<std::string> p;
-  std::future<std::string> f = p.get_future();
-  auto callback = [&p](std::string &&response) {
-    p.set_value(std::move(response));
-  };
-
   if (source == "English" or target == "English") {
     std::optional<Info> info = inventory_.query(source, target);
 
     if (info) {
+      Model *model = get_model(info.value());
+      LOG("Found model %s (%s -> %s)", info->code.c_str(),
+          info->direction.first.c_str(), info->direction.second.c_str());
     } else {
       LOG("No model found for %s -> %s\n", source.c_str(), target.c_str());
     }
@@ -36,18 +33,20 @@ std::string Translator::translate(std::string input, const std::string &source,
     Model *source_to_pivot = get_model(first.value());
     Model *pivot_to_target = get_model(second.value());
   }
-
-  f.wait();
-  return f.get();
+  return "notimplemented";
 }
 
 Model *Translator::get_model(const Info &info) {
   Model *model = manager_.lookup(info.code);
   if (!model) {
-    LOG("Model file %s", inventory_.configFile(info).c_str());
-    LOG("Model building from bundle took %f seconds.\n", -1.0f);
-    // manager_.cacheModel(info.code, model);
+    std::string config_path = inventory_.configFile(info);
+    LOG("Model file %s", config_path.c_str());
+    YAML::Node config = YAML::LoadFile(config_path);
   }
+
+  LOG("Model building from bundle took %f seconds.\n", -1.0f);
+
+  // manager_.cacheModel(info.code, model);
 
   return model;
 }
@@ -55,7 +54,7 @@ Model *Translator::get_model(const Info &info) {
 Inventory::Inventory() {
   int argc = 0;
   char **argv = {};
-  QCoreApplication(argc, argv);
+  QCoreApplication(argc, argv); // NOLINT
   QCoreApplication::setApplicationName("bergamot");
 
   modelsJSON_ = QStandardPaths::locate(QStandardPaths::AppConfigLocation,
@@ -136,8 +135,7 @@ void ModelManager::cacheModel(const std::string &key, Model &&model) {
     lookup_.erase(toRemoveItr->first);
     models_.erase(toRemoveItr);
   }
-  auto modelItr =
-      models_.emplace(models_.end(), std::make_pair(key, std::move(model)));
+  auto modelItr = models_.insert({key, std::move(model)});
   lookup_[key] = modelItr;
 }
 Model *ModelManager::lookup(const std::string &key) {
@@ -191,6 +189,7 @@ std::string FakeTranslator::translate(std::string input,
       if (isspace(c)) {
         // Check for space.
         if (!token.empty()) {
+          // Start of a new word.
           ++count;
           token = "";
         }
@@ -209,6 +208,73 @@ std::string FakeTranslator::translate(std::string input,
   size_t count = token_count(input);
   std::string target = transform(count);
   return target;
+}
+
+std::string Model::translate(std::string input) {
+  using namespace slimt;
+  bool add_eos = true;
+  auto [words, views] = vocabulary_.encode(input, add_eos);
+  uint64_t batch_size = 1;
+  uint64_t sequence_length = words.size();
+  Batch batch(batch_size, sequence_length, vocabulary_.pad_id());
+  batch.add(words);
+
+  auto sentences = model_.translate(batch);
+  auto sentence = sentences[0];
+  auto [result, tgt_views] = vocabulary_.decode(sentence);
+  return result;
+}
+
+Record<std::string> Model::load_path(YAML::Node &config) {
+  auto prefix_browsermt = [](const std::string &path) { return path; };
+
+  std::string model_path = prefix_browsermt(config["model"].as<std::string>());
+
+  using Strings = std::vector<std::string>;
+  Strings vocab_paths = config["vocab"].as<Strings>();
+  std::string vocab_path = prefix_browsermt(vocab_paths[0]);
+
+  Strings shortlist_args = config["shortlist"].as<Strings>();
+  std::string shortlist_path = prefix_browsermt(shortlist_args[0]);
+
+  Record<std::string> path{
+      .model = model_path,        //
+      .vocab = vocab_path,        //
+      .shortlist = shortlist_path //
+  };
+  return path;
+}
+
+Record<slimt::io::MmapFile> Model::mmap_from(Record<std::string> &path) {
+  using namespace slimt;
+  auto prefix_browsermt = [](const std::string &path) { return path; };
+  return {
+      .model = io::MmapFile(path.model),         //
+      .vocab = io::MmapFile(path.vocab),         //
+      .shortlist = io::MmapFile(path.shortlist), //
+  };
+}
+
+slimt::Model Model::load_model(slimt::Vocabulary &vocabulary,
+                               Record<slimt::io::MmapFile> &mmap) {
+  using namespace slimt;
+  auto items = io::loadItems(mmap_.model.data());
+  ShortlistGenerator shortlist_generator(             //
+      mmap_.shortlist.data(), mmap_.shortlist.size(), //
+      vocabulary, vocabulary                          //
+  );
+
+  size_t encoder_layers = 6;
+  size_t decoder_layers = 2;
+  size_t ffn_depth = 2;
+
+  slimt::Model model(                //
+      Tag::tiny11,                   //
+      vocabulary,                    //
+      std::move(items),              //
+      std::move(shortlist_generator) //
+  );
+  return model;
 }
 
 } // namespace lemonade

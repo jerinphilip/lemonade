@@ -69,10 +69,7 @@ set(LINK_LIBRARIES
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::DBus
-    ${LibArchive_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    Threads::Threads
-    ${CMAKE_DL_LIBS} 
+    yaml-cpp::yaml-cpp
 )
 
 include(GNUInstallDirs)

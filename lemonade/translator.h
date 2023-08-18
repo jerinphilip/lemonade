@@ -1,15 +1,15 @@
 #pragma once
 #include "rapidjson/document.h"
 #include "slimt/slimt.hh"
+#include "yaml-cpp/yaml.h"
 #include <QStandardPaths>
-#include <cstddef> // for size_t
-#include <memory>  // for shared_ptr
+#include <cstddef>
+#include <memory>
 #include <optional>
 
 namespace lemonade {
 
 using Direction = std::pair<std::string, std::string>;
-using Model = slimt::Model;
 
 struct Info {
   std::string name;
@@ -37,6 +37,35 @@ private:
 
   static rapidjson::Document
   readInventoryFromDisk(const std::string &modelsJSON);
+};
+
+template <class Field> struct Record {
+  Field model;
+  Field vocab;
+  Field shortlist;
+};
+
+class Model {
+public:
+  Model(YAML::Node &config)
+      : path_(load_path(config)), mmap_(mmap_from(path_)),
+        vocabulary_(mmap_.vocab.data(), mmap_.vocab.size()),
+        model_(load_model(vocabulary_, mmap_)) {}
+
+  std::string translate(std::string input);
+
+private:
+  Record<std::string> load_path(YAML::Node &config);
+
+  Record<slimt::io::MmapFile> mmap_from(Record<std::string> &path);
+
+  slimt::Model load_model(slimt::Vocabulary &vocabulary,
+                          Record<slimt::io::MmapFile> &mmap);
+
+  Record<slimt::io::MmapFile> mmap_;
+  Record<std::string> path_;
+  slimt::Vocabulary vocabulary_;
+  slimt::Model model_;
 };
 
 /// Manages models, LRU
