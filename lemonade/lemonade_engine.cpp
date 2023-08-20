@@ -174,11 +174,11 @@ void LemonadeEngine::updateBuffer(const std::string &append) {
 
 void LemonadeEngine::refreshTranslation() {
   if (!buffer_.empty()) {
-    auto translation = translator_.translate(buffer_);
+    std::string translation = translator_.translate(buffer_);
     translationBuffer_ = translation;
     std::vector<std::string> entries = {buffer_};
     if (verify_) {
-      auto backtranslation = translator_.translate(translation);
+      std::string backtranslation = translator_.translate(translation);
       entries.push_back(backtranslation);
     }
     g::LookupTable table = generateLookupTable(entries);
