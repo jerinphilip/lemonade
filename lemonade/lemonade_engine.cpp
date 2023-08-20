@@ -37,7 +37,7 @@ LemonadeEngine::LemonadeEngine(IBusEngine *engine) : Engine(engine) {
   // Hardcode the following for now.
   sourceLang_ = "English";
   targetLang_ = "French";
-  translator_.set_direction(sourceLang_, targetLang_);
+  forward_.set_direction(sourceLang_, targetLang_);
 
   auto source = propertyPool_.emplace_back(
       /*key=*/"source",
@@ -174,11 +174,11 @@ void LemonadeEngine::updateBuffer(const std::string &append) {
 
 void LemonadeEngine::refreshTranslation() {
   if (!buffer_.empty()) {
-    std::string translation = translator_.translate(buffer_);
+    std::string translation = forward_.translate(buffer_);
     translationBuffer_ = translation;
     std::vector<std::string> entries = {buffer_};
     if (verify_) {
-      std::string backtranslation = translator_.translate(translation);
+      std::string backtranslation = backward_->translate(translation);
       entries.push_back(backtranslation);
     }
     g::LookupTable table = generateLookupTable(entries);
@@ -249,6 +249,8 @@ gboolean LemonadeEngine::propertyActivate(const char *prop_name,
   if (propName == "verify") {
     LOG("Verify translation is %d -> %d", verify_, prop_state);
     verify_ = prop_state;
+    backward_.emplace();
+    backward_->set_direction(targetLang_, sourceLang_);
   } else {
     std::string serialized(prop_name);
     std::string side = serialized.substr(0, 6);
