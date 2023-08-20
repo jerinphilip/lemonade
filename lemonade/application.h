@@ -1,7 +1,6 @@
 #pragma once
 #include "engine_compat.h"
 #include "ibus_config.h"
-#include "logging.h"
 #include <ibus.h>
 
 namespace lemonade {
