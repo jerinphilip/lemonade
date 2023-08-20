@@ -12,48 +12,6 @@
 
 namespace lemonade {
 
-void Translator::set_direction(const std::string &source,
-                               const std::string &target) {
-  if (source == "English" or target == "English") {
-    std::optional<Info> info = inventory_.query(source, target);
-    if (info) {
-      m1_ = get_model(info.value());
-      LOG("Found model %s (%s -> %s)", info->code.c_str(),
-          info->direction.first.c_str(), info->direction.second.c_str());
-    } else {
-      LOG("No model found for %s -> %s", source.c_str(), target.c_str());
-    }
-  } else {
-    // Try to translate by pivoting.
-    std::optional<Info> first = inventory_.query(source, "English");
-    std::optional<Info> second = inventory_.query("English", target);
-
-    m1_ = get_model(first.value());
-    m2_ = get_model(second.value());
-  }
-}
-
-std::string Translator::translate(const std::string &source) {
-  if (m1_ && m2_) {
-    // Pivoting.
-    std::string pivot = m1_->translate(source);
-    std::string translation = m2_->translate(pivot);
-    return translation;
-  }
-
-  assert(m1_.get() != nullptr);
-
-  return m1_->translate(source);
-}
-
-std::unique_ptr<Model> Translator::get_model(const Info &info) {
-  auto [model_root, config] = inventory_.configFile(info);
-  LOG("Model model_root %s, config %s", model_root.c_str(), config.c_str());
-  YAML::Node tree = YAML::LoadFile(model_root + "/" + config);
-  LOG("Model building from bundle took %f seconds.\n", -1.0f);
-  return std::make_unique<Model>(model_root, tree);
-}
-
 Inventory::Inventory() {
   int argc = 0;
   char **argv = {};
@@ -129,66 +87,6 @@ std::pair<std::string, std::string> Inventory::configFile(const Info &info) {
   return std::make_pair(modelsDir_ + "/" + info.code, "config.bergamot.yml");
 }
 
-void FakeTranslator::set_direction(const std::string &source,
-                                   const std::string &target) {}
-
-std::string FakeTranslator::translate(std::string input) {
-
-  std::string response;
-  if (input.empty()) {
-    return response;
-  }
-
-  // For a given length, generates a 6 length set of tokens.
-  // Entire string is changed by seeding with length each time.
-  // Simulates translation in some capacity.
-  auto transform = [](size_t length) -> std::string {
-    std::mt19937_64 generator;
-    size_t truncate_length = 6;
-    generator.seed(length);
-    std::string target;
-    for (size_t i = 0; i < length; i++) {
-      if (i != 0) {
-        target += " ";
-      }
-      size_t value = generator();
-      std::string hex(' ', 20);
-      std::sprintf(hex.data(), "%x", static_cast<unsigned int>(value));
-      // 2 to truncate 0x.
-      target += hex.substr(2, truncate_length);
-    }
-    return target;
-  };
-
-  auto token_count = [](const std::string &input) -> size_t {
-    std::string token;
-    size_t count = 0;
-    for (size_t i = 0; i < input.size(); i++) {
-      char c = input[i];
-      if (isspace(c)) {
-        // Check for space.
-        if (!token.empty()) {
-          // Start of a new word.
-          ++count;
-          token = "";
-        }
-      } else {
-        token += std::string(1, c);
-      }
-    }
-    // Non space-detected overhang.
-    if (!token.empty()) {
-      count += 1;
-    }
-
-    return count;
-  };
-
-  size_t count = token_count(input);
-  std::string target = transform(count);
-  return target;
-}
-
 std::string Model::translate(std::string input) {
   using namespace slimt;
   bool add_eos = true;
@@ -260,6 +158,108 @@ slimt::Model Model::load_model(slimt::Vocabulary &vocabulary,
       std::move(shortlist_generator) //
   );
   return model;
+}
+
+void Translator::set_direction(const std::string &source,
+                               const std::string &target) {
+  if (source == "English" or target == "English") {
+    std::optional<Info> info = inventory_.query(source, target);
+    if (info) {
+      m1_ = get_model(info.value());
+      LOG("Found model %s (%s -> %s)", info->code.c_str(),
+          info->direction.first.c_str(), info->direction.second.c_str());
+    } else {
+      LOG("No model found for %s -> %s", source.c_str(), target.c_str());
+    }
+  } else {
+    // Try to translate by pivoting.
+    std::optional<Info> first = inventory_.query(source, "English");
+    std::optional<Info> second = inventory_.query("English", target);
+
+    m1_ = get_model(first.value());
+    m2_ = get_model(second.value());
+  }
+}
+
+std::string Translator::translate(const std::string &source) {
+  if (m1_ && m2_) {
+    // Pivoting.
+    std::string pivot = m1_->translate(source);
+    std::string translation = m2_->translate(pivot);
+    return translation;
+  }
+
+  assert(m1_.get() != nullptr);
+
+  return m1_->translate(source);
+}
+
+std::unique_ptr<Model> Translator::get_model(const Info &info) {
+  auto [model_root, config] = inventory_.configFile(info);
+  LOG("Model model_root %s, config %s", model_root.c_str(), config.c_str());
+  YAML::Node tree = YAML::LoadFile(model_root + "/" + config);
+  LOG("Model building from bundle took %f seconds.\n", -1.0f);
+  return std::make_unique<Model>(model_root, tree);
+}
+
+void FakeTranslator::set_direction(const std::string &source,
+                                   const std::string &target) {}
+
+std::string FakeTranslator::translate(std::string input) {
+
+  std::string response;
+  if (input.empty()) {
+    return response;
+  }
+
+  // For a given length, generates a 6 length set of tokens.
+  // Entire string is changed by seeding with length each time.
+  // Simulates translation in some capacity.
+  auto transform = [](size_t length) -> std::string {
+    std::mt19937_64 generator;
+    size_t truncate_length = 6;
+    generator.seed(length);
+    std::string target;
+    for (size_t i = 0; i < length; i++) {
+      if (i != 0) {
+        target += " ";
+      }
+      size_t value = generator();
+      std::string hex(' ', 20);
+      std::sprintf(hex.data(), "%x", static_cast<unsigned int>(value));
+      // 2 to truncate 0x.
+      target += hex.substr(2, truncate_length);
+    }
+    return target;
+  };
+
+  auto token_count = [](const std::string &input) -> size_t {
+    std::string token;
+    size_t count = 0;
+    for (size_t i = 0; i < input.size(); i++) {
+      char c = input[i];
+      if (isspace(c)) {
+        // Check for space.
+        if (!token.empty()) {
+          // Start of a new word.
+          ++count;
+          token = "";
+        }
+      } else {
+        token += std::string(1, c);
+      }
+    }
+    // Non space-detected overhang.
+    if (!token.empty()) {
+      count += 1;
+    }
+
+    return count;
+  };
+
+  size_t count = token_count(input);
+  std::string target = transform(count);
+  return target;
 }
 
 } // namespace lemonade

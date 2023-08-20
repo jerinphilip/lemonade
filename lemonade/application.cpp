@@ -1,4 +1,5 @@
 #include "application.h"
+#include "logging.h"
 
 namespace lemonade {
 
@@ -6,6 +7,8 @@ Application::Application(gboolean ibus) {
   // FIXME
   std::string log_path = std::getenv("HOME");
   log_path += "/.ibus-engine-lemonade.log";
+  g_log("ibus-lemonade", G_LOG_LEVEL_MESSAGE, "Creating log at: %s",
+        log_path.c_str());
   setup_logging(log_path);
 
   ibus_init();

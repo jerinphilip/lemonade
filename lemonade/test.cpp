@@ -29,6 +29,8 @@ template <class Translator> void repl() {
     }
     auto translation = translator.translate(input);
     std::cout << translation << "\n";
+    LOG("Direction %s -> %s: %s / %s", current.src.c_str(), current.tgt.c_str(),
+        input.c_str(), translation.c_str());
   }
 }
 
@@ -37,6 +39,9 @@ int main(int argc, char **argv) {
   if (mode == "fake") {
     repl<lemonade::FakeTranslator>();
   } else {
+    std::string log_path = std::getenv("HOME");
+    log_path += "/.ibus-engine-lemonade.log";
+    lemonade::setup_logging(log_path);
     repl<lemonade::Translator>();
   }
 

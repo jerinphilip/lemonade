@@ -28,10 +28,10 @@ inline void setup_logging(const std::string log_path) {
   LOGGER.set_log_path(log_path);
 }
 
+} // namespace lemonade
+
 #define LOG(...)                                                               \
   do {                                                                         \
-    fprintf(LOGGER.sink(), __VA_ARGS__);                                       \
-    fprintf(LOGGER.sink(), "\n");                                              \
+    fprintf(lemonade::LOGGER.sink(), __VA_ARGS__);                             \
+    fprintf(lemonade::LOGGER.sink(), "\n");                                    \
   } while (0)
-
-} // namespace lemonade

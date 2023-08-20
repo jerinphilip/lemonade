@@ -21,6 +21,7 @@ Logger::~Logger() {
 
 void Logger::set_log_path(const std::string &file_path) {
   owns_ = true;
+  path_ = file_path;
   sink_ = fopen(path_.c_str(), "a+");
 }
 

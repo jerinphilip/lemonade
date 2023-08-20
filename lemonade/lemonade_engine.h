@@ -4,6 +4,7 @@
 #include "logging.h"
 #include "translator.h"
 #include <list>
+#include <optional>
 #include <string>
 
 namespace lemonade {
@@ -44,7 +45,8 @@ private:
   std::string translationBuffer_ = "";
   gint cursorPos_;
 
-  Translator translator_;
+  Translator forward_;
+  std::optional<Translator> backward_ = std::nullopt;
 
   std::string sourceLang_;
   std::string targetLang_;
