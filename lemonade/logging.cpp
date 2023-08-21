@@ -25,6 +25,4 @@ void Logger::set_log_path(const std::string &file_path) {
   sink_ = fopen(path_.c_str(), "a+");
 }
 
-Logger LOGGER("lemonade");
-
 } // namespace lemonade

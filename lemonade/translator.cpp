@@ -163,7 +163,7 @@ slimt::Model Model::load_model(slimt::Vocabulary &vocabulary,
 void Translator::set_direction(const std::string &source,
                                const std::string &target) {
   if (source == "English" or target == "English") {
-    std::optional<Info> info = inventory_.query(source, target);
+    std::optional<Info> info = INVENTORY.query(source, target);
     if (info) {
       m1_ = get_model(info.value());
       LOG("Found model %s (%s -> %s)", info->code.c_str(),
@@ -173,8 +173,8 @@ void Translator::set_direction(const std::string &source,
     }
   } else {
     // Try to translate by pivoting.
-    std::optional<Info> first = inventory_.query(source, "English");
-    std::optional<Info> second = inventory_.query("English", target);
+    std::optional<Info> first = INVENTORY.query(source, "English");
+    std::optional<Info> second = INVENTORY.query("English", target);
 
     m1_ = get_model(first.value());
     m2_ = get_model(second.value());
@@ -195,7 +195,7 @@ std::string Translator::translate(const std::string &source) {
 }
 
 std::unique_ptr<Model> Translator::get_model(const Info &info) {
-  auto [model_root, config] = inventory_.configFile(info);
+  auto [model_root, config] = INVENTORY.configFile(info);
   LOG("Model model_root %s, config %s", model_root.c_str(), config.c_str());
   YAML::Node tree = YAML::LoadFile(model_root + "/" + config);
   LOG("Model building from bundle took %f seconds.\n", -1.0f);

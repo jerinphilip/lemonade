@@ -45,6 +45,8 @@ template <class Field> struct Record {
   Field shortlist;
 };
 
+extern Inventory INVENTORY;
+
 class Model {
 public:
   Model(const std::string &root, YAML::Node &config)
@@ -76,7 +78,6 @@ public:
 
 private:
   std::unique_ptr<Model> get_model(const Info &info);
-  Inventory inventory_;
 
   const std::string source_;
   const std::string target_;
