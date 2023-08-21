@@ -249,6 +249,9 @@ gboolean LemonadeEngine::propertyActivate(const char *prop_name,
   if (propName == "verify") {
     LOG("Verify translation is %d -> %d", verify_, prop_state);
     verify_ = prop_state;
+
+    LOG("Enabling backtranslation %s -> %s", targetLang_.c_str(),
+        sourceLang_.c_str());
     backward_.emplace();
     backward_->set_direction(targetLang_, sourceLang_);
   } else {
@@ -262,6 +265,10 @@ gboolean LemonadeEngine::propertyActivate(const char *prop_name,
       } else {
         targetLang_ = lang;
       }
+    }
+    forward_.set_direction(sourceLang_, targetLang_);
+    if (backward_) {
+      backward_->set_direction(targetLang_, sourceLang_);
     }
   }
   return FALSE;
