@@ -47,6 +47,10 @@ find_package(OpenSSL REQUIRED)
 set(LEMONADE_INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/3rd_party/CLI
                                  ${CMAKE_SOURCE_DIR})
 
+if(NOT TARGET yaml-cpp::yaml-cpp)
+  add_library(yaml-cpp::yaml-cpp ALIAS yaml-cpp)
+endif()
+
 set(LEMONADE_PRIVATE_LIBS
     slimt::slimt-shared
     slimt::sentencepiece
