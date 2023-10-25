@@ -36,7 +36,7 @@ jobs:
 
       - name: Install slimt
         run: |-
-          sudo apt-get install -y xsimd-dev openblas libsentencepiece-dev
+          sudo apt-get install -y libxsimd-dev libopenblas-dev libsentencepiece-dev
           git clone https://github.com/jerinphilip/slimt --single-branch --branch tail-cmake
           cmake -B slimt/build -S slimt -DEXPORT_CMAKE_FILE=ON -DUSE_BUILTIN_SENTENCEPIECE=OFF -DUSE_GEMMOLOGY=ON -DUSE_AVX2=ON
           cmake --build slimt/build --target all
