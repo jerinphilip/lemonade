@@ -33,12 +33,22 @@ jobs:
             qttools5-dev qtbase5-dev \
             libyaml-cpp-dev \
             rapidjson-dev
+
+      - name: Install slimt
+        run: |-
+          sudo apt-get install -y xsimd-dev openblas libsentencepiece-dev
+          git clone https://github.com/jerinphilip/slimt --single-branch --branch tail-cmake
+          cmake -B slimt/build -S slimt -DEXPORT_CMAKE_FILE=ON -DUSE_BUILTIN_SENTENCEPIECE=OFF -DUSE_GEMMOLOGY=ON -DUSE_AVX2=ON
+          cmake --build slimt/build --target all
+          sudo cmake --build slimt/build --target install
+
       - name: Generate ccache_vars for ccache based on machine
         shell: bash
         id: ccache_vars
         run: |-
           echo "::set-output name=hash::$(echo ${{ env.ccache_compilercheck }})"
           echo "::set-output name=timestamp::$(date '+%Y-%m-%dT%H.%M.%S')"
+
       - name: Cache-op for build-cache through ccache
         uses: actions/cache@v2
         with:
