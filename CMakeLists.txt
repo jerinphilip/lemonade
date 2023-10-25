@@ -44,9 +44,6 @@ find_package(
 
 find_package(OpenSSL REQUIRED)
 
-set(LEMONADE_INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/3rd_party/CLI
-                                 ${CMAKE_SOURCE_DIR})
-
 if(NOT TARGET yaml-cpp::yaml-cpp)
   add_library(yaml-cpp::yaml-cpp ALIAS yaml-cpp)
 endif()
@@ -59,8 +56,6 @@ set(LEMONADE_PRIVATE_LIBS
     RapidJSON::RapidJSON
     ${GLIB2_LIBRARIES}
     ${IBUS_LIBRARIES})
-
-message(STATUS "Private libs: ${LEMONADE_PRIVATE_LIBS}")
 
 add_subdirectory(lemonade)
 
