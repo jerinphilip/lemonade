@@ -39,7 +39,7 @@ jobs:
           sudo apt-get install -y libopenblas-dev libsentencepiece-dev
 
           # libxsimd-dev fails due to some issue.
-          git clone https://github.com/xtensor-stack/xsimd
+          git clone https://github.com/xtensor-stack/xsimd --branch 11.1.0 --depth 1
           cmake -B xsimd/build -S xsimd
           cmake --build xsimd/build --target all
           sudo cmake --build xsimd/build --target install
