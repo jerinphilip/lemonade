@@ -47,8 +47,14 @@ find_package(OpenSSL REQUIRED)
 set(LEMONADE_INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/3rd_party/CLI
                                  ${CMAKE_SOURCE_DIR})
 
-set(LEMONADE_PRIVATE_LIBS slimt Qt${QT_VERSION_MAJOR}::Core yaml-cpp::yaml-cpp
-                          RapidJSON::RapidJSON)
+set(LEMONADE_PRIVATE_LIBS
+    slimt::slimt-shared
+    slimt::sentencepiece
+    Qt${QT_VERSION_MAJOR}::Core
+    yaml-cpp::yaml-cpp
+    RapidJSON::RapidJSON
+    ${GLIB2_LIBRARIES}
+    ${IBUS_LIBRARIES})
 
 message(STATUS "Private libs: ${LEMONADE_PRIVATE_LIBS}")
 
