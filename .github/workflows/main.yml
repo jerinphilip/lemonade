@@ -36,7 +36,14 @@ jobs:
 
       - name: Install slimt
         run: |-
-          sudo apt-get install -y libxsimd-dev libopenblas-dev libsentencepiece-dev
+          sudo apt-get install -y libopenblas-dev libsentencepiece-dev
+
+          # libxsimd-dev fails due to some issue.
+          git clone https://github.com/xtensor-stack/xsimd
+          cmake -B xsimd/build -S xsimd
+          cmake --build xsimd/build --target all
+          sudo cmake --build xsimd/build --target install
+
           git clone --recursive https://github.com/jerinphilip/slimt --single-branch --branch tail-cmake
           cmake -B slimt/build -S slimt -DEXPORT_CMAKE_FILE=ON -DUSE_BUILTIN_SENTENCEPIECE=OFF -DWITH_GEMMOLOGY=ON -DUSE_AVX2=ON -DWITH_INTGEMM=OFF
           cmake --build slimt/build --target all
