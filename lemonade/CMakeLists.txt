@@ -5,10 +5,6 @@ set(IBUS_ICON "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/bergamot.png")
 set(IBUS_LAYOUT "us")
 set(IBUS_LANGUAGE "en")
 
-find_package(PkgConfig)
-pkg_check_modules(GLIB2 REQUIRED glib-2.0)
-pkg_check_modules(IBUS REQUIRED ibus-1.0)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lemonade.xml.in
                ${CMAKE_BINARY_DIR}/lemonade.xml)
 
