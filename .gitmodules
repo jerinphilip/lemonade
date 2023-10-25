@@ -1,9 +1,0 @@
-[submodule "3rd_party/rapidjson"]
-	path = 3rd_party/rapidjson
-	url = https://github.com/Tencent/rapidjson
-[submodule "3rd_party/slimt"]
-	path = 3rd_party/slimt
-	url = https://github.com/jerinphilip/slimt
-[submodule "3rd_party/yaml-cpp"]
-	path = 3rd_party/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp.git

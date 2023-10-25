@@ -14,9 +14,12 @@ template <class Translator> void repl() {
   };
 
   std::string input;
-  Direction old, current;
-  size_t maxModels = 1, workers = 4;
-  Translator translator;
+  Direction old;
+  Direction current;
+  size_t max_models = 1;
+  size_t workers = 4;
+  slimt::Config config;
+  Translator translator(config);
 
   while (!std::cin.eof()) {
     std::cout << " $ ";

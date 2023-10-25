@@ -7,8 +7,16 @@
 
 namespace lemonade {
 
+namespace {
+
+// This is bad, but let's get working first.
+slimt::Config default_config;
+
+} // namespace
+
 /* constructor */
-LemonadeEngine::LemonadeEngine(IBusEngine *engine) : Engine(engine) {
+LemonadeEngine::LemonadeEngine(IBusEngine *engine)
+    : Engine(engine), forward_(default_config) {
   LOG("Lemonade engine started");
   auto props = [this](std::string side, std::string defaultLang) {
     bool first = false;
@@ -252,7 +260,7 @@ gboolean LemonadeEngine::propertyActivate(const char *prop_name,
 
     LOG("Enabling backtranslation %s -> %s", targetLang_.c_str(),
         sourceLang_.c_str());
-    backward_.emplace();
+    backward_.emplace(default_config);
     backward_->set_direction(targetLang_, sourceLang_);
   } else {
     std::string serialized(prop_name);
@@ -279,7 +287,7 @@ void LemonadeEngine::candidateClicked(guint index, guint button, guint state) {}
 g::LookupTable
 LemonadeEngine::generateLookupTable(const std::vector<std::string> &entries) {
   g::LookupTable lookupTable;
-  for (auto &entry : entries) {
+  for (const auto &entry : entries) {
     lookupTable.appendCandidate(g::Text(entry));
   }
   return lookupTable;
