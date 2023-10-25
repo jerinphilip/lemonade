@@ -31,6 +31,8 @@ jobs:
             ccache libprotobuf-dev protobuf-compiler \
             libibus-1.0-dev  \
             qttools5-dev qtbase5-dev \
+            libyaml-cpp-dev \
+            rapidjson-dev
       - name: Generate ccache_vars for ccache based on machine
         shell: bash
         id: ccache_vars
