@@ -49,13 +49,8 @@ if(NOT TARGET yaml-cpp::yaml-cpp)
 endif()
 
 set(LEMONADE_PRIVATE_LIBS
-    slimt::slimt-shared
-    slimt::sentencepiece
-    Qt${QT_VERSION_MAJOR}::Core
-    yaml-cpp::yaml-cpp
-    RapidJSON::RapidJSON
-    ${GLIB2_LIBRARIES}
-    ${IBUS_LIBRARIES})
+    slimt::slimt Qt${QT_VERSION_MAJOR}::Core yaml-cpp::yaml-cpp
+    RapidJSON::RapidJSON ${GLIB2_LIBRARIES} ${IBUS_LIBRARIES})
 
 add_subdirectory(lemonade)
 
